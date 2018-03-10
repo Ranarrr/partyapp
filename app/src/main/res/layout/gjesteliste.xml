@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:id="@+id/more_options_ll"
+        android:layout_width="@dimen/_150sdp"
+        android:layout_height="@dimen/_99sdp"
+        android:layout_alignParentEnd="false"
+        android:background="@drawable/btn"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/textView27"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/_33sdp"
+            android:gravity="center"
+            android:text="Legg til som venn" />
+
+        <TextView
+            android:id="@+id/textView25"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/_33sdp"
+            android:gravity="center"
+            android:text="Endre tittel" />
+
+        <TextView
+            android:id="@+id/textView24"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/_33sdp"
+            android:gravity="center"
+            android:text="Fjern fra event" />
+    </LinearLayout>
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbar3"
+        android:layout_width="0dp"
+        android:layout_height="@dimen/_42sdp"
+        android:background="?attr/colorPrimary"
+        android:minHeight="?attr/actionBarSize"
+        android:theme="?attr/actionBarTheme"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/gjesteliste_TB_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="Gjesteliste"
+            android:textColor="@color/white"
+            android:textSize="@dimen/_18ssp"
+            tools:layout_editor_absoluteX="16dp"
+            tools:layout_editor_absoluteY="16dp" />
+
+        <ImageButton
+            android:id="@+id/gjesteliste_søk_btn"
+            android:layout_width="@dimen/_50sdp"
+            android:layout_height="match_parent"
+            android:layout_gravity="center_vertical|end"
+            android:background="@android:color/transparent"
+            android:contentDescription="@null"
+            android:paddingEnd="@dimen/_10sdp"
+            android:scaleType="fitXY"
+            android:scaleX="0.55"
+            android:scaleY="0.55"
+            app:srcCompat="@drawable/search"
+            tools:layout_editor_absoluteX="336dp"
+            tools:layout_editor_absoluteY="16dp" />
+
+    </android.support.v7.widget.Toolbar>
+
+    <ListView
+        android:id="@+id/lv_gjesteliste"
+        android:layout_width="@dimen/_250sdp"
+        android:layout_height="@dimen/_380sdp"
+        android:divider="@color/lightred"
+        android:dividerHeight="@dimen/_1sdp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/gjesteliste_søk" />
+
+    <EditText
+        android:id="@+id/gjesteliste_søk"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/_8sdp"
+        android:layout_marginStart="@dimen/_8sdp"
+        android:layout_marginTop="@dimen/_8sdp"
+        android:background="@drawable/border_rounded"
+        android:hint="Søk.."
+        android:inputType="textPersonName"
+        android:paddingStart="@dimen/_10sdp"
+        android:textSize="@dimen/_15ssp"
+        android:visibility="visible"
+        app:layout_constraintEnd_toEndOf="@+id/lv_gjesteliste"
+        app:layout_constraintStart_toStartOf="@+id/lv_gjesteliste"
+        app:layout_constraintTop_toBottomOf="@+id/toolbar3" />
+
+
+</android.support.constraint.ConstraintLayout>

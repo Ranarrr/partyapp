@@ -1,0 +1,53 @@
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.partyspottr.appdir.ui.mainfragments.eventchildfragments.alle_eventer_fragment">
+
+    <android.support.v4.widget.SwipeRefreshLayout
+        android:id="@+id/swipe_layout_events"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginEnd="@dimen/_8sdp"
+        android:layout_marginStart="@dimen/_8sdp"
+        android:layout_marginTop="@dimen/_8sdp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/søk_alle_eventer">
+
+        <ListView
+            android:id="@+id/lvalle_eventer"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:divider="@color/transparent"
+            android:dividerHeight="@dimen/_20sdp"
+            android:scrollbarSize="@dimen/_3sdp"
+            android:scrollbarThumbVertical="@color/lightred"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+    </android.support.v4.widget.SwipeRefreshLayout>
+
+    <EditText
+        android:id="@+id/søk_alle_eventer"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginEnd="@dimen/_8sdp"
+        android:layout_marginStart="@dimen/_8sdp"
+        android:layout_marginTop="@dimen/_93sdp"
+        android:background="@drawable/border_rounded"
+        android:hint="Søk.."
+        android:inputType="textPersonName"
+        android:paddingStart="@dimen/_10sdp"
+        android:textSize="@dimen/_15ssp"
+        android:visibility="invisible"
+        app:layout_constraintEnd_toEndOf="@+id/swipe_layout_events"
+        app:layout_constraintStart_toStartOf="@+id/swipe_layout_events"
+        app:layout_constraintTop_toTopOf="parent" />
+
+
+</android.support.constraint.ConstraintLayout>

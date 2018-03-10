@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ImageView
+        android:id="@+id/gjest_profilbilde"
+        android:layout_width="@dimen/_50sdp"
+        android:layout_height="@dimen/_50sdp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:scaleType="fitXY"
+        android:scaleX="0.5"
+        android:scaleY="0.5"
+        app:srcCompat="@drawable/mannmeny" />
+
+    <TextView
+        android:id="@+id/gjest_brukernavn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_marginStart="@dimen/_15sdp"
+        android:layout_marginTop="@dimen/_5sdp"
+        android:layout_toEndOf="@+id/gjest_profilbilde"
+        android:text="Brukernavn, alder"
+        android:textSize="@dimen/_14ssp" />
+
+    <ImageView
+        android:id="@+id/countryflag_IV"
+        android:layout_width="@dimen/_18sdp"
+        android:layout_height="@dimen/_10sdp"
+        android:layout_alignStart="@+id/gjest_brukernavn"
+        android:layout_below="@+id/gjest_brukernavn"
+        android:layout_marginTop="@dimen/_8sdp"
+        app:srcCompat="@color/colorAccent" />
+
+    <TextView
+        android:id="@+id/gjest_by_land"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/countryflag_IV"
+        android:layout_marginBottom="@dimen/_minus4sdp"
+        android:layout_marginStart="@dimen/_10sdp"
+        android:layout_toEndOf="@+id/countryflag_IV"
+        android:text="Byen eller land"
+        android:textSize="@dimen/_13ssp" />
+
+    <ImageButton
+        android:id="@+id/gjest_more_options"
+        android:layout_width="@dimen/_25sdp"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/gjest_profilbilde"
+        android:layout_alignParentEnd="true"
+        android:layout_alignTop="@+id/gjest_profilbilde"
+        android:layout_marginEnd="@dimen/_15sdp"
+        android:background="@color/transparent"
+        android:scaleType="centerInside"
+        android:scaleY="0.8"
+        app:srcCompat="@drawable/three_dots" />
+
+</RelativeLayout>

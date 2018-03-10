@@ -1,0 +1,297 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    tools:context="com.partyspottr.appdir.ui.registerui.Register4Activity">
+
+    <SeekBar
+        android:id="@+id/seekBar"
+        style="@style/Widget.AppCompat.SeekBar.Discrete"
+        android:layout_width="@dimen/_270sdp"
+        android:layout_height="@dimen/_20sdp"
+        android:layout_marginTop="@dimen/_8sdp"
+        android:clickable="false"
+        android:max="5"
+        android:progress="4"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/toolbar" />
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="0dp"
+        android:layout_height="47dp"
+        android:background="?attr/colorPrimary"
+        android:minHeight="?attr/actionBarSize"
+        android:theme="?attr/actionBarTheme"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/textView3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="@string/registrering"
+            android:textColor="@color/white"
+            android:textSize="@dimen/_18ssp"
+            tools:layout_editor_absoluteX="163dp"
+            tools:layout_editor_absoluteY="14dp" />
+
+    </android.support.v7.widget.Toolbar>
+
+    <Button
+        android:id="@+id/button5"
+        style="@android:style/Widget.DeviceDefault.Button.Borderless"
+        android:layout_width="@dimen/_135sdp"
+        android:layout_height="@dimen/_45sdp"
+        android:layout_marginTop="@dimen/_345sdp"
+        android:background="@drawable/rounded_btn_rect"
+        android:onClick="onClickFortsettBtn"
+        android:text="@string/bekreft"
+        android:textColor="@android:color/background_light"
+        android:textSize="@dimen/_12ssp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TableLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/_10sdp"
+        android:layout_marginStart="@dimen/_10sdp"
+        android:background="@color/lightgrey"
+        app:layout_constraintBottom_toTopOf="@+id/button5"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/seekBar">
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/white"
+            tools:layout_editor_absoluteX="32dp"
+            tools:layout_editor_absoluteY="148dp">
+
+            <TextView
+                android:id="@+id/nameText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/navn"
+                android:textSize="@dimen/_11ssp" />
+
+            <Space
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/_5sdp" />
+
+            <TextView
+                android:id="@+id/nameTextVal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Tedsdaasdsad"
+                android:textSize="@dimen/_12ssp" />
+
+            <Button
+                android:id="@+id/changeName"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/_30sdp"
+                android:layout_weight="1"
+                android:background="@android:color/transparent"
+                android:onClick="onClickChangeName"
+                android:text="@string/endre"
+                android:textAlignment="textEnd"
+                android:textSize="@dimen/_10ssp" />
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginBottom="1dp"
+            android:layout_marginTop="1dp"
+            android:background="@color/white">
+
+            <TextView
+                android:id="@+id/DOBText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/fødselsdato"
+                android:textSize="@dimen/_11ssp" />
+
+            <Space
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/_5sdp" />
+
+            <TextView
+                android:id="@+id/DOBTextVal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Tedsdaasdsad"
+                android:textSize="@dimen/_12ssp" />
+
+            <Button
+                android:id="@+id/changeDOB"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/_30sdp"
+                android:layout_weight="1"
+                android:background="@android:color/transparent"
+                android:onClick="onClickChangeDOB"
+                android:text="@string/endre"
+                android:textAlignment="textEnd"
+                android:textSize="@dimen/_10ssp" />
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginBottom="1dp"
+            android:background="@color/white">
+
+            <TextView
+                android:id="@+id/phoneText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/mobilnr"
+                android:textSize="@dimen/_11ssp" />
+
+            <Space
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/_5sdp" />
+
+            <TextView
+                android:id="@+id/phoneTextVal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Tedsdaasdsad"
+                android:textSize="@dimen/_12ssp" />
+
+            <Button
+                android:id="@+id/changePhone"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/_30sdp"
+                android:layout_weight="1"
+                android:background="@android:color/transparent"
+                android:onClick="onClickChangePhone"
+                android:text="@string/endre"
+                android:textAlignment="textEnd"
+                android:textSize="@dimen/_10ssp" />
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginBottom="1dp"
+            android:background="@color/white">
+
+            <TextView
+                android:id="@+id/emailText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/e_postadresse"
+                android:textSize="@dimen/_11ssp" />
+
+            <Space
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/_5sdp" />
+
+            <TextView
+                android:id="@+id/emailTextVal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Tedsdaasdsad"
+                android:textSize="@dimen/_12ssp" />
+
+            <Button
+                android:id="@+id/changeEmail"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/_30sdp"
+                android:layout_weight="1"
+                android:background="@android:color/transparent"
+                android:onClick="onClickChangeEmail"
+                android:text="@string/endre"
+                android:textAlignment="textEnd"
+                android:textSize="@dimen/_10ssp" />
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginBottom="1dp"
+            android:background="@color/white">
+
+            <TextView
+                android:id="@+id/usernameText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/brukernavn"
+                android:textSize="@dimen/_11ssp" />
+
+            <Space
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/_5sdp" />
+
+            <TextView
+                android:id="@+id/usernameTextVal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Tedsdaasdsad"
+                android:textSize="@dimen/_12ssp" />
+
+            <Button
+                android:id="@+id/changeUsername"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/_30sdp"
+                android:layout_weight="1"
+                android:background="@android:color/transparent"
+                android:onClick="onClickChangeUsername"
+                android:text="@string/endre"
+                android:textAlignment="textEnd"
+                android:textSize="@dimen/_10ssp" />
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/white">
+
+            <TextView
+                android:id="@+id/passordText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/passord"
+                android:textSize="@dimen/_11ssp" />
+
+            <Space
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/_5sdp" />
+
+            <TextView
+                android:id="@+id/passwordTextVal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Tedsdaasdsad"
+                android:textSize="@dimen/_12ssp" />
+
+            <Button
+                android:id="@+id/changePassword"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/_30sdp"
+                android:layout_weight="1"
+                android:background="@android:color/transparent"
+                android:onClick="onClickChangePassword"
+                android:text="@string/endre"
+                android:textAlignment="textEnd"
+                android:textSize="@dimen/_10ssp" />
+        </TableRow>
+    </TableLayout>
+</android.support.constraint.ConstraintLayout>

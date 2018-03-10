@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/relativelayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.partyspottr.appdir.ui.ProfilActivity">
+
+    <android.support.constraint.ConstraintLayout
+        android:id="@+id/main_content"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <ImageButton
+            android:id="@+id/imageButton"
+            android:layout_width="@dimen/_74sdp"
+            android:layout_height="@dimen/_70sdp"
+            android:layout_marginBottom="@dimen/_10sdp"
+            android:background="@drawable/rounded_menu_btn"
+            android:contentDescription="@null"
+            android:onClick="onKalenderMenyClick"
+            android:scaleType="fitCenter"
+            android:scaleX="0.7"
+            android:scaleY="0.7"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/imageButton2"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:srcCompat="@drawable/calendar" />
+
+        <ImageButton
+            android:id="@+id/imageButton2"
+            android:layout_width="@dimen/_74sdp"
+            android:layout_height="@dimen/_70sdp"
+            android:layout_marginBottom="@dimen/_10sdp"
+            android:background="@drawable/rounded_menu_btn"
+            android:contentDescription="@null"
+            android:onClick="onBilMenyClick"
+            android:scaleType="fitCenter"
+            android:scaleX="0.7"
+            android:scaleY="0.7"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/imageButton3"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/imageButton"
+            app:srcCompat="@drawable/bilmeny" />
+
+        <ImageButton
+            android:id="@+id/imageButton3"
+            android:layout_width="@dimen/_74sdp"
+            android:layout_height="@dimen/_70sdp"
+            android:layout_marginBottom="@dimen/_10sdp"
+            android:background="@drawable/rounded_menu_btn"
+            android:contentDescription="@null"
+            android:scaleType="fitXY"
+            android:scaleX="0.7"
+            android:scaleY="0.7"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/imageButton4"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/imageButton2"
+            app:srcCompat="@drawable/chat" />
+
+        <ImageButton
+            android:id="@+id/imageButton4"
+            android:layout_width="@dimen/_74sdp"
+            android:layout_height="@dimen/_70sdp"
+            android:layout_marginBottom="@dimen/_10sdp"
+            android:background="@drawable/rounded_menu_btn"
+            android:contentDescription="@null"
+            android:onClick="onProfilMenyClick"
+            android:scaleType="fitXY"
+            android:scaleX="0.7"
+            android:scaleY="0.7"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/imageButton3"
+            app:srcCompat="@drawable/profile" />
+
+    </android.support.constraint.ConstraintLayout>
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbar_profil"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/_42sdp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:background="@android:color/holo_red_dark"
+        android:theme="?attr/actionBarTheme"
+        app:titleTextColor="@color/white">
+
+        <TextView
+            android:id="@+id/title_toolbar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:contentDescription="@null"
+            android:text="@string/arrangementer"
+            android:textColor="@color/white"
+            android:textSize="@dimen/_18ssp" />
+
+        <ImageButton
+            android:id="@+id/search_events"
+            android:layout_width="@dimen/_50sdp"
+            android:layout_height="match_parent"
+            android:layout_gravity="center_vertical|end"
+            android:background="@android:color/transparent"
+            android:contentDescription="@null"
+            android:paddingEnd="@dimen/_10sdp"
+            android:scaleType="fitXY"
+            android:scaleX="0.55"
+            android:scaleY="0.55"
+            app:srcCompat="@drawable/search"
+            tools:layout_editor_absoluteX="336dp"
+            tools:layout_editor_absoluteY="16dp" />
+
+    </android.support.v7.widget.Toolbar>
+
+    <ImageButton
+        android:id="@+id/imageButton14"
+        android:layout_width="@dimen/_50sdp"
+        android:layout_height="match_parent"
+        android:layout_alignBottom="@+id/toolbar_profil"
+        android:layout_alignParentStart="true"
+        android:background="@color/transparent"
+        android:contentDescription="@null"
+        android:onClick="onLeggTilEventClick"
+        android:scaleType="fitXY"
+        android:scaleX="0.5"
+        android:scaleY="0.55"
+        app:srcCompat="@drawable/add_white" />
+
+
+</RelativeLayout>

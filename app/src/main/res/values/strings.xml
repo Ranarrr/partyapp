@@ -1,0 +1,70 @@
+<resources>
+    <string name="app_name">Partyspottr</string>
+    <string name="title_home">Home</string>
+    <string name="title_dashboard">Dashboard</string>
+    <string name="title_notifications">Notifications</string>
+    <string name="vilkaarogpersonvern">By pressing Register, you accept our <a href="">Terms of service</a> and our <a href="">Privacy Policy</a>.</string>
+    <string name="brukernavn">Username</string>
+    <string name="passord">Password</string>
+    <string name="logg_inn">Login</string>
+    <string name="registrer_deg">Register</string>
+    <string name="hva_heter_du">What\'s your name?</string>
+    <string name="fornavn">First name</string>
+    <string name="etternavn">Last name</string>
+    <string name="fødselsdagen_din">What\'s your date of birth?</string>
+    <string name="åååå">yyyy</string>
+    <string name="fortsett">Continue</string>
+    <string name="velg_brukernavn">Please choose a username</string>
+    <string name="velg_passord">Type your password</string>
+    <string name="epostadressen_din">What\'s your e-mail address?</string>
+    <string name="e_postadresse">E-mail address</string>
+    <string name="mobilnummeret_ditt">What\'s your phone number?</string>
+    <string name="ferdig">Finish</string>
+    <string name="mobilnr">Phone number</string>
+    <string name="logger_inn">Logging in..</string>
+    <string name="sjekker_brukernavn">Checking username..</string>
+    <string name="brukernavn_opptatt">This username is already taken.</string>
+    <string name="ingen_kontakt_server">We can\'t connect to the server, make sure you have Wi-Fi or cellular network enabled.</string>
+    <string name="vennligst_6_minimum_passord">Please use a password 7 letters/numbers or longer.</string>
+    <string name="draweråpnet">Opened</string>
+    <string name="drawerlukket">Closed</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="logg_ut_melding">Do you want to log out?</string>
+    <string name="logg_ut">Log out</string>
+    <string name="nei">No</string>
+    <string name="ja">Yes</string>
+    <string name="sjåfør">Chauffeur</string>
+    <string name="arrangementer">Events</string>
+    <string name="allerede_laget_konto">You have already registered.</string>
+    <string name="registrering">Registration</string>
+    <string name="bekreft">Confirm</string>
+    <string name="navn">Name</string>
+    <string name="fødselsdato">Date of birth</string>
+    <string name="endre">Change</string>
+    <string name="velkommen_admin">Welcome Admin!</string>
+    <string name="feil_passord">Wrong password, or you have not registered yet.</string>
+    <string name="tilkoblingsfeil">Connection failed.</string>
+    <string name="registrerer_bruker">Registrating user..</string>
+    <string name="bruker_finnes_allerede">This account already exists.</string>
+    <string name="velkommen">Welcome</string>
+    <string name="ukjent_feil">Unknown error occurred!</string>
+    <string name="hente_bruker_mislykkes">Failed to retrieve your account data.</string>
+    <string name="logg_ut_mislykkes">Failed to logout.</string>
+    <string name="hente_event_mislyktes">Failed to retrieve events.</string>
+    <string name="legge_til_event_mislyktes">Failed to add event.</string>
+    <string name="event_lagt_til">Successfully added event.</string>
+    <string name="legger_til_event">Adding event..</string>
+    <string name="ikke_definert">Undefined</string>
+    <string name="opprett_event">Create event</string>
+    <string name="tom_eventliste">There are no events active.</string>
+
+    <item name="visible" type="id"/>
+    <item name="masked" type="id"/>
+    <string name="avbryt">Cancel</string>
+    <string name="angi">Set</string>
+    <string name="til">to</string>
+    <string name="gjesteliste">Guestlist</string>
+    <string name="profil">Profile</string>
+</resources>

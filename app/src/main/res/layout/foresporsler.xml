@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbar_foresporsler"
+        android:layout_width="0dp"
+        android:layout_height="@dimen/_42sdp"
+        android:background="?attr/colorPrimary"
+        android:minHeight="?attr/actionBarSize"
+        android:theme="?attr/actionBarTheme"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/foresporsel_TB_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="Forespørsler"
+            android:textColor="@color/white"
+            android:textSize="@dimen/_18ssp"
+            tools:layout_editor_absoluteX="141dp"
+            tools:layout_editor_absoluteY="11dp" />
+
+        <ImageButton
+            android:id="@+id/foresporsel_search"
+            android:layout_width="@dimen/_50sdp"
+            android:layout_height="match_parent"
+            android:layout_gravity="center_vertical|end"
+            android:background="@android:color/transparent"
+            android:contentDescription="@null"
+            android:paddingEnd="@dimen/_10sdp"
+            android:scaleType="fitXY"
+            android:scaleX="0.55"
+            android:scaleY="0.55"
+            app:srcCompat="@drawable/search"
+            tools:layout_editor_absoluteX="336dp"
+            tools:layout_editor_absoluteY="16dp" />
+
+    </android.support.v7.widget.Toolbar>
+
+    <ListView
+        android:id="@+id/lv_foresporsler"
+        android:layout_width="368dp"
+        android:layout_height="469dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/foresporsel_search_field" />
+
+    <EditText
+        android:id="@+id/foresporsel_search_field"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/_8sdp"
+        android:layout_marginStart="@dimen/_8sdp"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/border_rounded"
+        android:hint="Søk.."
+        android:inputType="textPersonName"
+        android:paddingStart="@dimen/_10sdp"
+        android:textSize="@dimen/_15ssp"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="@+id/lv_foresporsler"
+        app:layout_constraintHorizontal_bias="0.49"
+        app:layout_constraintStart_toStartOf="@+id/lv_foresporsler"
+        app:layout_constraintTop_toBottomOf="@+id/toolbar_foresporsler" />
+
+</android.support.constraint.ConstraintLayout>

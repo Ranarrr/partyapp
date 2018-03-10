@@ -1,0 +1,84 @@
+package com.partyspottr.appdir.classes.networking;
+
+import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.Intent;
+import android.os.AsyncTask;
+import android.widget.Toast;
+
+import com.partyspottr.appdir.BuildConfig;
+import com.partyspottr.appdir.classes.Bruker;
+import com.partyspottr.appdir.ui.MainActivity;
+
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Created by Ranarrr on 09-Feb-18.
+ *
+ * @author Ranarrr
+ */
+
+public class LogoutUser extends AsyncTask<Void, Void, Integer> {
+
+    private ProgressDialog progressDialog;
+    private JSONObject info;
+
+    public LogoutUser(Context c) {
+        try {
+            info = new JSONObject();
+            info.put("socketElem", BuildConfig.JSONParser_Socket);
+            info.put("username", Bruker.get().getBrukernavn());
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        progressDialog = new ProgressDialog(c);
+    }
+
+    @Override
+    protected void onPreExecute() {
+        progressDialog.setMessage("Logging out.."); // TODO: fix translation
+        progressDialog.setCanceledOnTouchOutside(false);
+        progressDialog.show();
+        super.onPreExecute();
+    }
+
+    @Override
+    protected Integer doInBackground(Void... voids) {
+        try {
+            List<NameValuePair> params = new ArrayList<>();
+            params.add(new BasicNameValuePair("logout_user", info.toString()));
+            JSONObject json = new JSONParser().get_jsonobject("POST", params, null);
+            if(json != null) {
+                if(json.getInt("success") == 1) {
+                    return 1;
+                } else {
+                    return -1;
+                }
+            }
+        } catch(JSONException e) {
+            e.printStackTrace();
+            return 0;
+        }
+        return 0;
+    }
+
+    @Override
+    protected void onPostExecute(Integer integer) {
+        if(integer == 1) {
+            Bruker.get().setLoggetpa(false);
+            Intent intent = new Intent(progressDialog.getContext(), MainActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            progressDialog.getContext().startActivity(intent);
+        } else if(integer == -1) {
+            Toast.makeText(progressDialog.getContext(), "", Toast.LENGTH_SHORT).show(); // TODO: Fix translation
+        } else {
+            Toast.makeText(progressDialog.getContext(), "Failed to logout.", Toast.LENGTH_SHORT).show(); // TODO: Fix translation
+        }
+    }
+}
