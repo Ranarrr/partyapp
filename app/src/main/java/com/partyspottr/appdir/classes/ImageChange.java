@@ -1,6 +1,5 @@
 package com.partyspottr.appdir.classes;
 
-import android.graphics.Bitmap;
 import android.net.Uri;
 
 import java.beans.PropertyChangeEvent;

@@ -6,11 +6,14 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import com.partyspottr.appdir.R;
 import com.partyspottr.appdir.classes.Bruker;
 import com.partyspottr.appdir.enums.måneder;
+import com.partyspottr.appdir.ui.MainActivity;
 
 public class RegisterActivity extends AppCompatActivity {
     @Override
@@ -18,13 +21,27 @@ public class RegisterActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
 
-        if(Bruker.get().getFornavn() != null && !Bruker.get().getFornavn().isEmpty()) {
-            EditText fornavnText = findViewById(R.id.fornavnText);
-            EditText etternavnText = findViewById(R.id.etternavnText);
-            EditText ddNum = findViewById(R.id.ddNum);
-            EditText mmNum = findViewById(R.id.mmNum);
-            EditText ååååNum = findViewById(R.id.ååååNum);
+        EditText fornavnText = findViewById(R.id.fornavnText);
+        EditText etternavnText = findViewById(R.id.etternavnText);
+        EditText ddNum = findViewById(R.id.ddNum);
+        EditText mmNum = findViewById(R.id.mmNum);
+        EditText ååååNum = findViewById(R.id.ååååNum);
+        TextView name = findViewById(R.id.textView2);
+        TextView birth = findViewById(R.id.textView);
+        TextView title = findViewById(R.id.textView3);
+        Button continuebtn = findViewById(R.id.button);
 
+        fornavnText.setTypeface(MainActivity.typeface);
+        etternavnText.setTypeface(MainActivity.typeface);
+        ddNum.setTypeface(MainActivity.typeface);
+        mmNum.setTypeface(MainActivity.typeface);
+        ååååNum.setTypeface(MainActivity.typeface);
+        name.setTypeface(MainActivity.typeface);
+        birth.setTypeface(MainActivity.typeface);
+        title.setTypeface(MainActivity.typeface);
+        continuebtn.setTypeface(MainActivity.typeface);
+
+        if(Bruker.get().getFornavn() != null && !Bruker.get().getFornavn().isEmpty()) {
             fornavnText.setText(Bruker.get().getFornavn());
             etternavnText.setText(Bruker.get().getEtternavn());
 

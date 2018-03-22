@@ -1,13 +1,17 @@
 package com.partyspottr.appdir.classes;
 
-/*
- * Created by Ranarrr on 24-Feb-18.
- */
-
+import com.google.gson.reflect.TypeToken;
 import com.partyspottr.appdir.enums.EventStilling;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
+
+/**
+ * Created by Ranarrr on 24-Feb-18.
+ *
+ * @author Ranarrr
+ */
 
 public class Participant {
 
@@ -16,11 +20,20 @@ public class Participant {
     private String town;
     private EventStilling stilling;
 
+    public static final Type type = new TypeToken<Participant>(){}.getType();
+
     private Participant() {}
 
     public Participant(String bruker, EventStilling eventStilling) {
         stilling = eventStilling;
         brukernavn = bruker;
+    }
+
+    public Participant(String bruker, String cntry, String twn, EventStilling eventstling) {
+        brukernavn = bruker;
+        country = cntry;
+        town = twn;
+        stilling = eventstling;
     }
 
     public static Participant convertBrukerParticipant(Bruker bruker, EventStilling eventStilling) {
@@ -36,10 +49,43 @@ public class Participant {
         return result;
     }
 
+    public static Participant getParticipantByUsername(List<Participant> list, String username) {
+        for (Participant temp : list) {
+            if (temp.getBrukernavn().equals(username)) {
+                return temp;
+            }
+        }
+
+        return null;
+    }
+
+    public static int getParticipantPos(List<Participant> list, Participant participant) {
+        for(int i = 0; i < list.size(); i++) {
+            if (list.get(i).equals(participant)) {
+                return i;
+            }
+        }
+
+        return -1;
+    }
+
+    public static Participant getBrukerInList(List<Participant> list) {
+        for(Participant temp : list) {
+            if(temp.getBrukernavn().equals(Bruker.get().getBrukernavn())) {
+                return temp;
+            }
+        }
+
+        return null;
+    }
+
     public static List<Participant> SortParticipants(List<Participant> participants) {
         List<Participant> list = new ArrayList<>();
 
         for(Participant temp : participants) {
+
+            if(temp == null)
+                continue;
 
             /*if(Bruker.get().isParticipantInFriendlist(temp)) {
                 list.add(temp);

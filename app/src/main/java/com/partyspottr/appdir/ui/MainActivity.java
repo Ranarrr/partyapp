@@ -16,20 +16,31 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.facebook.AccessToken;
+import com.facebook.CallbackManager;
+import com.facebook.FacebookCallback;
+import com.facebook.FacebookException;
+import com.facebook.FacebookSdk;
+import com.facebook.Profile;
+import com.facebook.login.LoginResult;
+import com.facebook.login.widget.LoginButton;
 import com.partyspottr.appdir.R;
 import com.partyspottr.appdir.classes.Bruker;
 import com.partyspottr.appdir.classes.Utilities;
 import com.partyspottr.appdir.classes.networking.LoginUser;
 import com.partyspottr.appdir.ui.registerui.RegisterActivity;
 
+import java.util.Arrays;
+
 public class MainActivity extends AppCompatActivity {
+
+    public static Typeface typeface;
+    private CallbackManager callbackManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        Bruker.get().Init(this);
 
         ctd.start();
 
@@ -38,19 +49,40 @@ public class MainActivity extends AppCompatActivity {
         getWindowManager().getDefaultDisplay().getSize(size);
         mainImage.setImageBitmap(Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.forsidebilde), size.x, size.y, true));
 
-        Typeface typeface = Typeface.createFromAsset(getAssets(), "valeraround.otf");
-
         Button loginbtn = findViewById(R.id.LoginBtn);
         EditText username = findViewById(R.id.brukernavnLoginText);
         EditText password = findViewById(R.id.passordLoginText);
+        Button registrerbtn = findViewById(R.id.RegistrerBtn);
 
+        LoginButton loginButton = findViewById(R.id.fbLogin);
+
+        callbackManager = CallbackManager.Factory.create();
+
+        loginButton.setReadPermissions(Arrays.asList("", ""));
+        loginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
+            @Override
+            public void onSuccess(LoginResult loginResult) {
+
+            }
+
+            @Override
+            public void onCancel() {
+                Toast.makeText(MainActivity.this, "You cancelled the login-process.", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onError(FacebookException error) {
+                Toast.makeText(MainActivity.this, "There was an unknown error, please try again.", Toast.LENGTH_LONG).show();
+            }
+        });
+
+        registrerbtn.setTypeface(typeface);
         loginbtn.setTypeface(typeface);
         username.setTypeface(typeface);
         password.setTypeface(typeface);
 
-        if(!Bruker.get().isLoggetpa() && !Bruker.get().getBrukernavn().isEmpty() && !Bruker.get().getPassord().isEmpty()) {
+        if(!Bruker.get().isLoggetpa() && Bruker.get().getBrukernavn() != null && !Bruker.get().getBrukernavn().isEmpty()) {
             username.setText(Bruker.get().getBrukernavn());
-            password.setText(Bruker.get().getPassord());
         }
     }
 
@@ -117,5 +149,11 @@ public class MainActivity extends AppCompatActivity {
             ViewCompat.setBackgroundTintList(brukernavnText, ContextCompat.getColorStateList(getApplicationContext(), R.color.redtint));
         }
 
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        callbackManager.onActivityResult(requestCode, resultCode, data);
+        super.onActivityResult(requestCode, resultCode, data);
     }
 }

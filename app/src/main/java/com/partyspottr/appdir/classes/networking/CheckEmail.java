@@ -6,6 +6,8 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewCompat;
+import android.telephony.SmsManager;
+import android.util.Base64;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -31,14 +33,16 @@ import java.util.List;
 public class CheckEmail extends AsyncTask<Void, Void, Integer> {
     private JSONObject info;
     private ProgressDialog progressDialog;
+    private String phonenumber;
 
-    public CheckEmail(Activity activity, String e_mail) {
+    public CheckEmail(Activity activity, String e_mail, String phonenum) {
+        phonenumber = phonenum;
         progressDialog = new ProgressDialog(activity);
         progressDialog.setOwnerActivity(activity);
         try {
             info = new JSONObject();
             info.put("email", e_mail);
-            info.put("socketElem", BuildConfig.JSONParser_Socket);
+            info.put("socketElem", Base64.encodeToString(BuildConfig.JSONParser_Socket.getBytes(), Base64.DEFAULT));
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -60,9 +64,9 @@ public class CheckEmail extends AsyncTask<Void, Void, Integer> {
             JSONObject json = new JSONParser().get_jsonobject("POST", params, null);
             if(json != null) {
                 if(json.getInt("taken") == 1) {
-                    return 1;
-                } else {
                     return -1;
+                } else {
+                    return 1;
                 }
             }
         } catch(JSONException e) {
@@ -74,7 +78,7 @@ public class CheckEmail extends AsyncTask<Void, Void, Integer> {
 
     @Override
     protected void onPostExecute(Integer integer) {
-        if(integer == 1) {
+        if(integer == -1) {
             Toast.makeText(progressDialog.getContext(), "This email is already in use!", Toast.LENGTH_SHORT).show(); // TODO: Fix translation
 
             if(progressDialog.getOwnerActivity() != null) {
@@ -82,7 +86,7 @@ public class CheckEmail extends AsyncTask<Void, Void, Integer> {
                 ViewCompat.setBackgroundTintList(emailtext, ContextCompat.getColorStateList(progressDialog.getContext(), R.color.redtint));
             }
 
-        } else {
+        } else if(integer == 1) {
             try {
                 Bruker.get().setEmail(info.getString("email"));
             } catch (JSONException e) {
@@ -94,8 +98,10 @@ public class CheckEmail extends AsyncTask<Void, Void, Integer> {
                 ViewCompat.setBackgroundTintList(emailtext, ContextCompat.getColorStateList(progressDialog.getContext(), R.color.greentint));
             }
 
-            Intent intent = new Intent(progressDialog.getContext(), Register3Activity.class);
-            progressDialog.getContext().startActivity(intent);
+            SmsManager smsManager = SmsManager.getDefault();
+            smsManager.sendTextMessage(phonenumber, null, "random msg", null, null);
+        } else {
+            Toast.makeText(progressDialog.getContext(), progressDialog.getContext().getResources().getString(R.string.tilkoblingsfeil), Toast.LENGTH_SHORT).show();
         }
 
         progressDialog.hide();

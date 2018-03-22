@@ -13,7 +13,6 @@
         android:layout_height="@dimen/_45sdp"
         android:layout_marginTop="@dimen/_345sdp"
         android:background="@drawable/rounded_btn_rect"
-        android:onClick="onClickRegistrerBtn"
         android:text="@string/ferdig"
         android:textColor="@android:color/background_light"
         android:textSize="@dimen/_12ssp"

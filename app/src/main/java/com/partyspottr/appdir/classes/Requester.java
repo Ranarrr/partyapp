@@ -1,7 +1,13 @@
 package com.partyspottr.appdir.classes;
 
-/*
+import com.google.gson.reflect.TypeToken;
+
+import java.lang.reflect.Type;
+
+/**
  * Created by Ranarrr on 24-Feb-18.
+ *
+ * @author Ranarrr
  */
 
 public class Requester {
@@ -10,17 +16,19 @@ public class Requester {
     private String fornavn;
     private String etternavn;
     private String country;
+    private String town;
     private boolean premium;
     private int day_of_month;
     private int month;
     private int year;
 
-    Requester() {}
+    public static final Type type = new TypeToken<Requester>(){}.getType();
 
-    public Requester(String bruker, String forn, String ettern, String countr, boolean prem, int day, int mnth, int yr) {
+    public Requester(String bruker, String forn, String ettern, String countr, String twn, boolean prem, int day, int mnth, int yr) {
         brukernavn = bruker;
         fornavn = forn;
         etternavn = ettern;
+        town = twn;
         country = countr;
         premium = prem;
         day_of_month = day;
@@ -28,6 +36,10 @@ public class Requester {
         year = yr;
     }
 
+    public static Requester convertBrukerRequester(Bruker bruker) {
+        return new Requester(bruker.getBrukernavn(), bruker.getFornavn(), bruker.getEtternavn(), bruker.getCountry(), bruker.getTown() == null ? "" : bruker.getTown(), bruker.isPremium(),
+                bruker.getDay_of_month(), bruker.getMonth(), bruker.getYear());
+    }
 
     public String getBrukernavn() {
         return brukernavn;
@@ -91,5 +103,13 @@ public class Requester {
 
     public void setYear(int year) {
         this.year = year;
+    }
+
+    public String getTown() {
+        return town;
+    }
+
+    public void setTown(String town) {
+        this.town = town;
     }
 }

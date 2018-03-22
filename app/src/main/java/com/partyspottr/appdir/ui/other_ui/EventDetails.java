@@ -1,11 +1,14 @@
 package com.partyspottr.appdir.ui.other_ui;
 
+import android.app.AlertDialog;
 import android.app.Dialog;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
+import android.content.DialogInterface;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.os.Bundle;
+import android.support.constraint.ConstraintLayout;
+import android.support.constraint.ConstraintSet;
+import android.support.constraint.solver.widgets.ConstraintWidget;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
@@ -14,11 +17,15 @@ import android.text.SpannableString;
 import android.text.TextWatcher;
 import android.text.style.ForegroundColorSpan;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.widget.AbsoluteLayout;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.partyspottr.appdir.R;
 import com.partyspottr.appdir.classes.Bruker;
@@ -26,15 +33,17 @@ import com.partyspottr.appdir.classes.Event;
 import com.partyspottr.appdir.classes.Participant;
 import com.partyspottr.appdir.classes.Requester;
 import com.partyspottr.appdir.classes.adapters.GuestListAdapter;
+import com.partyspottr.appdir.classes.adapters.RequestAdapter;
+import com.partyspottr.appdir.classes.networking.AddEventRequest;
 import com.partyspottr.appdir.classes.networking.AddParticipant;
-import com.partyspottr.appdir.classes.networking.AddRequest;
+import com.partyspottr.appdir.classes.networking.RemoveEventRequest;
 
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 
-import static com.partyspottr.appdir.ui.ProfilActivity.typeface;
+import static com.partyspottr.appdir.ui.MainActivity.typeface;
 
 /**
  * Created by Ranarrr on 28-Feb-18.
@@ -178,7 +187,12 @@ public class EventDetails extends AppCompatActivity {
 
         if(finaldatotil.toString().isEmpty()) {
             datotil.setVisibility(View.GONE);
-            datofra.setBottom((int)getResources().getDimension(R.dimen._10sdp));
+            ConstraintLayout layout = findViewById(R.id.datostraint);
+            ConstraintSet set = new ConstraintSet();
+
+            set.clone(layout);
+            set.centerVertically(datofra.getId(), layout.getId());
+            set.applyTo(layout);
         }
 
         final ImageButton details_deltaforesprsler = findViewById(R.id.details_delta_btn);
@@ -199,6 +213,8 @@ public class EventDetails extends AppCompatActivity {
                     final EditText foresporsel_search = dialog1.findViewById(R.id.foresporsel_search_field);
                     final ListView foresporsel_list = dialog1.findViewById(R.id.lv_foresporsler);
 
+                    foresporsel_list.setAdapter(new RequestAdapter(EventDetails.this, event.getRequests(), event.getEventId()));
+
                     search.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
@@ -211,7 +227,7 @@ public class EventDetails extends AppCompatActivity {
                                 @Override
                                 public void onTextChanged(CharSequence s, int start, int before, int count) {
                                     if(s.toString().isEmpty()) {
-                                        //foresporsel_list.setAdapter(new GuestListAdapter(thisActivity, event.getParticipants()));
+                                        foresporsel_list.setAdapter(new RequestAdapter(EventDetails.this, event.getRequests(), event.getEventId()));
                                         return;
                                     }
 
@@ -222,7 +238,7 @@ public class EventDetails extends AppCompatActivity {
                                         }
                                     }
 
-                                    //foresporsel_list.setAdapter(new GuestListAdapter(thisActivity, list));
+                                    foresporsel_list.setAdapter(new RequestAdapter(EventDetails.this, list, event.getEventId()));
                                 }
 
                                 @Override
@@ -245,11 +261,14 @@ public class EventDetails extends AppCompatActivity {
                     dialog1.show();
                 } else {
                     if(event.isPrivateEvent()) {
-                        AddRequest addRequest = new AddRequest(EventDetails.this, event.getEventId());
-                        addRequest.execute();
+                        if(!event.isBrukerRequesting(Bruker.get().getBrukernavn()) && !event.isBrukerInList(Bruker.get().getBrukernavn())) {
+                            AddEventRequest addRequest = new AddEventRequest(EventDetails.this, event.getEventId());
+                            addRequest.execute();
+                        } else
+                            Toast.makeText(EventDetails.this, "You have already requested to join! Wait for the host to accept or deny you.", Toast.LENGTH_LONG).show();
                     } else {
                         if(!event.isBrukerInList(Bruker.get().getBrukernavn())) {
-                            AddParticipant addParticipant = new AddParticipant(EventDetails.this, event.getEventId());
+                            AddParticipant addParticipant = new AddParticipant(EventDetails.this, event.getEventId(), null, event.getParticipants());
                             addParticipant.execute();
                         }
                     }
@@ -259,6 +278,28 @@ public class EventDetails extends AppCompatActivity {
 
         if(event.isBrukerInList(Bruker.get().getBrukernavn()) && !event.getHostStr().equals(Bruker.get().getBrukernavn())) {
             details_deltaforesprsler.setImageDrawable(getResources().getDrawable(R.drawable.joint));
+        } else if(event.isBrukerRequesting(Bruker.get().getBrukernavn()) && !event.getHostStr().equals(Bruker.get().getBrukernavn())) {
+            details_deltaforesprsler.setImageDrawable(getResources().getDrawable(R.drawable.request_waiting));
+            details_deltaforesprsler.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    new AlertDialog.Builder(EventDetails.this)
+                            .setTitle("Remove")
+                            .setMessage("Do you want to remove your request?")
+                            .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            RemoveEventRequest eventRequest = new RemoveEventRequest(EventDetails.this, event.getEventId(), Bruker.get().getBrukernavn(), false);
+                            eventRequest.execute();
+                        }
+                    })
+                            .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {}
+                    })
+                            .show();
+                }
+            });
         }
 
         if(event.getHostStr().equals(Bruker.get().getBrukernavn())) {
@@ -271,7 +312,7 @@ public class EventDetails extends AppCompatActivity {
 
         aldersgrense_details.setText(String.format(Locale.ENGLISH,"Aldersgrense: %d",event.getAgerestriction()));
 
-        antall_deltakere.setText(String.format(Locale.ENGLISH, "%d av %d plasser er tatt.", event.getParticipants().size(), event.getMaxparticipants()));
+        antall_deltakere.setText(String.format(Locale.ENGLISH, "%d av %d skal.", event.getParticipants().size(), event.getMaxparticipants()));
 
         if(event.isShowguestlist()) {
             vis_gjesteliste.setOnClickListener(new View.OnClickListener() {
@@ -286,9 +327,7 @@ public class EventDetails extends AppCompatActivity {
                     Toolbar toolbar = dialog.findViewById(R.id.toolbar3);
                     final ListView lv_gjesteliste = dialog.findViewById(R.id.lv_gjesteliste);
 
-                    final GuestListAdapter guestListAdapter = new GuestListAdapter(EventDetails.this, event.getParticipants());
-
-                    lv_gjesteliste.setAdapter(guestListAdapter);
+                    lv_gjesteliste.setAdapter(new GuestListAdapter(EventDetails.this, event.getEventId(), event.getParticipants()));
 
                     final EditText gjesteliste_søk = dialog.findViewById(R.id.gjesteliste_søk);
                     ImageButton gjesteliste_søk_btn = dialog.findViewById(R.id.gjesteliste_søk_btn);
@@ -305,7 +344,7 @@ public class EventDetails extends AppCompatActivity {
                                 @Override
                                 public void onTextChanged(CharSequence s, int start, int before, int count) {
                                     if(s.toString().isEmpty()) {
-                                        lv_gjesteliste.setAdapter(new GuestListAdapter(EventDetails.this, event.getParticipants()));
+                                        lv_gjesteliste.setAdapter(new GuestListAdapter(EventDetails.this, event.getEventId(), event.getParticipants()));
                                         return;
                                     }
 
@@ -316,7 +355,7 @@ public class EventDetails extends AppCompatActivity {
                                         }
                                     }
 
-                                    lv_gjesteliste.setAdapter(new GuestListAdapter(EventDetails.this, list));
+                                    lv_gjesteliste.setAdapter(new GuestListAdapter(EventDetails.this, event.getEventId(), list));
                                 }
 
                                 @Override
@@ -324,6 +363,8 @@ public class EventDetails extends AppCompatActivity {
                             });
                         }
                     });
+
+
 
                     toolbar.setNavigationIcon(getResources().getDrawable(R.drawable.left_arrow));
 
@@ -354,7 +395,7 @@ public class EventDetails extends AppCompatActivity {
 
                         gjesteliste_title.setTypeface(typeface);
 
-                        lv_gjesteliste.setAdapter(new GuestListAdapter(EventDetails.this, event.getParticipants()));
+                        lv_gjesteliste.setAdapter(new GuestListAdapter(EventDetails.this, event.getEventId(), event.getParticipants()));
 
                         toolbar.setNavigationIcon(getResources().getDrawable(R.drawable.left_arrow));
 

@@ -1,5 +1,7 @@
 package com.partyspottr.appdir.classes;
 
+import com.partyspottr.appdir.enums.EventStilling;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -36,17 +38,18 @@ public class Event {
     private boolean hasimage;
 
     public Event(String name) {
-        this(name, "", "", "", false, 0.0, 0.0, null, null, 0, new ArrayList<Participant>(), 0,
+        this(0, name, "", "", "", false, 0.0, 0.0, null, null, 0, new ArrayList<Participant>(), 0,
                 0, "", "", false, false, new ArrayList<Requester>(), false);
     }
 
     public Event(String name, String adress, String cntry, String host) {
-        this(name, adress, cntry, host, false, 0.0, 0.0, null, null, 0, new ArrayList<Participant>(), 0,
+        this(0, name, adress, cntry, host, false, 0.0, 0.0, null, null, 0, new ArrayList<Participant>(), 0,
                 0, "", "", false, false, new ArrayList<Requester>(), false);
     }
 
-    public Event(String name, String adress, String cntry, String host, boolean privateevent, double longtude, double latude, GregorianCalendar datfrom, GregorianCalendar datto, int agerestr,
+    public Event(long eventid, String name, String adress, String cntry, String host, boolean privateevent, double longtude, double latude, GregorianCalendar datfrom, GregorianCalendar datto, int agerestr,
                  List<Participant> particpants, int maxparticpants, int postcode, String twn, String desc, boolean showgstlist, boolean showadress, List<Requester> foresprsler, boolean hsimage) {
+        eventId = eventid;
         nameofevent = name;
         address = adress;
         country = cntry;
@@ -91,6 +94,43 @@ public class Event {
     public boolean isBrukerInList(String brukernavn) {
         for(Participant participant : participants) {
             if(participant.getBrukernavn().equals(brukernavn)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public void addRequest(Requester requester) {
+        requests.add(requester);
+    }
+
+    public void addRequestToParticipant(Requester requester) {
+        participants.add(new Participant(requester.getBrukernavn(), requester.getCountry(), requester.getTown(), requester.isPremium() ? EventStilling.PREMIUM : EventStilling.GJEST));
+    }
+
+    public void removeRequest(String brukernavn) {
+        for(int i = 0; i < requests.size(); i++) {
+            if(requests.get(i).getBrukernavn().equals(brukernavn)) {
+                requests.remove(i);
+                return;
+            }
+        }
+    }
+
+    public Requester getRequesterByUsername(String username) {
+        for(Requester requester : requests) {
+            if(requester.getBrukernavn().equals(username)) {
+                return requester;
+            }
+        }
+
+        return null;
+    }
+
+    public boolean isBrukerRequesting(String brukernavn) {
+        for(Requester requester : requests) {
+            if(requester.getBrukernavn().equals(brukernavn)) {
                 return true;
             }
         }

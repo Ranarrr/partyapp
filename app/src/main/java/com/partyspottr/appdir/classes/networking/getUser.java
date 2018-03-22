@@ -3,6 +3,7 @@ package com.partyspottr.appdir.classes.networking;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.AsyncTask;
+import android.util.Base64;
 import android.widget.Toast;
 
 import com.partyspottr.appdir.BuildConfig;
@@ -17,8 +18,10 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-/*
+/**
  * Created by Ranarrr on 31-Jan-18.
+ *
+ * @author Ranarrr
  */
 
 public class getUser extends AsyncTask<Void, Void, Integer> {
@@ -30,7 +33,7 @@ public class getUser extends AsyncTask<Void, Void, Integer> {
         progressDialog = new ProgressDialog(c);
         try {
             info = new JSONObject();
-            info.put("socketElem", BuildConfig.JSONParser_Socket);
+            info.put("socketElem", Base64.encodeToString(BuildConfig.JSONParser_Socket.getBytes(), Base64.DEFAULT));
             info.put("username", Bruker.get().getBrukernavn());
         } catch (JSONException e) {
             e.printStackTrace();

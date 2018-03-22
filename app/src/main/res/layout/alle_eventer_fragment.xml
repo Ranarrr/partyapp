@@ -8,14 +8,15 @@
     <android.support.v4.widget.SwipeRefreshLayout
         android:id="@+id/swipe_layout_events"
         android:layout_width="0dp"
-        android:layout_height="0dp"
+        android:layout_height="@dimen/_300sdp"
         android:layout_marginEnd="@dimen/_8sdp"
         android:layout_marginStart="@dimen/_8sdp"
-        android:layout_marginTop="@dimen/_8sdp"
+        android:layout_marginTop="@dimen/_5sdp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/søk_alle_eventer">
+        app:layout_constraintTop_toBottomOf="@+id/søk_alle_eventer"
+        app:layout_constraintVertical_bias="0.0">
 
         <ListView
             android:id="@+id/lvalle_eventer"
@@ -38,11 +39,12 @@
         android:layout_height="0dp"
         android:layout_marginEnd="@dimen/_8sdp"
         android:layout_marginStart="@dimen/_8sdp"
-        android:layout_marginTop="@dimen/_93sdp"
+        android:layout_marginTop="@dimen/_90sdp"
         android:background="@drawable/border_rounded"
         android:hint="Søk.."
-        android:inputType="textPersonName"
+        android:inputType="text"
         android:paddingStart="@dimen/_10sdp"
+        android:textColor="@android:color/black"
         android:textSize="@dimen/_15ssp"
         android:visibility="invisible"
         app:layout_constraintEnd_toEndOf="@+id/swipe_layout_events"

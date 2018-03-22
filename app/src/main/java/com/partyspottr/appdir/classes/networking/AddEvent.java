@@ -2,6 +2,7 @@ package com.partyspottr.appdir.classes.networking;
 
 import android.app.ProgressDialog;
 import android.os.AsyncTask;
+import android.util.Base64;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
@@ -38,7 +39,7 @@ public class AddEvent extends AsyncTask<Void, Void, Integer> {
         bitmap = bmp;
         try {
             eventToAdd = new JSONObject(new Gson().toJson(event));
-            eventToAdd.put("socketElem", BuildConfig.JSONParser_Socket);
+            eventToAdd.put("socketElem", Base64.encodeToString(BuildConfig.JSONParser_Socket.getBytes(), Base64.DEFAULT));
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -74,8 +75,12 @@ public class AddEvent extends AsyncTask<Void, Void, Integer> {
         progressDialog.hide();
         if(integer == 1) {
             Bruker.get().addToMyEvents(eventToUse);
-            UploadImage compressImage = new UploadImage(progressDialog, eventToUse, bitmap);
-            compressImage.execute();
+            if(bitmap != null) {
+                UploadImage compressImage = new UploadImage(progressDialog, eventToUse, bitmap);
+                compressImage.execute();
+            } else {
+                Toast.makeText(progressDialog.getContext(), progressDialog.getContext().getResources().getString(R.string.event_lagt_til), Toast.LENGTH_SHORT).show();
+            }
         } else if(integer == 0) {
             Toast.makeText(progressDialog.getContext(), progressDialog.getContext().getResources().getString(R.string.tilkoblingsfeil), Toast.LENGTH_SHORT).show();
         } else if(integer == -1) {

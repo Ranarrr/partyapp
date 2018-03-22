@@ -60,11 +60,16 @@
     <string name="opprett_event">Create event</string>
     <string name="tom_eventliste">There are no events active.</string>
 
-    <item name="visible" type="id"/>
-    <item name="masked" type="id"/>
+    <item name="visible" type="id" />
+    <item name="masked" type="id" />
     <string name="avbryt">Cancel</string>
     <string name="angi">Set</string>
     <string name="til">to</string>
     <string name="gjesteliste">Guestlist</string>
     <string name="profil">Profile</string>
+    <string name="title_activity_setting">SettingActivity</string>
+
+    <string name="facebook_app_id">176818486443991</string>
+    <string name="fb_login_protocol_scheme">fb176818486443991</string>
+
 </resources>

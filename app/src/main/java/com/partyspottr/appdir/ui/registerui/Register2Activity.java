@@ -7,13 +7,16 @@ import android.support.v7.app.AppCompatActivity;
 import android.telephony.PhoneNumberFormattingTextWatcher;
 import android.util.Patterns;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.TextView;
 
 import com.partyspottr.appdir.R;
 import com.partyspottr.appdir.classes.Bruker;
 import com.partyspottr.appdir.classes.adapters.CountryCodes;
 import com.partyspottr.appdir.classes.networking.CheckEmail;
+import com.partyspottr.appdir.ui.MainActivity;
 
 import java.util.Locale;
 
@@ -27,6 +30,17 @@ public class Register2Activity extends AppCompatActivity {
         EditText emailText = findViewById(R.id.emailText);
         EditText mobilnr = findViewById(R.id.mobil_nr_text);
         Spinner spinner = findViewById(R.id.spinnerPrefix);
+        TextView header = findViewById(R.id.textView7);
+        TextView header2 = findViewById(R.id.textView6);
+        Button continuebtn = findViewById(R.id.button5);
+        TextView title = findViewById(R.id.textView3);
+
+        emailText.setTypeface(MainActivity.typeface);
+        mobilnr.setTypeface(MainActivity.typeface);
+        header.setTypeface(MainActivity.typeface);
+        header2.setTypeface(MainActivity.typeface);
+        continuebtn.setTypeface(MainActivity.typeface);
+        title.setTypeface(MainActivity.typeface);
 
         spinner.setAdapter(new CountryCodes(this));
 
@@ -48,7 +62,7 @@ public class Register2Activity extends AppCompatActivity {
                 ViewCompat.setBackgroundTintList(mobilnr, ContextCompat.getColorStateList(getApplicationContext(), R.color.greentint));
                 Bruker.get().setMobilnummer(String.format(Locale.ENGLISH, "+%s %s", ((String) spinner.getSelectedItem()).split(",")[0], mobilnr.getText().toString()));
                 Bruker.get().setCountry(((String) spinner.getSelectedItem()).split(",")[2]);
-                CheckEmail checkEmail = new CheckEmail(this, emailText.getText().toString());
+                CheckEmail checkEmail = new CheckEmail(this, emailText.getText().toString(), Bruker.get().getMobilnummer());
                 checkEmail.execute();
             } else {
                 ViewCompat.setBackgroundTintList(mobilnr, ContextCompat.getColorStateList(getApplicationContext(), R.color.redtint));

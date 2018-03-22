@@ -49,9 +49,8 @@
         style="@android:style/Widget.DeviceDefault.Button.Borderless"
         android:layout_width="@dimen/_135sdp"
         android:layout_height="@dimen/_45sdp"
-        android:layout_marginTop="@dimen/_345sdp"
+        android:layout_marginTop="@dimen/_290sdp"
         android:background="@drawable/rounded_btn_rect"
-        android:onClick="onClickFortsettBtn"
         android:text="@string/bekreft"
         android:textColor="@android:color/background_light"
         android:textSize="@dimen/_12ssp"
@@ -103,7 +102,6 @@
                 android:layout_height="@dimen/_30sdp"
                 android:layout_weight="1"
                 android:background="@android:color/transparent"
-                android:onClick="onClickChangeName"
                 android:text="@string/endre"
                 android:textAlignment="textEnd"
                 android:textSize="@dimen/_10ssp" />
@@ -141,7 +139,6 @@
                 android:layout_height="@dimen/_30sdp"
                 android:layout_weight="1"
                 android:background="@android:color/transparent"
-                android:onClick="onClickChangeDOB"
                 android:text="@string/endre"
                 android:textAlignment="textEnd"
                 android:textSize="@dimen/_10ssp" />
@@ -178,7 +175,6 @@
                 android:layout_height="@dimen/_30sdp"
                 android:layout_weight="1"
                 android:background="@android:color/transparent"
-                android:onClick="onClickChangePhone"
                 android:text="@string/endre"
                 android:textAlignment="textEnd"
                 android:textSize="@dimen/_10ssp" />
@@ -215,7 +211,6 @@
                 android:layout_height="@dimen/_30sdp"
                 android:layout_weight="1"
                 android:background="@android:color/transparent"
-                android:onClick="onClickChangeEmail"
                 android:text="@string/endre"
                 android:textAlignment="textEnd"
                 android:textSize="@dimen/_10ssp" />
@@ -252,7 +247,6 @@
                 android:layout_height="@dimen/_30sdp"
                 android:layout_weight="1"
                 android:background="@android:color/transparent"
-                android:onClick="onClickChangeUsername"
                 android:text="@string/endre"
                 android:textAlignment="textEnd"
                 android:textSize="@dimen/_10ssp" />
@@ -288,7 +282,6 @@
                 android:layout_height="@dimen/_30sdp"
                 android:layout_weight="1"
                 android:background="@android:color/transparent"
-                android:onClick="onClickChangePassword"
                 android:text="@string/endre"
                 android:textAlignment="textEnd"
                 android:textSize="@dimen/_10ssp" />

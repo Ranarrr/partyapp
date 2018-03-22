@@ -1,15 +1,16 @@
 package com.partyspottr.appdir.classes.adapters;
 
-import android.widget.BaseAdapter;
-import java.util.ArrayList;
-import java.util.Locale;
-
 import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import com.partyspottr.appdir.R;
+import com.partyspottr.appdir.ui.MainActivity;
+
+import java.util.ArrayList;
+import java.util.Locale;
 
 /**
  * Created by Ranarrr on 24-Feb-18.
@@ -786,6 +787,8 @@ public class CountryCodes extends BaseAdapter{
         {
             view = (TextView)recycleView;
         }
+
+        view.setTypeface(MainActivity.typeface);
 
         view.setText(String.format(Locale.ENGLISH, "%s (+%s)", m_Countries[index], m_Codes[index]));
 

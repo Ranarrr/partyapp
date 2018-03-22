@@ -1,22 +1,17 @@
 package com.partyspottr.appdir.ui;
 
 import android.Manifest;
-import android.annotation.SuppressLint;
-import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Paint;
 import android.graphics.Point;
-import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.location.Address;
 import android.location.Criteria;
 import android.location.Geocoder;
@@ -26,6 +21,7 @@ import android.media.Image;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.os.Handler;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
@@ -39,6 +35,7 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatButton;
 import android.support.v7.widget.Toolbar;
+import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.MotionEvent;
 import android.view.View;
@@ -59,32 +56,30 @@ import com.partyspottr.appdir.classes.ImageChange;
 import com.partyspottr.appdir.classes.Participant;
 import com.partyspottr.appdir.classes.Requester;
 import com.partyspottr.appdir.classes.Utilities;
-import com.partyspottr.appdir.classes.networking.AddEvent;
 import com.partyspottr.appdir.classes.networking.GetLocationInfo;
 import com.partyspottr.appdir.classes.networking.LogoutUser;
 import com.partyspottr.appdir.classes.networking.getUser;
 import com.partyspottr.appdir.enums.EventStilling;
 import com.partyspottr.appdir.ui.mainfragments.bilfragment;
+import com.partyspottr.appdir.ui.mainfragments.chatfragment;
+import com.partyspottr.appdir.ui.mainfragments.eventchildfragments.alle_eventer_fragment;
+import com.partyspottr.appdir.ui.mainfragments.eventchildfragments.mine_eventer_fragment;
 import com.partyspottr.appdir.ui.mainfragments.eventfragment;
 import com.partyspottr.appdir.ui.mainfragments.profilfragment;
-
-import org.w3c.dom.Text;
+import com.partyspottr.appdir.ui.other_ui.SettingActivity;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.OutputStream;
-import java.net.URI;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Locale;
+
+import static com.partyspottr.appdir.ui.MainActivity.typeface;
 
 /**
  * Created by Ranarrr on Unknown date.
@@ -98,31 +93,37 @@ public class ProfilActivity extends AppCompatActivity {
     private AppCompatButton mine_eventer_btn;
     private AppCompatButton mitt_arkiv_btn;
 
-    public static Typeface typeface;
+    public static List<String> childfragmentsinstack;
 
     private ImageChange imageChange = new ImageChange();
 
     @Override
     public void onBackPressed() {
         int count = getSupportFragmentManager().getBackStackEntryCount();
+        ViewPager viewPager = findViewById(R.id.pagerview_event);
+
+        if(childfragmentsinstack.size() > 0 && (viewPager != null && viewPager.getCurrentItem() != 0)) {
+            if(childfragmentsinstack.size() > 1) {
+                if(childfragmentsinstack.get(childfragmentsinstack.size() - 2).equals(alle_eventer_fragment.class.getName()))
+                    viewPager.setCurrentItem(0, true);
+                else if(childfragmentsinstack.get(childfragmentsinstack.size() - 2).equals(mine_eventer_fragment.class.getName()))
+                    viewPager.setCurrentItem(1, true);
+                else
+                    viewPager.setCurrentItem(2, true);
+            } else {
+                viewPager.setCurrentItem(0, true);
+            }
+
+            if(childfragmentsinstack.size() > 1)
+                childfragmentsinstack.remove(childfragmentsinstack.size() - 1);
+            if(childfragmentsinstack.size() == 0)
+                childfragmentsinstack.add(alle_eventer_fragment.class.getName());
+            return;
+        }
 
         if (count <= 1) {
-            super.onBackPressed();
-            new AlertDialog.Builder(this).setTitle(getResources().getString(R.string.logg_ut)).setMessage(getResources().getString(R.string.logg_ut_melding)).setPositiveButton(getResources().getString(R.string.ja), new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    if(getApplicationContext() != null) {
-                        LogoutUser logoutUser = new LogoutUser(ProfilActivity.this);
-                        logoutUser.execute();
-                    }
-                }
-            }).setNegativeButton(getResources().getString(R.string.nei), new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    if(Bruker.get().isConnected())
-                        replaceFragment(0);
-                }
-            }).show();
+            finish();
+            System.exit(0);
         } else {
             getSupportFragmentManager().popBackStack();
         }
@@ -148,7 +149,17 @@ public class ProfilActivity extends AppCompatActivity {
 
         setSupportActionBar((Toolbar) findViewById(R.id.toolbar_profil));
 
+        childfragmentsinstack = new ArrayList<>();
+        childfragmentsinstack.add(alle_eventer_fragment.class.getName());
+
         ctd.start();
+
+        if(!Utilities.hasNetwork(getApplicationContext())) {
+            Bruker.get().setConnected(false);
+            Toast.makeText(this, "You are not connected.", Toast.LENGTH_SHORT).show();
+        } else if(Utilities.hasNetwork(getApplicationContext())) {
+            Bruker.get().setConnected(true);
+        }
 
         TextView tittel = findViewById(R.id.title_toolbar);
 
@@ -157,18 +168,18 @@ public class ProfilActivity extends AppCompatActivity {
         getWindowManager().getDefaultDisplay().getSize(size);
         main_content.setBackground(new BitmapDrawable(getResources(), Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.forsidebilde), size.x, size.y, true)));
 
-        typeface = Typeface.createFromAsset(getAssets(), "valeraround.otf");
-
         tittel.setTypeface(typeface);
 
         getUser getuser = new getUser(this);
         getuser.execute();
 
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        if(ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, 1000);
         }
 
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+        if(ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             Geocoder geocoder = new Geocoder(this, Locale.ENGLISH);
             LocationManager locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
             if (locationManager != null) {
@@ -233,6 +244,9 @@ public class ProfilActivity extends AppCompatActivity {
             case 2:
                 fragment = new profilfragment();
                 break;
+            case 3:
+                fragment = new chatfragment();
+                break;
             default:
                 fragment = new eventfragment();
                 break;
@@ -243,7 +257,7 @@ public class ProfilActivity extends AppCompatActivity {
         FragmentManager manager = getSupportFragmentManager();
         boolean fragmentPopped = manager.popBackStackImmediate(backStateName, 0);
 
-        if (!fragmentPopped && manager.findFragmentByTag(backStateName) == null){ //fragment not in back stack, create it.
+        if (!fragmentPopped && manager.findFragmentByTag(backStateName) == null){ // fragment not in back stack, create it.
             FragmentTransaction ft = manager.beginTransaction();
             ft.replace(R.id.main_content, fragment, backStateName);
             ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
@@ -254,21 +268,55 @@ public class ProfilActivity extends AppCompatActivity {
 
     public void onBilMenyClick(View v) {
         replaceFragment(1);
-        TextView title = findViewById(R.id.title_toolbar);
+        ((TextView) findViewById(R.id.title_toolbar)).setText(getResources().getString(R.string.sjåfør));
+        ImageButton search_events = findViewById(R.id.search_events);
+        search_events.setImageDrawable(getResources().getDrawable(R.drawable.search));
 
-        title.setText(getResources().getString(R.string.sjåfør));
+        search_events.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
     }
 
     public void onKalenderMenyClick(View v) {
         replaceFragment(0);
-        TextView title = findViewById(R.id.title_toolbar);
-        title.setText(getResources().getString(R.string.arrangementer));
+        ((TextView) findViewById(R.id.title_toolbar)).setText(getResources().getString(R.string.arrangementer));
+        findViewById(R.id.search_events).setVisibility(View.VISIBLE);
+        ImageButton search_events = findViewById(R.id.search_events);
+        search_events.setImageDrawable(getResources().getDrawable(R.drawable.search));
+
+        search_events.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Utilities.onSearchEventsClickAlle(ProfilActivity.this);
+            }
+        });
+
+        findViewById(R.id.add_event).setVisibility(View.VISIBLE);
+    }
+
+    public void onChatMenyClick(View v) {
+        replaceFragment(3);
+        ((TextView) findViewById(R.id.title_toolbar)).setText("Chat");
     }
 
     public void onProfilMenyClick(View v) {
         replaceFragment(2);
-        TextView title = findViewById(R.id.title_toolbar);
-        title.setText(getResources().getString(R.string.profil));
+        ((TextView) findViewById(R.id.title_toolbar)).setText(Bruker.get().getBrukernavn());
+        ImageButton now_cog = findViewById(R.id.search_events);
+        now_cog.setImageDrawable(getResources().getDrawable(R.drawable.cog));
+
+        now_cog.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(ProfilActivity.this, SettingActivity.class);
+                startActivity(intent);
+            }
+        });
+
+        findViewById(R.id.add_event).setVisibility(View.INVISIBLE);
     }
 
     public void onAlleEventerClick(View v) {
@@ -322,9 +370,10 @@ public class ProfilActivity extends AppCompatActivity {
         viewPager.setCurrentItem(1, true);
     }
 
-
     public void onLeggTilEventClick(View v) {
         final Dialog dialog = new Dialog(this);
+
+        dialog.setOwnerActivity(this);
 
         dialog.requestWindowFeature(1);
 
@@ -347,6 +396,52 @@ public class ProfilActivity extends AppCompatActivity {
         final TextView sluttidspunkt = dialog.findViewById(R.id.legg_til_sluttidspunkt);
         sluttidspunkt.setPaintFlags(sluttidspunkt.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
         Toolbar create_event_toolbar = dialog.findViewById(R.id.toolbar2);
+        final EditText postnr = dialog.findViewById(R.id.create_postnr);
+        final EditText gate = dialog.findViewById(R.id.create_gate);
+
+        final Handler textchangedHandler = new Handler();
+
+        postnr.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(final CharSequence s, int start, int before, int count) {
+                textchangedHandler.removeCallbacksAndMessages(null);
+                textchangedHandler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        GetLocationInfo getLocationInfo = new GetLocationInfo(dialog, gate.getText().toString(), Integer.valueOf(s.toString().isEmpty() ? "0" : s.toString()), new Event(""),
+                                null, false);
+                        getLocationInfo.execute();
+                    }
+                }, 1000);
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {}
+        });
+
+        gate.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(final CharSequence s, int start, int before, int count) {
+                textchangedHandler.removeCallbacksAndMessages(null);
+                textchangedHandler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        GetLocationInfo getLocationInfo = new GetLocationInfo(dialog, s.toString(),
+                                Integer.valueOf(postnr.getText().toString().isEmpty() ? "0" : postnr.getText().toString()), new Event(""), null, false);
+                        getLocationInfo.execute();
+                    }
+                }, 1000);
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {}
+        });
 
         create_event_toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
@@ -372,6 +467,8 @@ public class ProfilActivity extends AppCompatActivity {
             public void propertyChange(PropertyChangeEvent evt) {
                 try {
                     legg_til_bilde.setImageBitmap(Bitmap.createScaledBitmap(MediaStore.Images.Media.getBitmap(getContentResolver(), imageChange.getUri()), (int) getResources().getDimension(R.dimen._150sdp), (int) getResources().getDimension(R.dimen._75sdp), true));
+                    legg_til_bilde.setScaleX(1.0f);
+                    legg_til_bilde.setScaleY(1.0f);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -419,7 +516,8 @@ public class ProfilActivity extends AppCompatActivity {
                             Calendar calendar;
                             calendar = Calendar.getInstance();
                             calendar.set(Calendar.MONTH, month);
-                            dato.setText(String.format(Locale.ENGLISH, "%02d. %s %d", dayOfMonth, calendar.getDisplayName(Calendar.MONTH, Calendar.SHORT, ProfilActivity.this.getResources().getConfiguration().locale), year));
+                            dato.setText(String.format(Locale.ENGLISH, "%02d. %s %d", dayOfMonth, calendar.getDisplayName(Calendar.MONTH, Calendar.SHORT,
+                                    ProfilActivity.this.getResources().getConfiguration().locale), year));
                         }
                     }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH));
                     dialog.setButton(DatePickerDialog.BUTTON_POSITIVE, ProfilActivity.this.getResources().getString(R.string.angi), dialog);
@@ -466,7 +564,8 @@ public class ProfilActivity extends AppCompatActivity {
                             Calendar calendar;
                             calendar = Calendar.getInstance();
                             calendar.set(Calendar.MONTH, month);
-                            datotil.setText(String.format(Locale.ENGLISH, "%02d. %s %d", dayOfMonth, calendar.getDisplayName(Calendar.MONTH, Calendar.SHORT, ProfilActivity.this.getResources().getConfiguration().locale), year));
+                            datotil.setText(String.format(Locale.ENGLISH, "%02d. %s %d", dayOfMonth, calendar.getDisplayName(Calendar.MONTH, Calendar.SHORT,
+                                    ProfilActivity.this.getResources().getConfiguration().locale), year));
                         }
                     }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH));
                     dialog.setButton(DatePickerDialog.BUTTON_POSITIVE, ProfilActivity.this.getResources().getString(R.string.angi), dialog);
@@ -507,8 +606,6 @@ public class ProfilActivity extends AppCompatActivity {
                 EditText titletext = dialog.findViewById(R.id.create_eventText);
                 EditText beskrivelse = dialog.findViewById(R.id.beskrivelse_create);
                 CheckBox vis_gjesteliste = dialog.findViewById(R.id.vis_gjesteliste);
-                EditText postnr = dialog.findViewById(R.id.create_postnr);
-                EditText gate = dialog.findViewById(R.id.create_gate);
                 EditText maks_deltakere = dialog.findViewById(R.id.maks_deltakere);
                 EditText aldersgrense = dialog.findViewById(R.id.aldersgrense);
 
@@ -516,31 +613,35 @@ public class ProfilActivity extends AppCompatActivity {
                     if(!datotil.getText().toString().isEmpty() && !timetil.getText().toString().isEmpty()) {
                         GregorianCalendar datefrom, dateto;
 
-                        dateto = Utilities.getDateFromString(String.format(Locale.ENGLISH, "%s %s", datotil.getText().toString(), timetil.getText().toString()));
-                        datefrom = Utilities.getDateFromString(String.format(Locale.ENGLISH, "%s %s", dato.getText().toString(), time.getText().toString()));
+                        dateto = Utilities.getDateFromString(String.format(Locale.ENGLISH, "%s %s", datotil.getText().toString(), timetil.getText().toString()), "dd. MMMM. yyyy HH:mm");
+                        datefrom = Utilities.getDateFromString(String.format(Locale.ENGLISH, "%s %s", dato.getText().toString(), time.getText().toString()), "dd. MMMM. yyyy HH:mm");
 
                         if(dateto != null && datefrom != null && !dateto.before(datefrom)) {
 
-                            Event creating_event = new Event(titletext.getText().toString(), gate.getText().toString(), Bruker.get().getCountry(), Bruker.get().getBrukernavn(), alle_deltakere.isChecked(),
-                                    0.0, 0.0, datefrom, dateto, Integer.valueOf(aldersgrense.getText().toString()),
+                            Event creating_event = new Event(0, titletext.getText().toString(), gate.getText().toString(), Bruker.get().getCountry(), Bruker.get().getBrukernavn(),
+                                    alle_deltakere.isChecked(),0.0, 0.0, datefrom, dateto, Integer.valueOf(aldersgrense.getText().toString()),
                                     new ArrayList<>(Collections.singletonList(Participant.convertBrukerParticipant(Bruker.get(), EventStilling.VERT))), Integer.valueOf(maks_deltakere.getText().toString()),
-                                    Integer.valueOf(postnr.getText().toString()), "", beskrivelse.getText().toString(), vis_gjesteliste.isChecked(), vis_adresse.isChecked(), new ArrayList<Requester>(), false);
+                                    Integer.valueOf(postnr.getText().toString()), "", beskrivelse.getText().toString(), vis_gjesteliste.isChecked(), vis_adresse.isChecked(), new ArrayList<Requester>(),
+                                    false);
 
-                            GetLocationInfo getLocationInfo = new GetLocationInfo(ProfilActivity.this, gate.getText().toString(), Integer.valueOf(postnr.getText().toString()), creating_event, imageChange.getImage());
+                            GetLocationInfo getLocationInfo = new GetLocationInfo(dialog, gate.getText().toString(), Integer.valueOf(postnr.getText().toString()), creating_event,
+                                    imageChange.getImage(), true);
                             getLocationInfo.execute();
                         }
                     } else if(datotil.getText().toString().isEmpty() && timetil.getText().toString().isEmpty()) {
                         GregorianCalendar datefrom;
 
-                        datefrom = Utilities.getDateFromString(String.format(Locale.ENGLISH, "%s %s", dato.getText().toString(), time.getText().toString()));
+                        datefrom = Utilities.getDateFromString(String.format(Locale.ENGLISH, "%s %s", dato.getText().toString(), time.getText().toString()), "dd. MMMM. yyyy HH:mm");
 
                         if(datefrom != null) {
-                            Event creating_event = new Event(titletext.getText().toString(), gate.getText().toString(), Bruker.get().getCountry(), Bruker.get().getBrukernavn(), alle_deltakere.isChecked(),
-                                    0.0, 0.0, datefrom, null, Integer.valueOf(aldersgrense.getText().toString()),
+                            Event creating_event = new Event(0, titletext.getText().toString(), gate.getText().toString(), Bruker.get().getCountry(), Bruker.get().getBrukernavn(),
+                                    alle_deltakere.isChecked(),0.0, 0.0, datefrom, null, Integer.valueOf(aldersgrense.getText().toString()),
                                     new ArrayList<>(Collections.singletonList(Participant.convertBrukerParticipant(Bruker.get(), EventStilling.VERT))), Integer.valueOf(maks_deltakere.getText().toString()),
-                                    Integer.valueOf(postnr.getText().toString()), "", beskrivelse.getText().toString(), vis_gjesteliste.isChecked(), vis_adresse.isChecked(), new ArrayList<Requester>(), false);
+                                    Integer.valueOf(postnr.getText().toString()), "", beskrivelse.getText().toString(), vis_gjesteliste.isChecked(), vis_adresse.isChecked(), new ArrayList<Requester>(),
+                                    false);
 
-                            GetLocationInfo getLocationInfo = new GetLocationInfo(ProfilActivity.this, gate.getText().toString(), Integer.valueOf(postnr.getText().toString()), creating_event, imageChange.getImage());
+                            GetLocationInfo getLocationInfo = new GetLocationInfo(dialog, gate.getText().toString(), Integer.valueOf(postnr.getText().toString()), creating_event,
+                                    imageChange.getImage(), true);
                             getLocationInfo.execute();
                         }
                     }

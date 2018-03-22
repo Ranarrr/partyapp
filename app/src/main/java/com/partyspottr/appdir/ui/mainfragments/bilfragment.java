@@ -14,17 +14,15 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.partyspottr.appdir.R;
-import com.partyspottr.appdir.classes.replacefragments;
 import com.partyspottr.appdir.ui.mainfragments.bilchildfragments.finn_bil_fragment;
 import com.partyspottr.appdir.ui.mainfragments.bilchildfragments.min_bil_fragment;
-import com.partyspottr.appdir.ui.mainfragments.eventchildfragments.alle_eventer_fragment;
-import com.partyspottr.appdir.ui.mainfragments.eventchildfragments.mine_eventer_fragment;
-import com.partyspottr.appdir.ui.mainfragments.eventchildfragments.mitt_arkiv_fragment;
 
-import static com.partyspottr.appdir.ui.ProfilActivity.typeface;
+import static com.partyspottr.appdir.ui.MainActivity.typeface;
 
-/*
+/**
  * Created by Ranarrr on 30-Jan-18.
+ *
+ * @author Ranarrr
  */
 
 public class bilfragment extends Fragment {

@@ -1,39 +1,17 @@
 package com.partyspottr.appdir.classes.adapters;
 
 import android.app.Activity;
-import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Paint;
-import android.graphics.Typeface;
-import android.graphics.drawable.Drawable;
-import android.provider.ContactsContract;
-import android.provider.Telephony;
-import android.support.v7.widget.Toolbar;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.TextView;
 
-import com.google.gson.Gson;
 import com.partyspottr.appdir.R;
-import com.partyspottr.appdir.classes.Bruker;
 import com.partyspottr.appdir.classes.Event;
-import com.partyspottr.appdir.classes.Participant;
-import com.partyspottr.appdir.classes.Requester;
-import com.partyspottr.appdir.classes.Utilities;
-import com.partyspottr.appdir.classes.networking.AddParticipant;
-import com.partyspottr.appdir.classes.networking.AddRequest;
 import com.partyspottr.appdir.ui.other_ui.EventDetails;
 
 import java.util.ArrayList;
@@ -41,7 +19,7 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 
-import static com.partyspottr.appdir.ui.ProfilActivity.typeface;
+import static com.partyspottr.appdir.ui.MainActivity.typeface;
 
 /**
  * Created by Ranarrr on 12-Feb-18.
@@ -56,7 +34,7 @@ public class EventAdapter extends BaseAdapter {
 
     public EventAdapter(Activity activity, List<Event> listOfEvents) {
         thisActivity = activity;
-        if(listOfEvents.size() == 0) {
+        if(listOfEvents == null || listOfEvents.size() == 0) {
             eventList = new ArrayList<>();
             eventList.add(new Event("", "", "", "€€££$$"));
         } else {

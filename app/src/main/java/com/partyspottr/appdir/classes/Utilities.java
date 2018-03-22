@@ -4,19 +4,32 @@ package com.partyspottr.appdir.classes;
  * Created by Ranarrr on 02-Feb-18.
  */
 
+import android.app.Activity;
 import android.content.Context;
-import android.content.res.Resources;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.provider.Settings;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.ListView;
+import android.widget.Toast;
+
+import com.partyspottr.appdir.R;
+import com.partyspottr.appdir.classes.adapters.EventAdapter;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.List;
 import java.util.Locale;
+
+import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 
 public class Utilities {
     public static boolean hasNetwork(Context c) {
@@ -34,8 +47,8 @@ public class Utilities {
 
     }
 
-    public static GregorianCalendar getDateFromString(String str) {
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd. MMMM. yyyy HH:mm", Locale.ENGLISH);
+    public static GregorianCalendar getDateFromString(String str, String format) {
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat(format, Locale.ENGLISH);
 
         GregorianCalendar gregorianCalendar = new GregorianCalendar();
 
@@ -47,6 +60,64 @@ public class Utilities {
         }
 
         return null;
+    }
+
+    public static void onSearchEventsClickAlle(final Activity activity) {
+        final ListView listView = activity.findViewById(R.id.lvalle_eventer);
+        ImageButton searchevents = activity.findViewById(R.id.search_events);
+        final EditText søk_alle_eventer = activity.findViewById(R.id.søk_alle_eventer);
+
+        if(listView == null || searchevents == null || søk_alle_eventer == null)
+            return;
+
+        searchevents.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(Bruker.get().getListOfEvents() != null) {
+                    if(!Bruker.get().getListOfEvents().isEmpty()) {
+                        søk_alle_eventer.setVisibility(søk_alle_eventer.getVisibility() == View.VISIBLE ? View.INVISIBLE : View.VISIBLE);
+                        ViewGroup.LayoutParams params = søk_alle_eventer.getLayoutParams();
+
+                        if(søk_alle_eventer.getVisibility() == View.INVISIBLE)
+                            params.height = 0;
+                        else {
+                            params.height = WRAP_CONTENT;
+
+                            søk_alle_eventer.addTextChangedListener(new TextWatcher() {
+                                @Override
+                                public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+                                @Override
+                                public void onTextChanged(CharSequence s, int start, int before, int count) {
+                                    if(s.toString().isEmpty()) {
+                                        listView.setAdapter(new EventAdapter(activity, Bruker.get().getListOfEvents()));
+                                        return;
+                                    }
+
+                                    List<Event> list = new ArrayList<>();
+                                    for(Event event : Bruker.get().getListOfEvents()) {
+                                        if(event.getHostStr().contains(s))
+                                            list.add(event);
+
+                                        if(event.getNameofevent().contains(s))
+                                            list.add(event);
+                                    }
+
+                                    listView.setAdapter(new EventAdapter(activity, list));
+                                }
+
+                                @Override
+                                public void afterTextChanged(Editable s) {}
+                            });
+                        }
+
+                        søk_alle_eventer.setLayoutParams(params);
+                    } else {
+                        Toast.makeText(activity, "The list is empty!", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            }
+        });
     }
 
     public static int calcAge(Calendar DOB) {
@@ -72,7 +143,7 @@ public class Utilities {
         return result;
     }
 
-    private static int calculateInSampleSize(
+    /*private static int calculateInSampleSize(
             BitmapFactory.Options options, int reqWidth, int reqHeight) {
         // Raw height and width of image
         final int height = options.outHeight;
@@ -123,5 +194,5 @@ public class Utilities {
         // Decode bitmap with inSampleSize set
         options.inJustDecodeBounds = false;
         return BitmapFactory.decodeResource(res, resId, options);
-    }
+    }*/
 }

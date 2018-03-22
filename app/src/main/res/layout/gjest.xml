@@ -41,7 +41,7 @@
         android:layout_height="wrap_content"
         android:layout_alignBottom="@+id/countryflag_IV"
         android:layout_marginBottom="@dimen/_minus4sdp"
-        android:layout_marginStart="@dimen/_10sdp"
+        android:layout_marginStart="@dimen/_8sdp"
         android:layout_toEndOf="@+id/countryflag_IV"
         android:text="Byen eller land"
         android:textSize="@dimen/_13ssp" />

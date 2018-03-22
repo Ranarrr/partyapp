@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "138080698018",
+    "firebase_url": "https://thermal-pattern-193300.firebaseio.com",
+    "project_id": "thermal-pattern-193300",
+    "storage_bucket": "thermal-pattern-193300.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:138080698018:android:93aa004902136e6e",
+        "android_client_info": {
+          "package_name": "com.partyspottr.partyspottr"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "138080698018-fufoa184pcv4fuoqpbshqfnfgkq07nr6.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.partyspottr.partyspottr",
+            "certificate_hash": "6ea4960fe5472c04e75affd5c355f7c1024f0c05"
+          }
+        },
+        {
+          "client_id": "138080698018-kfao83pqkqqck568a0tmdrqaql6huheo.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDH2BKCEOLb9-et0HPvNhJ4CU8BQUtRAgk"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "138080698018-kfao83pqkqqck568a0tmdrqaql6huheo.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,9 +1,10 @@
 package com.partyspottr.appdir.classes.networking;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.util.Base64;
 import android.widget.Toast;
 
 import com.partyspottr.appdir.BuildConfig;
@@ -29,15 +30,16 @@ public class LogoutUser extends AsyncTask<Void, Void, Integer> {
     private ProgressDialog progressDialog;
     private JSONObject info;
 
-    public LogoutUser(Context c) {
+    public LogoutUser(Activity activity) {
         try {
             info = new JSONObject();
-            info.put("socketElem", BuildConfig.JSONParser_Socket);
+            info.put("socketElem", Base64.encodeToString(BuildConfig.JSONParser_Socket.getBytes(), Base64.DEFAULT));
             info.put("username", Bruker.get().getBrukernavn());
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        progressDialog = new ProgressDialog(c);
+        progressDialog = new ProgressDialog(activity);
+        progressDialog.setOwnerActivity(activity);
     }
 
     @Override
@@ -72,9 +74,13 @@ public class LogoutUser extends AsyncTask<Void, Void, Integer> {
     protected void onPostExecute(Integer integer) {
         if(integer == 1) {
             Bruker.get().setLoggetpa(false);
+            Bruker.get().setPassord("");
+            Bruker.get().LagreBruker();
             Intent intent = new Intent(progressDialog.getContext(), MainActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             progressDialog.getContext().startActivity(intent);
+            if(progressDialog.getOwnerActivity() != null)
+                progressDialog.getOwnerActivity().finish();
         } else if(integer == -1) {
             Toast.makeText(progressDialog.getContext(), "", Toast.LENGTH_SHORT).show(); // TODO: Fix translation
         } else {

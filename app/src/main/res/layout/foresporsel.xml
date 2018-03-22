@@ -15,16 +15,16 @@
         android:layout_marginStart="@dimen/_12sdp"
         android:layout_marginTop="8dp"
         android:text="Brukernavn, 18"
-        android:textSize="@dimen/_18ssp"
-        app:layout_constraintBottom_toTopOf="@+id/imageView4"
+        android:textSize="@dimen/_14ssp"
+        app:layout_constraintBottom_toTopOf="@+id/request_flag"
         app:layout_constraintStart_toEndOf="@+id/imageButton8"
         app:layout_constraintTop_toTopOf="@+id/imageButton8" />
 
     <ImageView
-        android:id="@+id/imageView4"
+        android:id="@+id/request_flag"
         android:layout_width="25dp"
         android:layout_height="14dp"
-        android:layout_marginBottom="8dp"
+        android:layout_marginBottom="@dimen/_5sdp"
         android:scaleType="fitXY"
         app:layout_constraintBottom_toBottomOf="@+id/imageButton8"
         app:layout_constraintStart_toStartOf="@+id/brukernavn_foresporsel"
@@ -37,12 +37,12 @@
         android:layout_marginStart="@dimen/_8sdp"
         android:text="Stavanger"
         android:textSize="@dimen/_12ssp"
-        app:layout_constraintBottom_toBottomOf="@+id/imageView4"
-        app:layout_constraintStart_toEndOf="@+id/imageView4"
-        app:layout_constraintTop_toTopOf="@+id/imageView4" />
+        app:layout_constraintBottom_toBottomOf="@+id/request_flag"
+        app:layout_constraintStart_toEndOf="@+id/request_flag"
+        app:layout_constraintTop_toTopOf="@+id/request_flag" />
 
     <ImageButton
-        android:id="@+id/imageButton11"
+        android:id="@+id/request_accept"
         android:layout_width="@dimen/_31sdp"
         android:layout_height="@dimen/_55sdp"
         android:layout_marginEnd="@dimen/_10sdp"
@@ -51,15 +51,15 @@
         android:paddingBottom="@dimen/_12sdp"
         android:paddingTop="@dimen/_12sdp"
         android:scaleType="fitXY"
-        app:layout_constraintEnd_toStartOf="@+id/imageButton12"
-        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintEnd_toStartOf="@+id/request_reject"
+        app:layout_constraintHorizontal_bias="0.42"
         app:layout_constraintHorizontal_chainStyle="packed"
         app:layout_constraintStart_toEndOf="@+id/brukernavn_foresporsel"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/checkmark" />
 
     <ImageButton
-        android:id="@+id/imageButton12"
+        android:id="@+id/request_reject"
         android:layout_width="@dimen/_31sdp"
         android:layout_height="@dimen/_55sdp"
         android:background="@color/transparent"
@@ -68,7 +68,7 @@
         android:scaleType="fitXY"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/imageButton11"
+        app:layout_constraintStart_toEndOf="@+id/request_accept"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/delete" />
 
@@ -78,6 +78,8 @@
         android:layout_height="@dimen/_50sdp"
         android:background="@color/transparent"
         android:scaleType="fitXY"
+        android:scaleX="0.5"
+        android:scaleY="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/mannmeny" />

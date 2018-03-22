@@ -1,14 +1,16 @@
 package com.partyspottr.appdir.classes.networking;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.util.Base64;
 import android.widget.Toast;
 
 import com.partyspottr.appdir.BuildConfig;
 import com.partyspottr.appdir.R;
 import com.partyspottr.appdir.classes.Bruker;
+import com.partyspottr.appdir.ui.MainActivity;
 import com.partyspottr.appdir.ui.ProfilActivity;
 
 import org.apache.http.NameValuePair;
@@ -19,8 +21,10 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-/*
+/**
  * Created by Ranarrr on 27-Jan-18.
+ *
+ * @author Ranarrr
  */
 
 public class LoginUser extends AsyncTask<Void, Void, Integer> {
@@ -28,14 +32,14 @@ public class LoginUser extends AsyncTask<Void, Void, Integer> {
     private ProgressDialog progressDialog;
     private JSONObject info;
 
-    public LoginUser(Context c, String user, String pass) {
-        progressDialog = new ProgressDialog(c);
-        progressDialog.setCanceledOnTouchOutside(false);
+    public LoginUser(Activity activity, String user, String pass) {
+        progressDialog = new ProgressDialog(activity);
+        progressDialog.setOwnerActivity(activity);
         try {
             info = new JSONObject();
             info.put("username", user);
             info.put("pass", pass);
-            info.put("socketElem", BuildConfig.JSONParser_Socket);
+            info.put("socketElem", Base64.encodeToString(BuildConfig.JSONParser_Socket.getBytes(), Base64.DEFAULT));
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -43,8 +47,11 @@ public class LoginUser extends AsyncTask<Void, Void, Integer> {
 
     @Override
     protected void onPreExecute() {
-        progressDialog.setMessage(progressDialog.getContext().getResources().getString(R.string.logger_inn));
-        progressDialog.show();
+        if(progressDialog.getOwnerActivity() instanceof MainActivity) {
+            progressDialog.setCanceledOnTouchOutside(false);
+            progressDialog.setMessage(progressDialog.getContext().getResources().getString(R.string.logger_inn));
+            progressDialog.show();
+        }
         super.onPreExecute();
     }
 
@@ -80,6 +87,7 @@ public class LoginUser extends AsyncTask<Void, Void, Integer> {
                 Toast.makeText(progressDialog.getContext(), progressDialog.getContext().getResources().getString(R.string.velkommen) + " " + info.getString("username") + "!", Toast.LENGTH_SHORT).show();
                 Bruker.get().setBrukernavn(info.getString("username"));
                 Bruker.get().setPassord(info.getString("pass"));
+                Bruker.get().LagreBruker();
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -87,12 +95,16 @@ public class LoginUser extends AsyncTask<Void, Void, Integer> {
             Intent intent = new Intent(progressDialog.getContext(), ProfilActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             progressDialog.getContext().startActivity(intent);
+            if(progressDialog.getOwnerActivity() != null)
+                progressDialog.getOwnerActivity().finish();
             progressDialog.dismiss();
         } else if(integer == 2) {
             Toast.makeText(progressDialog.getContext(), progressDialog.getContext().getResources().getString(R.string.velkommen_admin), Toast.LENGTH_SHORT).show();
             Intent intent = new Intent(progressDialog.getContext(), ProfilActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             progressDialog.getContext().startActivity(intent);
+            if(progressDialog.getOwnerActivity() != null)
+                progressDialog.getOwnerActivity().finish();
             progressDialog.dismiss();
         } else if(integer == -1) { // wrong password
             Toast.makeText(progressDialog.getContext(), progressDialog.getContext().getResources().getString(R.string.feil_passord), Toast.LENGTH_SHORT).show();

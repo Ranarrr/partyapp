@@ -7,6 +7,13 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+    <style name="popup" parent="Widget.AppCompat.ListView.DropDown">
+        <item name="android:divider">@color/lightgrey</item>
+        <item name="android:dividerHeight">1dp</item>
+        <item name="android:textColor">@android:color/black</item>
+        <item name="android:itemBackground">@android:color/white</item>
+    </style>
+
     <style name="MyDialogTheme" parent="Theme.AppCompat.Light.Dialog.Alert">
         <!-- Full width -->
         <item name="android:layout_width">fill_parent</item>
@@ -15,5 +22,9 @@
         <item name="android:windowNoTitle">true</item>
 
     </style>
+
+    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+
+    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
 </resources>

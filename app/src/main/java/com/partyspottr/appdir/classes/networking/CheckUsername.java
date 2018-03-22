@@ -4,6 +4,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.util.Base64;
 import android.widget.Toast;
 
 import com.partyspottr.appdir.BuildConfig;
@@ -27,17 +28,18 @@ import java.util.List;
  */
 
 public class CheckUsername extends AsyncTask<Void, Void, Integer> {
-    private JSONObject jsonObject;
+    private JSONObject info;
     private ProgressDialog progressDialog;
 
     public CheckUsername(String usrname, Context c) {
         try {
-            jsonObject = new JSONObject();
-            jsonObject.put("username", usrname);
-            jsonObject.put("socketElem", BuildConfig.JSONParser_Socket);
+            info = new JSONObject();
+            info.put("username", usrname);
+            info.put("socketElem", Base64.encodeToString(BuildConfig.JSONParser_Socket.getBytes(), Base64.DEFAULT));
         } catch (JSONException e) {
             e.printStackTrace();
         }
+
         progressDialog = new ProgressDialog(c);
         progressDialog.setCanceledOnTouchOutside(false);
     }
@@ -53,7 +55,7 @@ public class CheckUsername extends AsyncTask<Void, Void, Integer> {
     protected Integer doInBackground(Void... voids) {
         try{
             List<NameValuePair> params = new ArrayList<>();
-            params.add(new BasicNameValuePair("check_username", jsonObject.toString()));
+            params.add(new BasicNameValuePair("check_username", info.toString()));
             JSONObject json = new JSONParser().get_jsonobject("POST", params, null);
             if(json != null) {
                 if(json.getInt("taken") == 1) {
@@ -64,8 +66,8 @@ public class CheckUsername extends AsyncTask<Void, Void, Integer> {
             }
         } catch(JSONException e) {
             e.printStackTrace();
-            return 0;
         }
+
         return 0;
     }
 
@@ -76,7 +78,7 @@ public class CheckUsername extends AsyncTask<Void, Void, Integer> {
             Toast.makeText(progressDialog.getContext(), progressDialog.getContext().getResources().getString(R.string.brukernavn_opptatt), Toast.LENGTH_SHORT).show();
         } else if(result == 1) {
             try {
-                Bruker.get().setBrukernavn(jsonObject.getString("username"));
+                Bruker.get().setBrukernavn(info.getString("username"));
             } catch (JSONException e) {
                 e.printStackTrace();
             }

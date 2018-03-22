@@ -1,8 +1,6 @@
 package com.partyspottr.appdir.classes.networking;
 
 import android.app.ProgressDialog;
-import android.content.Context;
-import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.widget.Toast;
 
@@ -14,10 +12,8 @@ import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.List;
 
 /**

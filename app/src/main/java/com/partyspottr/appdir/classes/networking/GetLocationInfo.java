@@ -1,22 +1,23 @@
 package com.partyspottr.appdir.classes.networking;
 
+import android.app.Dialog;
 import android.app.ProgressDialog;
-import android.content.Context;
-import android.graphics.Bitmap;
 import android.os.AsyncTask;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.partyspottr.appdir.R;
 import com.partyspottr.appdir.classes.Event;
-import com.partyspottr.appdir.ui.ProfilActivity;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
 
-/*
+/**
  * Created by Ranarrr on 22-Feb-18.
+ *
+ * @author Ranarrr
  */
 
 public class GetLocationInfo extends AsyncTask<Void, Void, Integer> {
@@ -26,10 +27,18 @@ public class GetLocationInfo extends AsyncTask<Void, Void, Integer> {
     private File bitmap;
     private Event eventToUse;
     ProgressDialog progressDialog;
+    private boolean addEvent;
+    private Dialog dilog;
 
-    public GetLocationInfo(Context c, String address, int postal_code, Event event, File bmp) {
-        progressDialog = new ProgressDialog(c);
+    public GetLocationInfo(Dialog dialog, String address, int postal_code, Event event, File bmp, boolean addevent) {
+        if(dialog.getOwnerActivity() != null) {
+            progressDialog = new ProgressDialog(dialog.getContext());
+            progressDialog.setOwnerActivity(dialog.getOwnerActivity());
+            dilog = dialog;
+        }
+
         bitmap = bmp;
+        addEvent = addevent;
         addressToUse = address;
         PostalCode = postal_code;
         eventToUse = event;
@@ -37,9 +46,16 @@ public class GetLocationInfo extends AsyncTask<Void, Void, Integer> {
 
     @Override
     protected void onPreExecute() {
-        progressDialog.setMessage(progressDialog.getContext().getResources().getString(R.string.legger_til_event));
-        progressDialog.setCanceledOnTouchOutside(false);
-        progressDialog.show();
+        if(addEvent) {
+            progressDialog.setMessage(progressDialog.getContext().getResources().getString(R.string.legger_til_event));
+            progressDialog.setCanceledOnTouchOutside(false);
+            progressDialog.show();
+        } else {
+            if(PostalCode == 0 || addressToUse.isEmpty()) {
+                cancel(true);
+            }
+        }
+
         super.onPreExecute();
     }
 
@@ -56,16 +72,29 @@ public class GetLocationInfo extends AsyncTask<Void, Void, Integer> {
         } catch (JSONException e) {
             e.printStackTrace();
         }
+
         return 0;
     }
 
     @Override
     protected void onPostExecute(Integer integer) {
         if(integer == 1) {
-            AddEvent addEvent = new AddEvent(progressDialog, eventToUse, bitmap);
-            addEvent.execute();
+            if(addEvent) {
+                AddEvent addEvent = new AddEvent(progressDialog, eventToUse, bitmap);
+                addEvent.execute();
+            } else {
+                if(dilog != null) {
+                    if(eventToUse.getTown() == null) {
+                        ((TextView) dilog.findViewById(R.id.by_textview)).setText("Not found."); // TODO : translation
+                    } else {
+                        ((TextView) dilog.findViewById(R.id.by_textview)).setText(eventToUse.getTown());
+                    }
+                }
+
+            }
         } else {
-            Toast.makeText(progressDialog.getContext(), "Failed to retreive location info for the event!", Toast.LENGTH_LONG).show();
+            if(addEvent)
+                Toast.makeText(progressDialog.getContext(), "Failed to retreive location info for the event!", Toast.LENGTH_LONG).show();
         }
     }
 }

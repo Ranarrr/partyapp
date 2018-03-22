@@ -1,9 +1,12 @@
 package com.partyspottr.appdir.ui.mainfragments;
 
+import android.content.DialogInterface;
+import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,6 +17,8 @@ import com.partyspottr.appdir.R;
 import com.partyspottr.appdir.classes.Bruker;
 import com.partyspottr.appdir.classes.Utilities;
 import com.partyspottr.appdir.classes.adapters.CountryCodes;
+import com.partyspottr.appdir.classes.networking.LogoutUser;
+import com.partyspottr.appdir.ui.MainActivity;
 
 import java.util.GregorianCalendar;
 import java.util.Locale;
@@ -27,8 +32,7 @@ import java.util.Locale;
 public class profilfragment extends Fragment {
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.profilfragment, container, false);
     }
@@ -39,6 +43,38 @@ public class profilfragment extends Fragment {
         TextView by = view.findViewById(R.id.profil_by);
         ImageView countryflag = view.findViewById(R.id.countryflag_profil);
         TextView oneliner = view.findViewById(R.id.profil_oneliner);
+        TextView title = view.findViewById(R.id.brukernavn_profil);
+        final TextView logout = view.findViewById(R.id.log_out_txt);
+
+        fornavn_etternavn.setTypeface(MainActivity.typeface);
+        by.setTypeface(MainActivity.typeface);
+        oneliner.setTypeface(MainActivity.typeface);
+        logout.setTypeface(MainActivity.typeface);
+        title.setTypeface(MainActivity.typeface);
+
+        logout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                new AlertDialog.Builder(getActivity())
+                        .setTitle(getActivity().getResources().getString(R.string.logg_ut))
+                        .setMessage("Er du sikker på at du vil logge ut?") // TODO: Translation
+                        .setPositiveButton(getActivity().getResources().getString(R.string.nei), new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {}
+                        })
+                        .setNegativeButton(getActivity().getResources().getString(R.string.ja), new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                LogoutUser logoutUser = new LogoutUser(getActivity());
+                                logoutUser.execute();
+                            }
+                        })
+                        .show();
+
+            }
+        });
+
+        logout.setPaintFlags(logout.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
 
         if(Bruker.get().getTown() == null) {
             by.setText(Bruker.get().getCountry());

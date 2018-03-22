@@ -1,17 +1,14 @@
 package com.partyspottr.appdir.classes;
 
-/*
- * Created by Ranarrr on 26-Jan-18.
- */
-
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.provider.Telephony;
+import android.util.Base64;
 
+import com.facebook.AccessToken;
+import com.facebook.Profile;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.partyspottr.appdir.BuildConfig;
-import com.partyspottr.appdir.classes.networking.getUser;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -20,10 +17,18 @@ import org.json.JSONObject;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.GregorianCalendar;
 import java.util.List;
+import java.util.Locale;
+
+/**
+ * Created by Ranarrr on 26-Jan-18.
+ *
+ * @author Ranarrr
+ */
 
 public class Bruker {
+    private long userid;
+    private String fbToken;
     private String brukernavn;
     private String passord;
     private String fornavn;
@@ -45,6 +50,7 @@ public class Bruker {
     private List<Event> listOfEvents;
     private String oneliner;
     private Calendar created;
+    private List<ChatMessage> chatMessageList;
 
     private static final String brukernavnElem = "brukernavnElem";
     private static final String fornavnElem = "fornavnElem";
@@ -62,12 +68,14 @@ public class Bruker {
     private static final String monthElem = "monthElem";
     private static final String townElem = "townElem";
     private static final String yearElem = "yearElem";
-    private static final String createdElem = "createdElem";
     private static final String mobilElem = "mobilElem";
     private static final String socketElem = "socketElem";
+    private static final String chatElem = "chatElem";
 
-    private static final Type listEventsType = new TypeToken<List<Event>>(){}.getType();
     private static final Type listFriendsType = new TypeToken<List<Friend>>(){}.getType();
+    private static final Type listParticipantsType = new TypeToken<List<Participant>>(){}.getType();
+    private static final Type listRequestsType = new TypeToken<List<Requester>>(){}.getType();
+    private static final Type listMessages = new TypeToken<List<ChatMessage>>(){}.getType();
 
     private static Bruker lokalBruker;
 
@@ -101,6 +109,7 @@ public class Bruker {
         editor.putInt(yearElem, year);
         editor.putString(mobilElem, mobilnummer);
         editor.putString(emailElem, email);
+        editor.putString(chatElem, new Gson().toJson(chatMessageList));
         editor.apply();
     }
 
@@ -118,12 +127,13 @@ public class Bruker {
         lokalBruker.mobilnummer = sharedPreferences.getString(mobilElem, "");
         lokalBruker.email = sharedPreferences.getString(emailElem, "");
         lokalBruker.listOfEvents = new ArrayList<>();
+        lokalBruker.listOfMyEvents = new Gson().fromJson(sharedPreferences.getString(chatElem, ""), listMessages);
         lokalBruker.friendList = new ArrayList<>();
         lokalBruker.requests = new ArrayList<>();
     }
 
     public void ParseEvents(JSONArray events) {
-        if(events.toString().equals("[]")) {
+        if(events.length() == 0) {
             listOfEvents = new ArrayList<>();
             return;
         }
@@ -132,19 +142,31 @@ public class Bruker {
 
         try {
             for(int i = 0; i < events.length(); i++) {
-                String str = events.getString(i);
+                JSONObject event = new JSONObject(events.getString(i));
 
-                Event eventToAdd = new Gson().fromJson(events.getString(i), Event.class);
+                List<Participant> participantList = new Gson().fromJson(event.getString("participants"), listParticipantsType);
+                List<Requester> requesterList = new Gson().fromJson(event.getString("requests"), listRequestsType);
+
+                Event eventToAdd = new Event(Long.valueOf(event.getString("eventId")), event.getString("nameofevent"), event.getString("address"), event.getString("country"),
+                        event.getString("hostStr"),Integer.valueOf(event.getString("privateEvent")) > 0, Double.valueOf(event.getString("longitude")),
+                        Double.valueOf(event.getString("latitude")), Utilities.getDateFromString(event.getString("datefrom"), "yyyy-MM-dd HH:mm:ss"),
+                        event.getString("dateto").equals("null") ? null : Utilities.getDateFromString(event.getString("dateto"), "yyyy-MM-dd HH:mm:ss"),
+                        Integer.valueOf(event.getString("agerestriction")), participantList, Integer.valueOf(event.getString("maxparticipants")),
+                        Integer.valueOf(event.getString("postalcode")), event.getString("town"), event.getString("description"),
+                        Integer.valueOf(event.getString("showguestlist")) > 0, Integer.valueOf(event.getString("showaddress")) > 0, requesterList,
+                        Integer.valueOf(event.getString("hasimage")) > 0);
 
                 if(eventToAdd.getEventId() == 0)
                     continue;
+
                 if(eventToAdd.getHostStr().isEmpty())
                     continue;
+
                 if(!eventToAdd.getNameofevent().isEmpty())
                     listOfEvents.add(eventToAdd);
 
             }
-        } catch(JSONException | IllegalStateException e){
+        } catch(JSONException e){
             e.printStackTrace();
         }
     }
@@ -153,7 +175,6 @@ public class Bruker {
         Bruker newBruker = new Bruker();
         try {
             newBruker.brukernavn = json.getString(brukernavnElem);
-            newBruker.passord = json.getString(passordElem);
             newBruker.harakseptert = json.getBoolean(harakseptertElem);
             newBruker.fornavn = json.getString(fornavnElem);
             newBruker.etternavn = json.getString(etternavnElem);
@@ -175,16 +196,15 @@ public class Bruker {
     public void JSONToBruker(JSONObject json) {
         try {
             brukernavn = json.getString(brukernavnElem);
-            passord = json.getString(passordElem);
-            harakseptert = json.getBoolean(harakseptertElem);
+            harakseptert = Integer.valueOf(json.getString(harakseptertElem)) > 0;
             fornavn = json.getString(fornavnElem);
             etternavn = json.getString(etternavnElem);
-            premium = json.getBoolean(premiumElem);
+            premium = Integer.valueOf(json.getString(premiumElem)) > 0;
             mobilnummer = json.getString(mobilElem);
             email = json.getString(emailElem);
-            day_of_month = json.getInt(day_of_monthElem);
-            month = json.getInt(monthElem);
-            year = json.getInt(yearElem);
+            day_of_month = Integer.valueOf(json.getString(day_of_monthElem));
+            month = Integer.valueOf(json.getString(monthElem));
+            year = Integer.valueOf(json.getString(yearElem));
             friendList = new Gson().fromJson(json.getString(friendlistElem), listFriendsType);
             requests = new Gson().fromJson(json.getString(requestlistElem), listFriendsType);
             LagreBruker();
@@ -213,12 +233,34 @@ public class Bruker {
             fullJson.put(townElem, town);
             fullJson.put(friendlistElem, new Gson().toJson(friendList));
             fullJson.put(requestlistElem, new Gson().toJson(requests));
-            fullJson.put(socketElem, BuildConfig.JSONParser_Socket);
+            fullJson.put(socketElem, Base64.encodeToString(BuildConfig.JSONParser_Socket.getBytes(), Base64.DEFAULT));
             return fullJson.toString();
         } catch(JSONException e) {
             e.printStackTrace();
         }
+
         return "";
+    }
+
+    public void HentFBBruker() {
+        Profile profile = Profile.getCurrentProfile();
+
+        fornavn = profile.getFirstName();
+        etternavn = String.format(Locale.ENGLISH, "%s %s", profile.getMiddleName(), profile.getLastName());
+        fbToken = AccessToken.getCurrentAccessToken().getToken();
+
+    }
+
+    public void LagreFBBruker() {
+        Profile profile = Profile.getCurrentProfile();
+
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+
+        editor.putString(fbToken + "_" + fornavnElem, profile.getFirstName());
+        editor.putString(fbToken + "_" + etternavnElem, profile.getMiddleName() + " " + profile.getLastName());
+        //editor.putString(fbToken + "_" + )
+
+        editor.apply();
     }
 
     public Event getEventFromID(long eventid) {
@@ -229,6 +271,15 @@ public class Bruker {
         }
 
         return null;
+    }
+
+    public void setEventByID(long eventid, Event eventToSet) {
+        for(int i = 0; i < listOfEvents.size(); i++) {
+            if(listOfEvents.get(i).getEventId() == eventid) {
+                listOfEvents.set(i, eventToSet);
+                return;
+            }
+        }
     }
 
     public boolean isParticipantInFriendlist(Participant participant) {
@@ -406,5 +457,29 @@ public class Bruker {
 
     public void setListOfMyEvents(List<Event> listOfMyEvents) {
         this.listOfMyEvents = listOfMyEvents;
+    }
+
+    public List<ChatMessage> getChatMessageList() {
+        return chatMessageList;
+    }
+
+    public void setChatMessageList(List<ChatMessage> chatMessageList) {
+        this.chatMessageList = chatMessageList;
+    }
+
+    public long getUserid() {
+        return userid;
+    }
+
+    public void setUserid(long userid) {
+        this.userid = userid;
+    }
+
+    public String getFbToken() {
+        return fbToken;
+    }
+
+    public void setFbToken(String fbToken) {
+        this.fbToken = fbToken;
     }
 }
