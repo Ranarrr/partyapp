@@ -1,9 +1,5 @@
 package com.partyspottr.appdir.classes;
 
-/*
- * Created by Ranarrr on 02-Feb-18.
- */
-
 import android.app.Activity;
 import android.content.Context;
 import android.net.ConnectivityManager;
@@ -31,7 +27,16 @@ import java.util.Locale;
 
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 
+/**
+ * Created by Ranarrr on 02-Feb-18.
+ *
+ * @author Ranarrr
+ */
+
 public class Utilities {
+    public static int SEND_SMS_REQUEST_CODE = 1002;
+    public static int LOCATION_REQUEST_CODE = 1000;
+
     public static boolean hasNetwork(Context c) {
         if(Settings.Global.getInt(c.getContentResolver(), "airplane_mode_on", 0) != 0)
             return false;

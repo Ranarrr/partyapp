@@ -4,14 +4,19 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.support.annotation.NonNull;
 import android.util.Base64;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
 import com.partyspottr.appdir.BuildConfig;
 import com.partyspottr.appdir.R;
 import com.partyspottr.appdir.classes.Bruker;
 import com.partyspottr.appdir.ui.MainActivity;
 import com.partyspottr.appdir.ui.ProfilActivity;
+import com.partyspottr.appdir.ui.SplashActivity;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
@@ -79,12 +84,8 @@ public class LoginUser extends AsyncTask<Void, Void, Integer> {
 
     @Override
     protected void onPostExecute(Integer integer) {
-        progressDialog.hide();
         if(integer == 1) {
-            Bruker.get().setLoggetpa(true);
-
             try {
-                Toast.makeText(progressDialog.getContext(), progressDialog.getContext().getResources().getString(R.string.velkommen) + " " + info.getString("username") + "!", Toast.LENGTH_SHORT).show();
                 Bruker.get().setBrukernavn(info.getString("username"));
                 Bruker.get().setPassord(info.getString("pass"));
                 Bruker.get().LagreBruker();
@@ -92,19 +93,25 @@ public class LoginUser extends AsyncTask<Void, Void, Integer> {
                 e.printStackTrace();
             }
 
-            Intent intent = new Intent(progressDialog.getContext(), ProfilActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            progressDialog.getContext().startActivity(intent);
-            if(progressDialog.getOwnerActivity() != null)
-                progressDialog.getOwnerActivity().finish();
+            if(progressDialog.getOwnerActivity() != null) {
+                Intent intent = new Intent(progressDialog.getOwnerActivity(), ProfilActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                progressDialog.getOwnerActivity().startActivity(intent);
+
+                getUser getuser = new getUser(progressDialog.getOwnerActivity());
+                getuser.execute();
+            }
+
             progressDialog.dismiss();
         } else if(integer == 2) {
             Toast.makeText(progressDialog.getContext(), progressDialog.getContext().getResources().getString(R.string.velkommen_admin), Toast.LENGTH_SHORT).show();
             Intent intent = new Intent(progressDialog.getContext(), ProfilActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             progressDialog.getContext().startActivity(intent);
-            if(progressDialog.getOwnerActivity() != null)
-                progressDialog.getOwnerActivity().finish();
+
+            /*if(progressDialog.getOwnerActivity() != null)
+                progressDialog.getOwnerActivity().finish();*/
+
             progressDialog.dismiss();
         } else if(integer == -1) { // wrong password
             Toast.makeText(progressDialog.getContext(), progressDialog.getContext().getResources().getString(R.string.feil_passord), Toast.LENGTH_SHORT).show();
@@ -113,5 +120,6 @@ public class LoginUser extends AsyncTask<Void, Void, Integer> {
         } else {
             Toast.makeText(progressDialog.getContext(), progressDialog.getContext().getResources().getString(R.string.tilkoblingsfeil), Toast.LENGTH_SHORT).show();
         }
+        progressDialog.hide();
     }
 }

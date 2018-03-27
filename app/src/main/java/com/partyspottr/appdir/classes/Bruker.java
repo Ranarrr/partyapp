@@ -4,8 +4,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Base64;
 
-import com.facebook.AccessToken;
-import com.facebook.Profile;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.partyspottr.appdir.BuildConfig;
@@ -18,7 +16,6 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
-import java.util.Locale;
 
 /**
  * Created by Ranarrr on 26-Jan-18.
@@ -28,7 +25,6 @@ import java.util.Locale;
 
 public class Bruker {
     private long userid;
-    private String fbToken;
     private String brukernavn;
     private String passord;
     private String fornavn;
@@ -50,8 +46,9 @@ public class Bruker {
     private List<Event> listOfEvents;
     private String oneliner;
     private Calendar created;
-    private List<ChatMessage> chatMessageList;
+    private List<ChatPreview> chatMessageList;
 
+    private static final String idElem = "id";
     private static final String brukernavnElem = "brukernavnElem";
     private static final String fornavnElem = "fornavnElem";
     private static final String emailElem = "emailElem";
@@ -75,7 +72,7 @@ public class Bruker {
     private static final Type listFriendsType = new TypeToken<List<Friend>>(){}.getType();
     private static final Type listParticipantsType = new TypeToken<List<Participant>>(){}.getType();
     private static final Type listRequestsType = new TypeToken<List<Requester>>(){}.getType();
-    private static final Type listMessages = new TypeToken<List<ChatMessage>>(){}.getType();
+    private static final Type listMessages = new TypeToken<List<ChatPreview>>(){}.getType();
 
     private static Bruker lokalBruker;
 
@@ -195,6 +192,7 @@ public class Bruker {
 
     public void JSONToBruker(JSONObject json) {
         try {
+            userid = json.getLong(idElem);
             brukernavn = json.getString(brukernavnElem);
             harakseptert = Integer.valueOf(json.getString(harakseptertElem)) > 0;
             fornavn = json.getString(fornavnElem);
@@ -240,27 +238,6 @@ public class Bruker {
         }
 
         return "";
-    }
-
-    public void HentFBBruker() {
-        Profile profile = Profile.getCurrentProfile();
-
-        fornavn = profile.getFirstName();
-        etternavn = String.format(Locale.ENGLISH, "%s %s", profile.getMiddleName(), profile.getLastName());
-        fbToken = AccessToken.getCurrentAccessToken().getToken();
-
-    }
-
-    public void LagreFBBruker() {
-        Profile profile = Profile.getCurrentProfile();
-
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-
-        editor.putString(fbToken + "_" + fornavnElem, profile.getFirstName());
-        editor.putString(fbToken + "_" + etternavnElem, profile.getMiddleName() + " " + profile.getLastName());
-        //editor.putString(fbToken + "_" + )
-
-        editor.apply();
     }
 
     public Event getEventFromID(long eventid) {
@@ -459,11 +436,11 @@ public class Bruker {
         this.listOfMyEvents = listOfMyEvents;
     }
 
-    public List<ChatMessage> getChatMessageList() {
+    public List<ChatPreview> getChatMessageList() {
         return chatMessageList;
     }
 
-    public void setChatMessageList(List<ChatMessage> chatMessageList) {
+    public void setChatMessageList(List<ChatPreview> chatMessageList) {
         this.chatMessageList = chatMessageList;
     }
 
@@ -473,13 +450,5 @@ public class Bruker {
 
     public void setUserid(long userid) {
         this.userid = userid;
-    }
-
-    public String getFbToken() {
-        return fbToken;
-    }
-
-    public void setFbToken(String fbToken) {
-        this.fbToken = fbToken;
     }
 }

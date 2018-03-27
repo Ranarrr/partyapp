@@ -147,6 +147,11 @@ public class ProfilActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profil);
 
+        /*if(!Bruker.get().isLoggetpa()) {
+            Toast.makeText(this, "Fatal error!", Toast.LENGTH_SHORT).show();
+            System.exit(0);
+        }*/
+
         setSupportActionBar((Toolbar) findViewById(R.id.toolbar_profil));
 
         childfragmentsinstack = new ArrayList<>();
@@ -169,40 +174,6 @@ public class ProfilActivity extends AppCompatActivity {
         main_content.setBackground(new BitmapDrawable(getResources(), Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.forsidebilde), size.x, size.y, true)));
 
         tittel.setTypeface(typeface);
-
-        getUser getuser = new getUser(this);
-        getuser.execute();
-
-        if(ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this,
-                Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, 1000);
-        }
-
-        if(ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this,
-                Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            Geocoder geocoder = new Geocoder(this, Locale.ENGLISH);
-            LocationManager locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
-            if (locationManager != null) {
-                Criteria criteria = new Criteria();
-                String bestprovider = locationManager.getBestProvider(criteria, false);
-
-                Location location = locationManager.getLastKnownLocation(bestprovider);
-
-                if(location == null) {
-                    location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-                }
-
-                try {
-                    for(Address address : geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1)) {
-                        if(address != null) {
-                            Bruker.get().setCountry(address.getCountryName());
-                        }
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
 
         if(Bruker.get().isConnected())
             replaceFragment(0);
@@ -661,23 +632,6 @@ public class ProfilActivity extends AppCompatActivity {
 
             imageChange.setUri(image);
             imageChange.setImage(new File(image.getPath()));
-        }
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if(requestCode == 1000) {
-            for(int i = 0; i < permissions.length; i++) {
-                if(permissions[i].equals(Manifest.permission.ACCESS_FINE_LOCATION)) {
-                    if(grantResults[i] != PackageManager.PERMISSION_GRANTED) {
-                        Toast.makeText(this, "You have denied permission.", Toast.LENGTH_LONG).show();
-                        LogoutUser logoutUser = new LogoutUser(this);
-                        logoutUser.execute();
-                        return;
-                    }
-                }
-            }
         }
     }
 }

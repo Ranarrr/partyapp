@@ -10,7 +10,7 @@ import android.widget.ListView;
 
 import com.partyspottr.appdir.R;
 import com.partyspottr.appdir.classes.Bruker;
-import com.partyspottr.appdir.classes.adapters.ChatAdapter;
+import com.partyspottr.appdir.classes.adapters.ChatPreviewAdapter;
 
 /**
  * Created by Ranarrr on 20-Mar-18.
@@ -29,6 +29,6 @@ public class chatfragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         ListView lv_chat = getActivity().findViewById(R.id.lv_chat);
-        lv_chat.setAdapter(new ChatAdapter(getActivity(), Bruker.get().getChatMessageList()));
+        lv_chat.setAdapter(new ChatPreviewAdapter(getActivity(), Bruker.get().getChatMessageList()));
     }
 }

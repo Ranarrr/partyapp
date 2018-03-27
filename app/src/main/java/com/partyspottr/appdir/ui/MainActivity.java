@@ -38,6 +38,11 @@ public class MainActivity extends AppCompatActivity {
     private CallbackManager callbackManager;
 
     @Override
+    public void onBackPressed() {
+        System.exit(0);
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
@@ -54,7 +59,7 @@ public class MainActivity extends AppCompatActivity {
         EditText password = findViewById(R.id.passordLoginText);
         Button registrerbtn = findViewById(R.id.RegistrerBtn);
 
-        LoginButton loginButton = findViewById(R.id.fbLogin);
+        /*LoginButton loginButton = findViewById(R.id.fbLogin);
 
         callbackManager = CallbackManager.Factory.create();
 
@@ -74,7 +79,7 @@ public class MainActivity extends AppCompatActivity {
             public void onError(FacebookException error) {
                 Toast.makeText(MainActivity.this, "There was an unknown error, please try again.", Toast.LENGTH_LONG).show();
             }
-        });
+        });*/
 
         registrerbtn.setTypeface(typeface);
         loginbtn.setTypeface(typeface);
@@ -151,9 +156,9 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    @Override
+    /*@Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         callbackManager.onActivityResult(requestCode, resultCode, data);
         super.onActivityResult(requestCode, resultCode, data);
-    }
+    }*/
 }

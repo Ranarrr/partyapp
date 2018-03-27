@@ -96,10 +96,13 @@ public class CheckEmail extends AsyncTask<Void, Void, Integer> {
             if(progressDialog.getOwnerActivity() != null) {
                 EditText emailtext = progressDialog.getOwnerActivity().findViewById(R.id.emailText);
                 ViewCompat.setBackgroundTintList(emailtext, ContextCompat.getColorStateList(progressDialog.getContext(), R.color.greentint));
+
+                CheckPhoneNum checkPhoneNum = new CheckPhoneNum(progressDialog.getOwnerActivity(), phonenumber);
+                checkPhoneNum.execute();
             }
 
-            SmsManager smsManager = SmsManager.getDefault();
-            smsManager.sendTextMessage(phonenumber, null, "random msg", null, null);
+            /*SmsManager smsManager = SmsManager.getDefault();
+            smsManager.sendTextMessage(phonenumber, null, "random msg", null, null);*/
         } else {
             Toast.makeText(progressDialog.getContext(), progressDialog.getContext().getResources().getString(R.string.tilkoblingsfeil), Toast.LENGTH_SHORT).show();
         }
