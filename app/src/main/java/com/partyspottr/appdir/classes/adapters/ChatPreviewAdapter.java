@@ -13,11 +13,14 @@ import com.partyspottr.appdir.BuildConfig;
 import com.partyspottr.appdir.R;
 import com.partyspottr.appdir.classes.ChatPreview;
 import com.partyspottr.appdir.classes.Chatter;
+import com.partyspottr.appdir.classes.Utilities;
 import com.partyspottr.appdir.ui.MainActivity;
 import com.partyspottr.appdir.ui.other_ui.Chat;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Locale;
 
@@ -111,7 +114,36 @@ public class ChatPreviewAdapter extends BaseAdapter {
             }
 
             if(preview.getLastmsg() > 0) {
-                time.setText(new SimpleDateFormat("dd-MM-yyyy\nHH:mm:ss", Locale.ENGLISH).format(preview.getLastmsg()));
+                GregorianCalendar calendar = new GregorianCalendar();
+                calendar.setTimeInMillis(preview.getLastmsg());
+
+                switch(Utilities.getDateStrChat(calendar)) {
+                    case 1:
+                        time.setText(new SimpleDateFormat("HH:mm", Locale.getDefault()).format(preview.getLastmsg()));
+                        break;
+
+                    case 2:
+                        time.setText("Yesterday");
+                        break;
+
+                    case 3:
+                        time.setText(calendar.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.SHORT, Locale.getDefault()));
+                        break;
+
+                    case 4:
+                        time.setText(String.format(Locale.ENGLISH, "%d. %s", calendar.get(Calendar.DAY_OF_MONTH), calendar.getDisplayName(Calendar.MONTH, Calendar.SHORT, Locale.getDefault())));
+                        break;
+
+                    case 5:
+                        time.setText(String.format(Locale.ENGLISH, "%d. %s %d", calendar.get(Calendar.DAY_OF_MONTH), calendar.getDisplayName(Calendar.MONTH, Calendar.SHORT, Locale.getDefault()),
+                                calendar.get(Calendar.YEAR)));
+                        break;
+
+                        default:
+                            time.setText("");
+                            break;
+                }
+
             }
 
             convertView.setOnClickListener(new View.OnClickListener() {

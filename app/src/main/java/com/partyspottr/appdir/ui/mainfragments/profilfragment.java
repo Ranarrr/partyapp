@@ -76,10 +76,10 @@ public class profilfragment extends Fragment {
 
         logout.setPaintFlags(logout.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
 
-        if(Bruker.get().getTown() == null) {
+        if(Bruker.get().getTown() == null || Bruker.get().getTown().isEmpty()) {
             by.setText(Bruker.get().getCountry());
         } else {
-            by.setText(Bruker.get().getTown());
+            by.setText(String.format(Locale.ENGLISH, "%s, %s", Bruker.get().getCountry(), Bruker.get().getTown()));
         }
 
         fornavn_etternavn.setText(String.format(Locale.ENGLISH, "%s %s, %d", Bruker.get().getFornavn(), Bruker.get().getEtternavn(), Utilities.calcAge(new GregorianCalendar(Bruker.get().getYear(),

@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.util.Base64;
 import android.util.DisplayMetrics;
@@ -42,6 +43,7 @@ import com.partyspottr.appdir.classes.networking.AddParticipant;
 import com.partyspottr.appdir.classes.networking.RemoveParticipant;
 import com.partyspottr.appdir.enums.EventStilling;
 import com.partyspottr.appdir.ui.MainActivity;
+import com.partyspottr.appdir.ui.other_ui.Profile;
 
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
@@ -135,141 +137,9 @@ public class GuestListAdapter extends BaseAdapter {
                         public boolean onMenuItemClick(MenuItem item) {
                             switch (item.getItemId()) {
                                 case R.id.vis_profil:
-                                    StringRequest stringRequest = new StringRequest(BuildConfig.DBMS_URL + "?get_user={\"socketElem\":\"" + Base64.encodeToString(BuildConfig.JSONParser_Socket.getBytes(),
-                                            Base64.DEFAULT) + "\",\"username\":\"" + participant.getBrukernavn() + "\"}", new Response.Listener<String>() {
-                                        @Override
-                                        public void onResponse(String response) {
-                                            if(response == null || response.isEmpty()) {
-                                                Toast.makeText(thisActivity, "Failed to load profile!", Toast.LENGTH_SHORT).show();
-                                                return;
-                                            }
-
-                                            final Dialog profil = new Dialog(thisActivity);
-                                            profil.setCancelable(true);
-                                            profil.setCanceledOnTouchOutside(true);
-                                            profil.requestWindowFeature(1);
-                                            profil.setContentView(R.layout.profil);
-
-                                            TextView fornavn_etternavn = profil.findViewById(R.id.fornavn_etternavn);
-                                            TextView by = profil.findViewById(R.id.profil_by);
-                                            ImageView countryflag = profil.findViewById(R.id.countryflag_profil);
-                                            TextView oneliner = profil.findViewById(R.id.profil_oneliner);
-                                            TextView title = profil.findViewById(R.id.brukernavn_profil);
-                                            Button send_message = profil.findViewById(R.id.send_message);
-                                            Button add_friend = profil.findViewById(R.id.add_friend);
-
-                                            send_message.setTypeface(MainActivity.typeface);
-                                            add_friend.setTypeface(MainActivity.typeface);
-                                            fornavn_etternavn.setTypeface(MainActivity.typeface);
-                                            by.setTypeface(MainActivity.typeface);
-                                            oneliner.setTypeface(MainActivity.typeface);
-                                            title.setTypeface(MainActivity.typeface);
-
-                                            final Bruker fullparticipant = Bruker.retBrukerFromJSON(response);
-
-                                            if(fullparticipant != null) {
-                                                send_message.setOnClickListener(new View.OnClickListener() {
-                                                    @Override
-                                                    public void onClick(View v) {
-                                                        final Dialog send_msg = new Dialog(thisActivity);
-                                                        send_msg.setCancelable(true);
-                                                        send_msg.setCanceledOnTouchOutside(true);
-                                                        send_msg.requestWindowFeature(1);
-                                                        send_msg.setContentView(R.layout.send_message_dialog);
-
-                                                        if(send_msg.getWindow() != null) {
-                                                            WindowManager.LayoutParams layoutParams = send_msg.getWindow().getAttributes();
-
-                                                            DisplayMetrics dm = new DisplayMetrics();
-
-                                                            thisActivity.getWindowManager().getDefaultDisplay().getMetrics(dm);
-
-                                                            send_msg.getWindow().setBackgroundDrawable(null);
-
-                                                            layoutParams.width = dm.widthPixels;
-
-                                                            send_msg.getWindow().setAttributes(layoutParams);
-                                                            send_msg.getWindow().setGravity(Gravity.BOTTOM);
-
-                                                        }
-
-                                                        send_msg.setOnShowListener(new DialogInterface.OnShowListener() {
-                                                            @Override
-                                                            public void onShow(DialogInterface dialog) {
-                                                                if (send_msg.getWindow() != null) {
-                                                                    View view = send_msg.getWindow().getDecorView();
-
-                                                                    ObjectAnimator.ofFloat(view, "translationY", view.getHeight(), 0.0f).start();
-                                                                }
-                                                            }
-                                                        });
-
-                                                        Button send = send_msg.findViewById(R.id.send_new_msg_btn);
-
-                                                        send.setOnClickListener(new View.OnClickListener() {
-                                                            @Override
-                                                            public void onClick(View v) {
-                                                                EditText message = send_msg.findViewById(R.id.send_new_msg_text);
-
-                                                                List<Chatter> list = new ArrayList<>();
-                                                                list.add(new Chatter(Bruker.get().getBrukernavn(), Bruker.get().getFornavn(), Bruker.get().getEtternavn()));
-                                                                list.add(new Chatter(fullparticipant.getBrukernavn(), fullparticipant.getFornavn(), fullparticipant.getEtternavn()));
-                                                                if(Bruker.get().startChat(new ChatPreview(message.getText().toString(), "", false, list), fullparticipant.getBrukernavn(), message.getText().toString())) {
-                                                                    Toast.makeText(thisActivity, "Started a chat with " + fullparticipant.getBrukernavn(), Toast.LENGTH_SHORT).show();
-                                                                }
-                                                            }
-                                                        });
-
-                                                        send_msg.show();
-                                                    }
-                                                });
-
-                                                title.setText(fullparticipant.getBrukernavn());
-
-                                                if(fullparticipant.getTown() == null || fullparticipant.getTown().isEmpty()) {
-                                                    by.setText(fullparticipant.getCountry());
-                                                } else {
-                                                    by.setText(String.format(Locale.ENGLISH, "%s, %s", fullparticipant.getCountry(), fullparticipant.getTown()));
-                                                }
-
-                                                fornavn_etternavn.setText(String.format(Locale.ENGLISH, "%s %s, %d", fullparticipant.getFornavn(), fullparticipant.getEtternavn(),
-                                                        Utilities.calcAge(new GregorianCalendar(fullparticipant.getYear(),
-                                                                fullparticipant.getMonth(), fullparticipant.getDay_of_month()))));
-
-                                                if(fullparticipant.getOneliner().isEmpty()) {
-                                                    oneliner.setVisibility(View.GONE);
-                                                } else {
-                                                    oneliner.setText(fullparticipant.getOneliner());
-                                                }
-
-                                                if(!Bruker.get().getCountry().equals("Dominican Republic")) { // because android studio reserves the resource name "do"
-                                                    String identifier = CountryCodes.getCountrySign(fullparticipant.getCountry()).toLowerCase();
-
-                                                    int resource = thisActivity.getResources().getIdentifier(identifier, "drawable", thisActivity.getPackageName());
-
-                                                    if(resource > 0) {
-                                                        Drawable drawable = thisActivity.getResources().getDrawable(resource);
-
-                                                        countryflag.setImageDrawable(drawable);
-                                                    }
-                                                } else {
-                                                    countryflag.setImageResource(R.drawable.dominican_republic);
-                                                }
-
-                                                profil.show();
-                                            } else {
-                                                Toast.makeText(thisActivity, "Failed to load profile!", Toast.LENGTH_SHORT).show();
-                                            }
-                                        }
-                                    }, new Response.ErrorListener() {
-                                        @Override
-                                        public void onErrorResponse(VolleyError error) {
-                                            error.getCause().printStackTrace();
-                                        }
-                                    });
-
-                                    RequestQueue queue = Volley.newRequestQueue(thisActivity);
-                                    queue.add(stringRequest);
+                                    Intent intent = new Intent(thisActivity, Profile.class);
+                                    intent.putExtra("user", participant.getBrukernavn());
+                                    thisActivity.startActivity(intent);
 
                                     return true;
 

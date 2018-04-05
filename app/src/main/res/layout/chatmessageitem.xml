@@ -9,9 +9,9 @@
         android:id="@+id/msgitem_msg"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="@dimen/_8sdp"
-        android:layout_marginStart="@dimen/_4sdp"
+        android:layout_marginEnd="@dimen/_80sdp"
         android:background="@drawable/chat_other_person"
+        android:maxWidth="@dimen/_200sdp"
         android:paddingBottom="@dimen/_5sdp"
         android:paddingEnd="@dimen/_15sdp"
         android:paddingStart="@dimen/_15sdp"
@@ -19,14 +19,15 @@
         android:text="msg"
         android:textColor="@android:color/white"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/msgitem_time"
         app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toEndOf="@+id/msgitem_time"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/msgitem_time"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/_4sdp"
         android:layout_marginStart="@dimen/_5sdp"
         android:text="TextView"
         android:visibility="gone"

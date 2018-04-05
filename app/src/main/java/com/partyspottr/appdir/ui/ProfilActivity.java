@@ -257,7 +257,7 @@ public class ProfilActivity extends AppCompatActivity {
 
     public void onChatMenyClick(View v) {
         replaceFragment(3);
-        ((TextView) findViewById(R.id.title_toolbar)).setText("Chat");
+        ((TextView) findViewById(R.id.title_toolbar)).setText("Messages"); // TODO : Translation
     }
 
     public void onProfilMenyClick(View v) {

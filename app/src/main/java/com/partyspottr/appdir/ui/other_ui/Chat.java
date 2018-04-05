@@ -50,6 +50,7 @@ public class Chat extends AppCompatActivity {
     private int chattime;
     private ChatPreview preview;
     private String lastfooter;
+    private boolean previousChatIsYours;
 
     private int doesChatMessageExist(ChatMessage chatMessage) {
         for(int i = 0; i < m_list.size(); i++) {
@@ -339,7 +340,23 @@ public class Chat extends AppCompatActivity {
 
             ViewGroup.MarginLayoutParams params = new ViewGroup.MarginLayoutParams(v.getLayoutParams());
 
-            params.setMargins(0, 0, 0, 10);
+            if(m_list.size() >= 1) {
+                boolean isyourchat = chatMessage.getBruker().equals(Bruker.get().getBrukernavn());
+
+                if(isyourchat && previousChatIsYours) {
+                    params.setMargins(0, (int) getResources().getDimension(R.dimen._3sdp), 0, 0);
+                } else if(isyourchat && !previousChatIsYours) {
+                    params.setMargins(0, (int) getResources().getDimension(R.dimen._15sdp), 0, 0);
+                } else if(!isyourchat && !previousChatIsYours) {
+                    params.setMargins(0, (int) getResources().getDimension(R.dimen._3sdp), 0, 0);
+                } else if(!isyourchat && previousChatIsYours) {
+                    params.setMargins(0, (int) getResources().getDimension(R.dimen._15sdp), 0, 0);
+                }
+            } else {
+                params.setMargins(0, 0, 0, (int) getResources().getDimension(R.dimen._10sdp));
+            }
+
+            previousChatIsYours = chatMessage.getBruker().equals(Bruker.get().getBrukernavn());
 
             v.setLayoutParams(params);
 

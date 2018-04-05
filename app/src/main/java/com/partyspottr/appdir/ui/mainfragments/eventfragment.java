@@ -67,9 +67,9 @@ public class eventfragment extends Fragment {
         Fragment eventFragment = getActivity().getSupportFragmentManager().findFragmentByTag(eventfragment.class.getName());
 
         if(eventFragment != null) {
-            PagerAdapter pagerAdapter = new ScreenSliderPagerAdapter(eventFragment.getChildFragmentManager());
             final ViewPager viewPager = getActivity().findViewById(R.id.pagerview_event);
             if(viewPager != null) {
+                PagerAdapter pagerAdapter = new ScreenSliderPagerAdapter(eventFragment.getChildFragmentManager());
                 viewPager.setAdapter(pagerAdapter);
                 viewPager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
                     @Override
@@ -196,7 +196,7 @@ public class eventfragment extends Fragment {
     }
 
     private class ScreenSliderPagerAdapter extends FragmentStatePagerAdapter {
-        public ScreenSliderPagerAdapter(FragmentManager fragmentManager) {
+        ScreenSliderPagerAdapter(FragmentManager fragmentManager) {
             super(fragmentManager);
         }
 
