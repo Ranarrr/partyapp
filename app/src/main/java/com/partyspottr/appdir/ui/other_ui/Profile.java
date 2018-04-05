@@ -3,6 +3,7 @@ package com.partyspottr.appdir.ui.other_ui;
 import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -50,6 +51,7 @@ import com.partyspottr.appdir.ui.mainfragments.eventchildfragments.mine_eventer_
 import com.partyspottr.appdir.ui.mainfragments.eventchildfragments.mitt_arkiv_fragment;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Locale;
@@ -93,7 +95,7 @@ public class Profile extends AppCompatActivity {
                 Button send_message = findViewById(R.id.send_message);
                 Button add_friend = findViewById(R.id.add_friend);
                 ConstraintLayout content = findViewById(R.id.profile_content);
-                ViewPager pager = findViewById(R.id.profile_eventpager);
+                CustomViewPager pager = findViewById(R.id.profile_eventpager);
 
                 Point size = new Point();
                 getWindowManager().getDefaultDisplay().getSize(size);
@@ -109,7 +111,11 @@ public class Profile extends AppCompatActivity {
                 final Bruker fullparticipant = Bruker.retBrukerFromJSON(response);
 
                 if(fullparticipant != null) {
+                    List<Integer> eventids = Bruker.get().getAllEventIDUserGoingTo(fullparticipant.getBrukernavn());
 
+                    EventSlidePagerAdapter adapter = new EventSlidePagerAdapter(Profile.this, eventids);
+
+                    pager.setAdapter(adapter);
 
                     send_message.setOnClickListener(new View.OnClickListener() {
                         @Override
@@ -213,11 +219,35 @@ public class Profile extends AppCompatActivity {
         queue.add(stringRequest);
     }
 
+    public class CustomViewPager extends ViewPager {
+
+        public CustomViewPager(Context context) {
+            super(context);
+        }
+
+        @Override
+        protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+            int height = 0;
+            for(int i = 0; i < getChildCount(); i++) {
+                View child = getChildAt(i);
+                child.measure(widthMeasureSpec, MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED));
+                int h = child.getMeasuredHeight();
+                if(h > height) height = h;
+            }
+
+            if (height != 0) {
+                heightMeasureSpec = MeasureSpec.makeMeasureSpec(height, MeasureSpec.EXACTLY);
+            }
+
+            super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+        }
+    }
+
     private class EventSlidePagerAdapter extends PagerAdapter {
         private LayoutInflater inflater;
-        private int[] eventIds;
+        private List<Integer> eventIds;
 
-        public EventSlidePagerAdapter(Activity activity, int[] eventids) {
+        public EventSlidePagerAdapter(Activity activity, List<Integer> eventids) {
             inflater = activity.getLayoutInflater();
             eventIds = eventids;
         }
@@ -226,20 +256,27 @@ public class Profile extends AppCompatActivity {
         public Object instantiateItem(ViewGroup container, int position) {
             View v = inflater.inflate(R.layout.event, container, false);
 
-            TextView arrangementNavn = v.findViewById(R.id.eventText);
-            TextView stedText = v.findViewById(R.id.stedText);
-            TextView hostText = v.findViewById(R.id.hostText);
-            TextView datoText = v.findViewById(R.id.datoText);
-            //ImageView bildeIListe = v.findViewById(R.id.imageView2);
+            Event event = Bruker.get().getListOfEvents().get(eventIds.get(position));
 
-            arrangementNavn.setTypeface(typeface);
-            stedText.setTypeface(typeface);
-            hostText.setTypeface(typeface);
-            datoText.setTypeface(typeface);
+            if(event != null) {
+                TextView arrangementNavn = v.findViewById(R.id.eventText);
+                TextView stedText = v.findViewById(R.id.stedText);
+                TextView hostText = v.findViewById(R.id.hostText);
+                TextView datoText = v.findViewById(R.id.datoText);
+                //ImageView bildeIListe = v.findViewById(R.id.imageView2);
 
-            Event event = Bruker.get().getListOfEvents().get(eventIds[position]);
+                arrangementNavn.setTypeface(typeface);
+                stedText.setTypeface(typeface);
+                hostText.setTypeface(typeface);
+                datoText.setTypeface(typeface);
 
+                arrangementNavn.setText(event.getNameofevent());
+                stedText.setText(event.getAddress());
+                hostText.setText(event.getHostStr());
 
+                datoText.setText(String.format(Locale.ENGLISH, "%d %s %d", event.getDatefrom().get(Calendar.DAY_OF_MONTH), event.getDatefrom().getDisplayName(Calendar.MONTH, Calendar.SHORT,
+                        inflater.getContext().getResources().getConfiguration().locale).toLowerCase(), event.getDatefrom().get(Calendar.YEAR)));
+            }
 
             container.addView(v);
 
@@ -248,12 +285,12 @@ public class Profile extends AppCompatActivity {
 
         @Override
         public int getCount() {
-            return eventIds.length;
+            return eventIds.size();
         }
 
         @Override
         public boolean isViewFromObject(View view, Object object) {
-            return false;
+            return (view == (View) object);
         }
     }
 }

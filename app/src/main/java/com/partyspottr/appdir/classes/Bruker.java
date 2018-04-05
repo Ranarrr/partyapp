@@ -270,6 +270,24 @@ public class Bruker {
         return "";
     }
 
+    public List<Integer> getAllEventIDUserGoingTo(String user) {
+        List<Integer> ret = new ArrayList<>();
+
+        for(int i = 0; i < listOfEvents.size(); i++) {
+            if(listOfEvents.get(i).getHostStr().equals(user)) {
+                ret.add(i);
+                continue;
+            }
+
+            for(Participant child : listOfEvents.get(i).getParticipants()) {
+                if(child.getBrukernavn().equals(user))
+                    ret.add(i);
+            }
+        }
+
+        return ret;
+    }
+
     public Event getEventFromID(long eventid) {
         for(Event eventToParse : listOfEvents) {
             if(eventToParse.getEventId() == eventid) {

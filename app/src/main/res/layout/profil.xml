@@ -129,13 +129,23 @@
         app:layout_constraintStart_toEndOf="@+id/add_friend"
         app:layout_constraintTop_toTopOf="@+id/add_friend" />
 
-    <android.support.v4.view.ViewPager
+    <view
         android:id="@+id/profile_eventpager"
+        class="com.partyspottr.appdir.ui.other_ui.Profile$CustomViewPager"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/_18sdp"
-        app:layout_constraintEnd_toEndOf="@+id/constraintLayout"
-        app:layout_constraintStart_toStartOf="@+id/constraintLayout"
+        android:background="@color/colorAlphaSite" />
+
+    <TextView
+        android:id="@+id/textView13"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Deltar på"
+        android:textColor="@android:color/black"
+        android:textSize="@dimen/_13ssp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="@+id/profile_eventpager"
+        app:layout_constraintStart_toStartOf="@+id/profile_eventpager"
         app:layout_constraintTop_toBottomOf="@+id/constraintLayout" />
 
 </android.support.constraint.ConstraintLayout>
