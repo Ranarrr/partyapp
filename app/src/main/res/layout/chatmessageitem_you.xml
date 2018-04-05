@@ -9,32 +9,31 @@
         android:id="@+id/msgitem_msg"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="@dimen/_8sdp"
-        android:layout_marginStart="@dimen/_4sdp"
-        android:background="@drawable/chat_other_person"
+        android:layout_marginEnd="@dimen/_5sdp"
+        android:background="@drawable/chat_you"
         android:paddingBottom="@dimen/_5sdp"
         android:paddingEnd="@dimen/_15sdp"
         android:paddingStart="@dimen/_15sdp"
         android:paddingTop="@dimen/_5sdp"
         android:text="msg"
         android:textColor="@android:color/white"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/msgitem_time"
-        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintEnd_toStartOf="@+id/msgitem_time"
+        app:layout_constraintHorizontal_bias="0.98"
+        app:layout_constraintHorizontal_chainStyle="packed"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/msgitem_time"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/_5sdp"
         android:text="TextView"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="@+id/msgitem_msg"
-        app:layout_constraintEnd_toStartOf="@+id/msgitem_msg"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintHorizontal_chainStyle="packed"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/msgitem_msg" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/msgitem_msg"
+        app:layout_constraintTop_toTopOf="@+id/msgitem_msg"
+        app:layout_constraintVertical_bias="0.533" />
 
 </android.support.constraint.ConstraintLayout>

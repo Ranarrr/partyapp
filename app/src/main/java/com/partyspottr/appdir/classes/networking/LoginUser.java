@@ -4,13 +4,9 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.AsyncTask;
-import android.support.annotation.NonNull;
 import android.util.Base64;
 import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthResult;
 import com.partyspottr.appdir.BuildConfig;
 import com.partyspottr.appdir.R;
 import com.partyspottr.appdir.classes.Bruker;
@@ -68,8 +64,10 @@ public class LoginUser extends AsyncTask<Void, Void, Integer> {
             JSONObject json = new JSONParser().get_jsonobject("POST", params, null);
             if(json != null) {
                 if(json.getInt("success") == 1) {
+                    SplashActivity.hasSwitched = true;
                     return 1;
                 } else if(json.getInt("success") == 2) {
+                    SplashActivity.hasSwitched = true;
                     return 2;
                 } else {
                     return -1;
@@ -98,6 +96,8 @@ public class LoginUser extends AsyncTask<Void, Void, Integer> {
                 intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 progressDialog.getOwnerActivity().startActivity(intent);
 
+                progressDialog.getOwnerActivity().finish();
+
                 getUser getuser = new getUser(progressDialog.getOwnerActivity());
                 getuser.execute();
             }
@@ -109,8 +109,8 @@ public class LoginUser extends AsyncTask<Void, Void, Integer> {
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             progressDialog.getContext().startActivity(intent);
 
-            /*if(progressDialog.getOwnerActivity() != null)
-                progressDialog.getOwnerActivity().finish();*/
+            if(progressDialog.getOwnerActivity() != null)
+                progressDialog.getOwnerActivity().finish();
 
             progressDialog.dismiss();
         } else if(integer == -1) { // wrong password

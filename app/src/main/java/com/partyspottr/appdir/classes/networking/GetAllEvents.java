@@ -2,7 +2,6 @@ package com.partyspottr.appdir.classes.networking;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.os.AsyncTask;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Base64;
@@ -64,10 +63,13 @@ public class GetAllEvents extends AsyncTask<Void, Void, Integer> {
     @Override
     protected void onPostExecute(Integer integer) {
         if(progressDialog.getOwnerActivity() != null) {
-            ListView listView = progressDialog.getOwnerActivity().findViewById(R.id.lvalle_eventer);
+            ListView allevents = progressDialog.getOwnerActivity().findViewById(R.id.lvalle_eventer);
             SwipeRefreshLayout swipeRefreshLayout = progressDialog.getOwnerActivity().findViewById(R.id.swipe_layout_events);
 
-            listView.setAdapter(new EventAdapter(progressDialog.getOwnerActivity(), Bruker.get().getListOfEvents()));
+            allevents.setAdapter(new EventAdapter(progressDialog.getOwnerActivity(), Bruker.get().getListOfEvents()));
+            ListView myevents = progressDialog.getOwnerActivity().findViewById(R.id.lvmine_eventer);
+            if(myevents != null)
+                myevents.setAdapter(new EventAdapter(progressDialog.getOwnerActivity(), Bruker.get().getListOfMyEvents()));
             if(swipeRefreshLayout != null) {
                 swipeRefreshLayout.setRefreshing(false);
             }

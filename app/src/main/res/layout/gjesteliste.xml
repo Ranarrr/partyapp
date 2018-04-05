@@ -60,7 +60,7 @@
             tools:layout_editor_absoluteY="16dp" />
 
         <ImageButton
-            android:id="@+id/gjesteliste_søk_btn"
+            android:id="@+id/gjesteliste_search_btn"
             android:layout_width="@dimen/_50sdp"
             android:layout_height="match_parent"
             android:layout_gravity="center_vertical|end"
@@ -80,15 +80,16 @@
         android:id="@+id/lv_gjesteliste"
         android:layout_width="@dimen/_250sdp"
         android:layout_height="@dimen/_380sdp"
+        android:layout_marginTop="@dimen/_10sdp"
         android:divider="@color/lightred"
         android:dividerHeight="1dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/gjesteliste_søk" />
+        app:layout_constraintTop_toBottomOf="@+id/gjesteliste_search" />
 
     <EditText
-        android:id="@+id/gjesteliste_søk"
+        android:id="@+id/gjesteliste_search"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginEnd="@dimen/_8sdp"

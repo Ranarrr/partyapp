@@ -16,21 +16,12 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
-import com.facebook.FacebookCallback;
-import com.facebook.FacebookException;
-import com.facebook.FacebookSdk;
-import com.facebook.Profile;
-import com.facebook.login.LoginResult;
-import com.facebook.login.widget.LoginButton;
 import com.partyspottr.appdir.R;
 import com.partyspottr.appdir.classes.Bruker;
 import com.partyspottr.appdir.classes.Utilities;
 import com.partyspottr.appdir.classes.networking.LoginUser;
 import com.partyspottr.appdir.ui.registerui.RegisterActivity;
-
-import java.util.Arrays;
 
 public class MainActivity extends AppCompatActivity {
 

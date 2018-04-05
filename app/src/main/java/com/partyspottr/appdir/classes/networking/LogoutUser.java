@@ -11,6 +11,7 @@ import com.partyspottr.appdir.BuildConfig;
 import com.partyspottr.appdir.classes.Bruker;
 import com.partyspottr.appdir.ui.MainActivity;
 import com.partyspottr.appdir.ui.SplashActivity;
+import com.partyspottr.appdir.ui.mainfragments.chatfragment;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
@@ -32,11 +33,17 @@ public class LogoutUser extends AsyncTask<Void, Void, Integer> {
     private JSONObject info;
 
     public LogoutUser(Activity activity) {
-        if(!Bruker.get().isLoggetpa())
+        if(!Bruker.get().isLoggetpa()) {
+            Intent intent = new Intent(activity, MainActivity.class);
+            activity.startActivity(intent);
             cancel(true);
+        }
 
-        if(SplashActivity.mAuth.getCurrentUser() == null)
+        if(SplashActivity.mAuth.getCurrentUser() == null) {
+            Intent intent = new Intent(activity, MainActivity.class);
+            activity.startActivity(intent);
             cancel(true);
+        }
 
         try {
             info = new JSONObject();
@@ -65,8 +72,12 @@ public class LogoutUser extends AsyncTask<Void, Void, Integer> {
             JSONObject json = new JSONParser().get_jsonobject("POST", params, null);
             if(json != null) {
                 if(json.getInt("success") == 1) {
+                    if(chatfragment.valueEventListener != null && chatfragment.ref != null)
+                        chatfragment.ref.removeEventListener(chatfragment.valueEventListener);
+
                     if(SplashActivity.mAuth.getCurrentUser() != null)
                         SplashActivity.mAuth.signOut();
+
                     return 1;
                 } else {
                     return -1;
@@ -74,8 +85,8 @@ public class LogoutUser extends AsyncTask<Void, Void, Integer> {
             }
         } catch(JSONException e) {
             e.printStackTrace();
-            return 0;
         }
+
         return 0;
     }
 
@@ -85,9 +96,13 @@ public class LogoutUser extends AsyncTask<Void, Void, Integer> {
             Bruker.get().setLoggetpa(false);
             Bruker.get().setPassord("");
             Bruker.get().LagreBruker();
+
             Intent intent = new Intent(progressDialog.getContext(), MainActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             progressDialog.getContext().startActivity(intent);
+
+            progressDialog.dismiss();
+
             if(progressDialog.getOwnerActivity() != null)
                 progressDialog.getOwnerActivity().finish();
         } else if(integer == -1) {

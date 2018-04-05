@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Base64;
 
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.partyspottr.appdir.BuildConfig;
@@ -58,21 +59,22 @@ public class Bruker {
     private static final String premiumElem = "premiumElem";
     private static final String loggedonElem = "loggedonElem";
     private static final String countryElem = "countryElem";
-    private static final String listMyEventsElem = "listMyEventsElem";
     private static final String day_of_monthElem = "day_of_monthElem";
-    private static final String friendlistElem = "friendlistElem";
-    private static final String requestlistElem = "requestlistElem";
+    private static final String friendlistElem = "friendlist";
+    private static final String requestlistElem = "requests";
     private static final String monthElem = "monthElem";
     private static final String townElem = "townElem";
     private static final String yearElem = "yearElem";
     private static final String mobilElem = "mobilElem";
     private static final String socketElem = "socketElem";
     private static final String chatElem = "chatElem";
+    private static final String onelinerElem = "oneliner";
 
     private static final Type listFriendsType = new TypeToken<List<Friend>>(){}.getType();
     private static final Type listParticipantsType = new TypeToken<List<Participant>>(){}.getType();
     private static final Type listRequestsType = new TypeToken<List<Requester>>(){}.getType();
-    private static final Type listMessages = new TypeToken<List<ChatPreview>>(){}.getType();
+    private static final Type listPreviewMsgsType = new TypeToken<List<ChatPreview>>(){}.getType();
+
 
     private static Bruker lokalBruker;
 
@@ -96,7 +98,6 @@ public class Bruker {
         editor.putString(brukernavnElem, brukernavn);
         editor.putString(passordElem, passord);
         editor.putBoolean(harakseptertElem, harakseptert);
-        editor.putString(listMyEventsElem, new Gson().toJson(listOfMyEvents));
         editor.putString(fornavnElem, fornavn);
         editor.putString(etternavnElem, etternavn);
         editor.putBoolean(premiumElem, premium);
@@ -106,7 +107,10 @@ public class Bruker {
         editor.putInt(yearElem, year);
         editor.putString(mobilElem, mobilnummer);
         editor.putString(emailElem, email);
+        editor.putString(onelinerElem, oneliner);
         editor.putString(chatElem, new Gson().toJson(chatMessageList));
+        editor.putString(friendlistElem, new Gson().toJson(friendList));
+        editor.putString(requestlistElem, new Gson().toJson(requests));
         editor.apply();
     }
 
@@ -123,19 +127,35 @@ public class Bruker {
         lokalBruker.year = sharedPreferences.getInt(yearElem, 0);
         lokalBruker.mobilnummer = sharedPreferences.getString(mobilElem, "");
         lokalBruker.email = sharedPreferences.getString(emailElem, "");
+        lokalBruker.oneliner = sharedPreferences.getString(onelinerElem, "");
         lokalBruker.listOfEvents = new ArrayList<>();
-        lokalBruker.listOfMyEvents = new Gson().fromJson(sharedPreferences.getString(chatElem, ""), listMessages);
-        lokalBruker.friendList = new ArrayList<>();
-        lokalBruker.requests = new ArrayList<>();
+        lokalBruker.listOfMyEvents = new ArrayList<>();
+
+        if(sharedPreferences.getString(chatElem, "").equals(""))
+            lokalBruker.chatMessageList = new ArrayList<>();
+        else
+            lokalBruker.chatMessageList = new Gson().fromJson(sharedPreferences.getString(chatElem, ""), listPreviewMsgsType);
+
+        if(sharedPreferences.getString(friendlistElem, "").equals(""))
+            lokalBruker.friendList = new ArrayList<>();
+        else
+            lokalBruker.friendList = new Gson().fromJson(sharedPreferences.getString(friendlistElem, ""), listFriendsType);
+
+        if(sharedPreferences.getString(requestlistElem, "").equals(""))
+            lokalBruker.requests = new ArrayList<>();
+        else
+            lokalBruker.requests = new Gson().fromJson(sharedPreferences.getString(requestlistElem, ""), listRequestsType);
     }
 
     public void ParseEvents(JSONArray events) {
         if(events.length() == 0) {
             listOfEvents = new ArrayList<>();
+            listOfMyEvents = new ArrayList<>();
             return;
         }
 
         listOfEvents = new ArrayList<>();
+        listOfMyEvents = new ArrayList<>();
 
         try {
             for(int i = 0; i < events.length(); i++) {
@@ -159,35 +179,43 @@ public class Bruker {
                 if(eventToAdd.getHostStr().isEmpty())
                     continue;
 
-                if(!eventToAdd.getNameofevent().isEmpty())
-                    listOfEvents.add(eventToAdd);
+                if(!eventToAdd.getNameofevent().isEmpty()) {
+                    if(eventToAdd.getHostStr().equals(Bruker.get().getBrukernavn()))
+                        listOfMyEvents.add(eventToAdd);
 
+                    listOfEvents.add(eventToAdd);
+                }
             }
         } catch(JSONException e){
             e.printStackTrace();
         }
     }
 
-    public Bruker retBrukerFromJSON(JSONObject json) {
-        Bruker newBruker = new Bruker();
+    public static Bruker retBrukerFromJSON(String str) {
         try {
+            JSONObject json = new JSONObject(str);
+            Bruker newBruker = new Bruker();
+
             newBruker.brukernavn = json.getString(brukernavnElem);
-            newBruker.harakseptert = json.getBoolean(harakseptertElem);
             newBruker.fornavn = json.getString(fornavnElem);
             newBruker.etternavn = json.getString(etternavnElem);
-            newBruker.premium = json.getBoolean(premiumElem);
+            newBruker.premium = Integer.valueOf(json.getString(premiumElem)) > 0;
             newBruker.mobilnummer = json.getString(mobilElem);
             newBruker.email = json.getString(emailElem);
-            newBruker.day_of_month = json.getInt(day_of_monthElem);
-            newBruker.month = json.getInt(monthElem);
-            newBruker.year = json.getInt(yearElem);
-            newBruker.friendList = new Gson().fromJson(json.getString(friendlistElem), listFriendsType);
-            newBruker.requests = new Gson().fromJson(json.getString(requestlistElem), listFriendsType);
+            newBruker.town = json.getString(townElem);
+            newBruker.userid = Integer.valueOf(json.getString("id"));
+            newBruker.country = json.getString(countryElem);
+            newBruker.day_of_month = Integer.valueOf(json.getString(day_of_monthElem));
+            newBruker.month = Integer.valueOf(json.getString(monthElem));
+            newBruker.year = Integer.valueOf(json.getString(yearElem));
+            newBruker.oneliner = json.getString(onelinerElem);
+
+            return newBruker;
         } catch (JSONException e) {
             e.printStackTrace();
         }
 
-        return newBruker;
+        return null;
     }
 
     public void JSONToBruker(JSONObject json) {
@@ -203,6 +231,7 @@ public class Bruker {
             day_of_month = Integer.valueOf(json.getString(day_of_monthElem));
             month = Integer.valueOf(json.getString(monthElem));
             year = Integer.valueOf(json.getString(yearElem));
+            oneliner = json.getString(onelinerElem);
             friendList = new Gson().fromJson(json.getString(friendlistElem), listFriendsType);
             requests = new Gson().fromJson(json.getString(requestlistElem), listFriendsType);
             LagreBruker();
@@ -229,6 +258,7 @@ public class Bruker {
             fullJson.put(yearElem, year);
             fullJson.put(countryElem, country);
             fullJson.put(townElem, town);
+            fullJson.put(onelinerElem, oneliner);
             fullJson.put(friendlistElem, new Gson().toJson(friendList));
             fullJson.put(requestlistElem, new Gson().toJson(requests));
             fullJson.put(socketElem, Base64.encodeToString(BuildConfig.JSONParser_Socket.getBytes(), Base64.DEFAULT));
@@ -272,6 +302,25 @@ public class Bruker {
     public void addToMyEvents(Event event) {
         listOfMyEvents.add(event);
         LagreBruker();
+    }
+
+    public boolean startChat(ChatPreview chatPreview, String otherUser, String message) {
+        if(isConnected()) {
+            if(chatMessageList == null)
+                chatMessageList = new ArrayList<>();
+
+            chatMessageList.add(chatPreview);
+
+            List<ChatMessage> list = new ArrayList<>();
+            list.add(new ChatMessage(message, getBrukernavn()));
+
+            FirebaseDatabase.getInstance().getReference("messagepreviews").child(getBrukernavn() + "_" + otherUser).setValue(chatPreview);
+            FirebaseDatabase.getInstance().getReference("messages").child(getBrukernavn() + "_" + otherUser).setValue(list);
+            LagreBruker();
+            return true;
+        }
+
+        return false;
     }
 
     public String getBrukernavn() {

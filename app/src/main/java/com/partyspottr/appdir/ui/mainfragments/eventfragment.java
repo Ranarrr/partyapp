@@ -130,24 +130,24 @@ public class eventfragment extends Fragment {
                                 ViewCompat.setBackgroundTintList(mitt_arkiv_btn, ContextCompat.getColorStateList(getActivity().getApplicationContext(), R.color.lightlightgrey));
 
                                 final ListView lvmine_eventer = getActivity().findViewById(R.id.lvmine_eventer);
-                                final EditText søk_mine_eventer = getActivity().findViewById(R.id.søk_mine_eventer);
+                                final EditText search_mine_eventer = getActivity().findViewById(R.id.search_mine_eventer);
 
-                                if(lvmine_eventer == null || søk_mine_eventer == null)
+                                if(lvmine_eventer == null || search_mine_eventer == null)
                                     break;
 
                                 search_events.setOnClickListener(new View.OnClickListener() {
                                     @Override
                                     public void onClick(View v) {
                                         if(Bruker.get().getListOfMyEvents() != null && !Bruker.get().getListOfMyEvents().isEmpty()) {
-                                            søk_mine_eventer.setVisibility(søk_mine_eventer.getVisibility() == View.VISIBLE ? View.INVISIBLE : View.VISIBLE);
-                                            ViewGroup.LayoutParams params = søk_mine_eventer.getLayoutParams();
+                                            search_mine_eventer.setVisibility(search_mine_eventer.getVisibility() == View.VISIBLE ? View.INVISIBLE : View.VISIBLE);
+                                            ViewGroup.LayoutParams params = search_mine_eventer.getLayoutParams();
 
-                                            if(søk_mine_eventer.getVisibility() == View.INVISIBLE)
+                                            if(search_mine_eventer.getVisibility() == View.INVISIBLE)
                                                 params.height = 0;
                                             else {
                                                 params.height = WRAP_CONTENT;
 
-                                                søk_mine_eventer.addTextChangedListener(new TextWatcher() {
+                                                search_mine_eventer.addTextChangedListener(new TextWatcher() {
                                                     @Override
                                                     public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
 

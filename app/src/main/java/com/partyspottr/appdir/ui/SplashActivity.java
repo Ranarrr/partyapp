@@ -1,17 +1,10 @@
 package com.partyspottr.appdir.ui;
 
 import android.Manifest;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Typeface;
-import android.location.Address;
-import android.location.Criteria;
-import android.location.Geocoder;
-import android.location.Location;
-import android.location.LocationManager;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
@@ -19,20 +12,12 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.widget.Toast;
 
-import com.facebook.AccessToken;
-import com.facebook.FacebookSdk;
 import com.google.firebase.auth.FirebaseAuth;
 import com.partyspottr.appdir.R;
 import com.partyspottr.appdir.classes.Bruker;
 import com.partyspottr.appdir.classes.Utilities;
 import com.partyspottr.appdir.classes.networking.LoginUser;
-import com.partyspottr.appdir.classes.networking.LogoutUser;
-
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Locale;
 
 /**
  * Created by Ranarrr on 14-Mar-18.
@@ -45,6 +30,7 @@ public class SplashActivity extends AppCompatActivity {
     private boolean hasFineLocation;
     private boolean hasCoarseLocation;
     private boolean hasSendSMS;
+    public static boolean hasSwitched;
     private boolean once;
     private static boolean passedfirst;
 
@@ -64,7 +50,7 @@ public class SplashActivity extends AppCompatActivity {
         hasSendSMS = ActivityCompat.checkSelfPermission(this, Manifest.permission.SEND_SMS) == PackageManager.PERMISSION_GRANTED;
 
         if(!Bruker.get().isLoggetpa() && !Bruker.get().getBrukernavn().isEmpty() && !Bruker.get().getPassord().isEmpty()
-                && !Bruker.get().getEmail().isEmpty() && mAuth.getCurrentUser() == null) {
+                && !Bruker.get().getEmail().isEmpty()) {
             LoginUser loginUser = new LoginUser(this, Bruker.get().getBrukernavn(), Bruker.get().getPassord());
             loginUser.execute();
         }
@@ -75,30 +61,10 @@ public class SplashActivity extends AppCompatActivity {
 
         once = false;
         passedfirst = false;
+        hasSwitched = false;
 
         if(hasFineLocation && hasCoarseLocation) {
-            Geocoder geocoder = new Geocoder(this, Locale.ENGLISH);
-            LocationManager locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
-            if (locationManager != null) {
-                Criteria criteria = new Criteria();
-                String bestprovider = locationManager.getBestProvider(criteria, false);
-
-                Location location = locationManager.getLastKnownLocation(bestprovider);
-
-                if(location == null) {
-                    location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-                }
-
-                try {
-                    for(Address address : geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1)) {
-                        if(address != null) {
-                            Bruker.get().setCountry(address.getCountryName());
-                        }
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
+            Utilities.getPosition(this);
         }
 
         if(!hasSendSMS) {
@@ -115,7 +81,7 @@ public class SplashActivity extends AppCompatActivity {
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                if(!Bruker.get().isLoggetpa() && hasSendSMS && hasCoarseLocation && hasFineLocation) {
+                if(!Bruker.get().isLoggetpa() && !hasSwitched && hasSendSMS && hasCoarseLocation && hasFineLocation) {
                     Intent main = new Intent(SplashActivity.this, MainActivity.class);
                     SplashActivity.this.startActivity(main);
                     SplashActivity.this.finish();
@@ -153,7 +119,7 @@ public class SplashActivity extends AppCompatActivity {
             new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    if(!Bruker.get().isLoggetpa()) {
+                    if(!Bruker.get().isLoggetpa() && !hasSwitched) {
                         Intent main = new Intent(SplashActivity.this, MainActivity.class);
                         SplashActivity.this.startActivity(main);
                         SplashActivity.this.finish();

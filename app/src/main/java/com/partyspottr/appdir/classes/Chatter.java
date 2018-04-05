@@ -1,5 +1,7 @@
 package com.partyspottr.appdir.classes;
 
+import java.util.List;
+
 /**
  * Created by Ranarrr on 20-Mar-18.
  *
@@ -7,26 +9,30 @@ package com.partyspottr.appdir.classes;
  */
 
 public class Chatter {
-    private long userId;
+    private String brukernavn;
     private String fornavn;
     private String etternavn;
 
     public Chatter() {
-
+        brukernavn = "";
+        fornavn = "";
+        etternavn = "";
     }
 
-    private Chatter(long userid, String fornvn, String ettrnavn) {
-        userId = userid;
+    public Chatter(String bruker, String fornvn, String ettrnavn) {
+        brukernavn = bruker;
         fornavn = fornvn;
         etternavn = ettrnavn;
     }
 
-    public long getUserId() {
-        return userId;
-    }
+    public static Chatter getChatterNotEqualToBruker(List<Chatter> list) {
+        for(Chatter chatter : list) {
+            if(!chatter.getBrukernavn().equals(Bruker.get().getBrukernavn())) {
+                return chatter;
+            }
+        }
 
-    public void setUserId(long userId) {
-        this.userId = userId;
+        return null;
     }
 
     public String getFornavn() {
@@ -43,5 +49,13 @@ public class Chatter {
 
     public void setEtternavn(String etternavn) {
         this.etternavn = etternavn;
+    }
+
+    public String getBrukernavn() {
+        return brukernavn;
+    }
+
+    public void setBrukernavn(String brukernavn) {
+        this.brukernavn = brukernavn;
     }
 }

@@ -1,6 +1,7 @@
 package com.partyspottr.appdir.classes;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -16,16 +17,34 @@ public class ChatPreview {
     private List<Chatter> chatters;
     private long lastmsg;
 
+    // used for dataSnapshot.getValue, needing a default constructor
     public ChatPreview() {
         this("", "", false, 0, new ArrayList<Chatter>());
     }
 
-    private ChatPreview(String msg, String groupnam, boolean isgroup, long lastmessage, List<Chatter> chatterList) {
+    public ChatPreview(String msg, String groupnam, boolean isgroup, List<Chatter> list) {
+        chatters = list;
+        message = msg;
+        groupname = groupnam;
+        groupchat = isgroup;
+        lastmsg = new Date().getTime();
+    }
+
+    public ChatPreview(String msg, String groupnam, boolean isgroup, long lastmessage, List<Chatter> chatterList) {
         chatters = chatterList;
         message = msg;
         groupname = groupnam;
         groupchat = isgroup;
         lastmsg = lastmessage;
+    }
+
+    public static ChatPreview findPreviewInList(String chatter1, String chatter2, List<ChatPreview> list) {
+        for(ChatPreview temp : list) {
+            if(temp.getChatters().get(0).getBrukernavn().equals(chatter1) && temp.getChatters().get(1).getBrukernavn().equals(chatter2))
+                return temp;
+        }
+
+        return null;
     }
 
     public void addChatter(Chatter chatter) {

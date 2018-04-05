@@ -2,8 +2,6 @@ package com.partyspottr.appdir.classes.networking;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.util.Base64;
 import android.widget.ImageButton;

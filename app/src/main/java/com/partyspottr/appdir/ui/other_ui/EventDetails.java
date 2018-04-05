@@ -8,7 +8,6 @@ import android.graphics.Paint;
 import android.os.Bundle;
 import android.support.constraint.ConstraintLayout;
 import android.support.constraint.ConstraintSet;
-import android.support.constraint.solver.widgets.ConstraintWidget;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
@@ -17,9 +16,6 @@ import android.text.SpannableString;
 import android.text.TextWatcher;
 import android.text.style.ForegroundColorSpan;
 import android.view.View;
-import android.view.ViewGroup;
-import android.view.WindowManager;
-import android.widget.AbsoluteLayout;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -329,15 +325,15 @@ public class EventDetails extends AppCompatActivity {
 
                     lv_gjesteliste.setAdapter(new GuestListAdapter(EventDetails.this, event.getEventId(), event.getParticipants()));
 
-                    final EditText gjesteliste_søk = dialog.findViewById(R.id.gjesteliste_søk);
-                    ImageButton gjesteliste_søk_btn = dialog.findViewById(R.id.gjesteliste_søk_btn);
+                    final EditText gjesteliste_search = dialog.findViewById(R.id.gjesteliste_search);
+                    ImageButton gjesteliste_search_btn = dialog.findViewById(R.id.gjesteliste_search_btn);
 
-                    gjesteliste_søk_btn.setOnClickListener(new View.OnClickListener() {
+                    gjesteliste_search_btn.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            gjesteliste_søk.setVisibility(gjesteliste_søk.getVisibility() == View.VISIBLE ? View.GONE : View.VISIBLE);
+                            gjesteliste_search.setVisibility(gjesteliste_search.getVisibility() == View.VISIBLE ? View.GONE : View.VISIBLE);
 
-                            gjesteliste_søk.addTextChangedListener(new TextWatcher() {
+                            gjesteliste_search.addTextChangedListener(new TextWatcher() {
                                 @Override
                                 public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
 

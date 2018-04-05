@@ -2,11 +2,9 @@ package com.partyspottr.appdir.classes.networking;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
-import android.content.Intent;
 import android.os.AsyncTask;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewCompat;
-import android.telephony.SmsManager;
 import android.util.Base64;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -14,7 +12,6 @@ import android.widget.Toast;
 import com.partyspottr.appdir.BuildConfig;
 import com.partyspottr.appdir.R;
 import com.partyspottr.appdir.classes.Bruker;
-import com.partyspottr.appdir.ui.registerui.Register3Activity;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;

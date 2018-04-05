@@ -1,10 +1,18 @@
 package com.partyspottr.appdir.classes;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
+import android.content.pm.PackageManager;
+import android.location.Address;
+import android.location.Criteria;
+import android.location.Geocoder;
+import android.location.Location;
+import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.provider.Settings;
+import android.support.v4.app.ActivityCompat;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
@@ -17,10 +25,12 @@ import android.widget.Toast;
 import com.partyspottr.appdir.R;
 import com.partyspottr.appdir.classes.adapters.EventAdapter;
 
+import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Locale;
@@ -67,12 +77,45 @@ public class Utilities {
         return null;
     }
 
+    public static void getPosition(Activity activity) {
+        if(ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED ||
+                ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            Toast.makeText(activity, "Please allow Partyspottr to find your location.", Toast.LENGTH_LONG).show(); // TODO : Translation
+            System.exit(0);
+        }
+
+        Geocoder geocoder = new Geocoder(activity, Locale.ENGLISH);
+        LocationManager locationManager = (LocationManager) activity.getSystemService(Context.LOCATION_SERVICE);
+        if (locationManager != null) {
+            Criteria criteria = new Criteria();
+            String bestprovider = locationManager.getBestProvider(criteria, false);
+
+            Location location = locationManager.getLastKnownLocation(bestprovider);
+
+            if(location == null) {
+                location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+            }
+
+            try {
+                for(Address address : geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1)) {
+                    if(address != null) {
+                        Bruker.get().setCountry(address.getCountryName());
+                        Bruker.get().setTown(address.getLocality());
+                        Bruker.get().LagreBruker();
+                    }
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
     public static void onSearchEventsClickAlle(final Activity activity) {
         final ListView listView = activity.findViewById(R.id.lvalle_eventer);
         ImageButton searchevents = activity.findViewById(R.id.search_events);
-        final EditText søk_alle_eventer = activity.findViewById(R.id.søk_alle_eventer);
+        final EditText search_alle_eventer = activity.findViewById(R.id.søk_alle_eventer);
 
-        if(listView == null || searchevents == null || søk_alle_eventer == null)
+        if(listView == null || searchevents == null || search_alle_eventer == null)
             return;
 
         searchevents.setOnClickListener(new View.OnClickListener() {
@@ -80,15 +123,15 @@ public class Utilities {
             public void onClick(View v) {
                 if(Bruker.get().getListOfEvents() != null) {
                     if(!Bruker.get().getListOfEvents().isEmpty()) {
-                        søk_alle_eventer.setVisibility(søk_alle_eventer.getVisibility() == View.VISIBLE ? View.INVISIBLE : View.VISIBLE);
-                        ViewGroup.LayoutParams params = søk_alle_eventer.getLayoutParams();
+                        search_alle_eventer.setVisibility(search_alle_eventer.getVisibility() == View.VISIBLE ? View.INVISIBLE : View.VISIBLE);
+                        ViewGroup.LayoutParams params = search_alle_eventer.getLayoutParams();
 
-                        if(søk_alle_eventer.getVisibility() == View.INVISIBLE)
+                        if(search_alle_eventer.getVisibility() == View.INVISIBLE)
                             params.height = 0;
                         else {
                             params.height = WRAP_CONTENT;
 
-                            søk_alle_eventer.addTextChangedListener(new TextWatcher() {
+                            search_alle_eventer.addTextChangedListener(new TextWatcher() {
                                 @Override
                                 public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
 
@@ -116,7 +159,7 @@ public class Utilities {
                             });
                         }
 
-                        søk_alle_eventer.setLayoutParams(params);
+                        search_alle_eventer.setLayoutParams(params);
                     } else {
                         Toast.makeText(activity, "The list is empty!", Toast.LENGTH_SHORT).show();
                     }
@@ -146,6 +189,43 @@ public class Utilities {
         }
 
         return result;
+    }
+
+    public static int getDateStrChat(GregorianCalendar calendar) {
+        GregorianCalendar today = new GregorianCalendar();
+        today.setTime(new Date(System.currentTimeMillis()));
+
+        if(calendar.get(Calendar.DAY_OF_MONTH) == today.get(Calendar.DAY_OF_MONTH) && calendar.get(Calendar.MONTH) == today.get(Calendar.MONTH) && calendar.get(Calendar.YEAR) == today.get(Calendar.YEAR)) {
+            return 1;
+            //return "Today";
+        }
+
+        if((today.get(Calendar.DAY_OF_MONTH) - calendar.get(Calendar.DAY_OF_MONTH)) == 1 && calendar.get(Calendar.MONTH) == today.get(Calendar.MONTH) && calendar.get(Calendar.YEAR) == today.get(Calendar.YEAR)) {
+            return 2;
+            //return "Yesterday";
+        }
+
+        if((today.get(Calendar.DAY_OF_MONTH) - calendar.get(Calendar.DAY_OF_MONTH)) < 7 && calendar.get(Calendar.MONTH) == today.get(Calendar.MONTH) && calendar.get(Calendar.YEAR) == today.get(Calendar.YEAR)) {
+            return 3;
+            //return String.format(Locale.ENGLISH, "%s", calendar.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.getDefault()));
+        }
+
+        if(calendar.get(Calendar.MONTH) == today.get(Calendar.MONTH) && calendar.get(Calendar.YEAR) == today.get(Calendar.YEAR)) {
+            return 4;
+            //return String.format(Locale.ENGLISH, "%d %s", calendar.get(Calendar.DAY_OF_MONTH), calendar.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.getDefault()));
+        }
+
+        if(calendar.get(Calendar.MONTH) != today.get(Calendar.MONTH) && calendar.get(Calendar.YEAR) == today.get(Calendar.YEAR)) {
+            return 4;
+            //return String.format(Locale.ENGLISH, "%d %s", calendar.get(Calendar.DAY_OF_MONTH), calendar.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.getDefault()));
+        }
+
+        if(calendar.get(Calendar.YEAR) != today.get(Calendar.YEAR)) {
+            return 5;
+            //return String.format(Locale.ENGLISH, "%d %s %d", calendar.get(Calendar.DAY_OF_MONTH), calendar.getDisplayName(Calendar.MONTH, Calendar.SHORT, Locale.getDefault()), calendar.get(Calendar.YEAR));
+        }
+
+        return 0;
     }
 
     /*private static int calculateInSampleSize(

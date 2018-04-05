@@ -18,10 +18,10 @@
         android:dividerHeight="@dimen/_20sdp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/søk_mine_eventer" />
+        app:layout_constraintTop_toBottomOf="@+id/search_mine_eventer" />
 
     <EditText
-        android:id="@+id/søk_mine_eventer"
+        android:id="@+id/search_mine_eventer"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginEnd="@dimen/_8sdp"

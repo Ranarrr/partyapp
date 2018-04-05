@@ -9,7 +9,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import com.partyspottr.appdir.BuildConfig;
 import com.partyspottr.appdir.R;

@@ -3,6 +3,7 @@ package com.partyspottr.appdir.classes.networking;
 import android.support.annotation.Nullable;
 
 import com.google.common.io.ByteStreams;
+import com.partyspottr.appdir.BuildConfig;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
@@ -24,7 +25,6 @@ import java.util.List;
  */
 
 class JSONParser {
-
     JSONArray get_jsonarray(String method, List<NameValuePair> list, @Nullable File bmp) {
         try {
             return new JSONArray(makeHTTPReq(method, list, bmp));
@@ -48,12 +48,11 @@ class JSONParser {
     private String makeHTTPReq(String method, List<NameValuePair> list, @Nullable File bmp) {
         InputStream is = null;
         StringBuilder result = new StringBuilder();
-        String urlserver = "https://partyspottr.com/DBMS.php";
 
         if (method.equals("POST")) {
             try {
                 DefaultHttpClient defaultHttpClient = new DefaultHttpClient();
-                HttpPost httpPost = new HttpPost(urlserver);
+                HttpPost httpPost = new HttpPost(BuildConfig.DBMS_URL);
                 httpPost.setEntity(new UrlEncodedFormEntity(list));
                 is = defaultHttpClient.execute(httpPost).getEntity().getContent();
             } catch (IOException e3) {
@@ -62,7 +61,7 @@ class JSONParser {
         } else if (method.equals("IMG")) {
             try {
                 DefaultHttpClient defaultHttpClient = new DefaultHttpClient();
-                HttpPost httpPost = new HttpPost(urlserver);
+                HttpPost httpPost = new HttpPost(BuildConfig.DBMS_URL);
                 MultipartEntity multipartEntity = new MultipartEntity();
                 multipartEntity.addPart("image_upload", bmp);
                 httpPost.setEntity(multipartEntity);
@@ -73,8 +72,6 @@ class JSONParser {
         }
 
         try {
-            assert is != null;
-
             result.append(new String(ByteStreams.toByteArray(is)));
 
             is.close();

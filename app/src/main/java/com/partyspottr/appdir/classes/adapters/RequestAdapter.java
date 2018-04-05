@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.drawable.Drawable;
-import android.media.Image;
 import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,13 +14,11 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.partyspottr.appdir.R;
-import com.partyspottr.appdir.classes.Bruker;
 import com.partyspottr.appdir.classes.Requester;
 import com.partyspottr.appdir.classes.Utilities;
 import com.partyspottr.appdir.classes.networking.RemoveEventRequest;
 import com.partyspottr.appdir.ui.MainActivity;
 
-import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Locale;

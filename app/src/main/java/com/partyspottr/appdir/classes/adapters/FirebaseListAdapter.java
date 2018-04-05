@@ -10,6 +10,9 @@ import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.Query;
+import com.partyspottr.appdir.R;
+import com.partyspottr.appdir.classes.Bruker;
+import com.partyspottr.appdir.classes.ChatMessage;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,16 +27,13 @@ import java.util.List;
  * instance of your list item mLayout and an instance your class that holds your data. Simply populate the view however
  * you like and this class will handle updating the list as the data changes.
  *
- * @param <T> The class type to use as a model for the data contained in the children of the given Firebase location
  */
 
-public abstract class FirebaseListAdapter<T> extends BaseAdapter {
-
+public abstract class FirebaseListAdapter extends BaseAdapter {
     private Query mRef;
-    private Class<T> mModelClass;
     private int mLayout;
     private LayoutInflater mInflater;
-    private List<T> mModels;
+    private List<ChatMessage> mModels;
     private List<String> mKeys;
     private ChildEventListener mListener;
 
@@ -41,24 +41,23 @@ public abstract class FirebaseListAdapter<T> extends BaseAdapter {
     /**
      * @param mRef        The Firebase location to watch for data changes. Can also be a slice of a location, using some
      *                    combination of <code>limit()</code>, <code>startAt()</code>, and <code>endAt()</code>,
-     * @param mModelClass Firebase will marshall the data at a location into an instance of a class that you provide
      * @param mLayout     This is the mLayout used to represent a single list item. You will be responsible for populating an
      *                    instance of the corresponding view with the data from an instance of mModelClass.
      * @param activity    The activity containing the ListView
      */
-    public FirebaseListAdapter(Query mRef, Class<T> mModelClass, int mLayout, Activity activity) {
+    public FirebaseListAdapter(Query mRef, int mLayout, Activity activity) {
         this.mRef = mRef;
-        this.mModelClass = mModelClass;
         this.mLayout = mLayout;
         mInflater = activity.getLayoutInflater();
         mModels = new ArrayList<>();
         mKeys = new ArrayList<>();
+
         // Look for all child events. We will then map them to our own internal ArrayList, which backs ListView
         mListener = this.mRef.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String previousChildName) {
 
-                T model = dataSnapshot.getValue(FirebaseListAdapter.this.mModelClass);
+                ChatMessage model = dataSnapshot.getValue(ChatMessage.class);
                 String key = dataSnapshot.getKey();
 
                 // Insert into the correct location, based on previousChildName
@@ -84,7 +83,7 @@ public abstract class FirebaseListAdapter<T> extends BaseAdapter {
             public void onChildChanged(DataSnapshot dataSnapshot, String s) {
                 // One of the mModels changed. Replace it in our list and name mapping
                 String key = dataSnapshot.getKey();
-                T newModel = dataSnapshot.getValue(FirebaseListAdapter.this.mModelClass);
+                ChatMessage newModel = dataSnapshot.getValue(ChatMessage.class);
                 int index = mKeys.indexOf(key);
 
                 mModels.set(index, newModel);
@@ -110,7 +109,7 @@ public abstract class FirebaseListAdapter<T> extends BaseAdapter {
 
                 // A model changed position in the list. Update our list accordingly
                 String key = dataSnapshot.getKey();
-                T newModel = dataSnapshot.getValue(FirebaseListAdapter.this.mModelClass);
+                ChatMessage newModel = dataSnapshot.getValue(ChatMessage.class);
                 int index = mKeys.indexOf(key);
                 mModels.remove(index);
                 mKeys.remove(index);
@@ -128,6 +127,7 @@ public abstract class FirebaseListAdapter<T> extends BaseAdapter {
                         mKeys.add(nextIndex, key);
                     }
                 }
+
                 notifyDataSetChanged();
             }
 
@@ -164,11 +164,16 @@ public abstract class FirebaseListAdapter<T> extends BaseAdapter {
 
     @Override
     public View getView(int i, View view, ViewGroup viewGroup) {
+        ChatMessage model = mModels.get(i);
+
         if (view == null) {
-            view = mInflater.inflate(mLayout, viewGroup, false);
+            if(model.getBruker().equals(Bruker.get().getBrukernavn())) {
+                view = mInflater.inflate(R.layout.chatmessageitem_you, viewGroup, false);
+            } else {
+                view = mInflater.inflate(mLayout, viewGroup, false);
+            }
         }
 
-        T model = mModels.get(i);
         // Call out to subclass to marshall this model into the provided view
         populateView(view, model);
         return view;
@@ -183,5 +188,5 @@ public abstract class FirebaseListAdapter<T> extends BaseAdapter {
      * @param v     The view to populate
      * @param model The object containing the data used to populate the view
      */
-    protected abstract void populateView(View v, T model);
+    protected abstract void populateView(View v, ChatMessage model);
 }
