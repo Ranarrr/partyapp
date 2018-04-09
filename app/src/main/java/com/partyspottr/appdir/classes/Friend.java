@@ -1,8 +1,6 @@
 package com.partyspottr.appdir.classes;
 
-import android.support.annotation.Nullable;
-
-import java.util.Calendar;
+import java.util.Date;
 
 /**
  * Created by Ranarrr on 25-Feb-18.
@@ -11,16 +9,15 @@ import java.util.Calendar;
  */
 
 public class Friend {
-
     private String brukernavn;
-    private Calendar FriendSince;
+    private long FriendSince;
 
     public Friend() {}
 
-    public Friend BrukerToFriend(Bruker bruker, @Nullable Calendar friendSince) {
+    public Friend BrukerToFriend(Bruker bruker) {
         Friend result = new Friend();
         result.brukernavn = bruker.getBrukernavn();
-        result.FriendSince = friendSince;
+        result.FriendSince = new Date().getTime();
         return result;
     }
 
@@ -32,11 +29,11 @@ public class Friend {
         this.brukernavn = brukernavn;
     }
 
-    public Calendar getFriendSince() {
+    public long getFriendSince() {
         return FriendSince;
     }
 
-    public void setFriendSince(Calendar friendSince) {
+    public void setFriendSince(long friendSince) {
         FriendSince = friendSince;
     }
 }

@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class UpdateUser extends AsyncTask<Void, Void, Integer> {
-    UpdateUser() {}
+    public UpdateUser() {}
 
     @Override
     protected Integer doInBackground(Void... voids) {

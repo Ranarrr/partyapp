@@ -27,13 +27,12 @@ import java.util.List;
  */
 
 public class AddEvent extends AsyncTask<Void, Void, Integer> {
-
     private JSONObject eventToAdd;
     private Event eventToUse;
     private ProgressDialog progressDialog;
     private File bitmap;
 
-    public AddEvent(ProgressDialog pD, Event event, File bmp) {
+    AddEvent(ProgressDialog pD, Event event, File bmp) {
         progressDialog = pD;
         eventToUse = event;
         bitmap = bmp;

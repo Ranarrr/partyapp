@@ -1,9 +1,5 @@
 package com.partyspottr.appdir.classes.networking;
 
-/*
- * Created by Ranarrr on 20-Feb-18.
- */
-
 import android.content.Context;
 
 import com.partyspottr.appdir.classes.Bruker;
@@ -20,6 +16,12 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Locale;
+
+/**
+ * Created by Ranarrr on 20-Feb-18.
+ *
+ * @author Ranarrr
+ */
 
 public class GoogleAPIRequest {
 

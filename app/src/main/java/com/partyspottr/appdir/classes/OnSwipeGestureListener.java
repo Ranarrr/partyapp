@@ -1,15 +1,17 @@
 package com.partyspottr.appdir.classes;
 
-/*
- * Created by Ranarrr on 18-Feb-18.
- */
-
 import android.content.Context;
 import android.view.GestureDetector;
 import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
+
+/**
+ * Created by Ranarrr on 18-Feb-18.
+ *
+ * @author Ranarrr
+ */
 
 public class OnSwipeGestureListener implements OnTouchListener {
 

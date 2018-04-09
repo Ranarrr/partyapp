@@ -8,6 +8,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.partyspottr.appdir.BuildConfig;
+import com.partyspottr.appdir.classes.networking.UpdateUser;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -168,7 +169,7 @@ public class Bruker {
                         event.getString("hostStr"),Integer.valueOf(event.getString("privateEvent")) > 0, Double.valueOf(event.getString("longitude")),
                         Double.valueOf(event.getString("latitude")), Long.valueOf(event.getString("datefrom")), event.getString("dateto").equals("0") ? 0 : Long.valueOf(event.getString("dateto")),
                         Integer.valueOf(event.getString("agerestriction")), participantList, Integer.valueOf(event.getString("maxparticipants")),
-                        Integer.valueOf(event.getString("postalcode")), event.getString("town"), event.getString("description"),
+                        event.getString("postalcode"), event.getString("town"), event.getString("description"),
                         Integer.valueOf(event.getString("showguestlist")) > 0, Integer.valueOf(event.getString("showaddress")) > 0, requesterList,
                         Integer.valueOf(event.getString("hasimage")) > 0);
 

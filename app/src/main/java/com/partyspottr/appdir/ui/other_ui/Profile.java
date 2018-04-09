@@ -14,6 +14,7 @@ import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
 import android.support.v4.view.PagerAdapter;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Base64;
 import android.util.DisplayMetrics;
 import android.view.Gravity;
@@ -76,10 +77,19 @@ public class Profile extends AppCompatActivity {
         final ImageView countryflag = findViewById(R.id.countryflag_profil);
         final TextView oneliner = findViewById(R.id.profil_oneliner);
         final TextView title = findViewById(R.id.brukernavn_profil);
+        Toolbar toolbar = findViewById(R.id.profile_toolbar);
         final Button send_message = findViewById(R.id.send_message);
         final Button add_friend = findViewById(R.id.add_friend);
         LinearLayout content = findViewById(R.id.profile_content);
         final CustomViewPager pager = findViewById(R.id.customviewpager);
+
+        toolbar.setNavigationIcon(getResources().getDrawable(R.drawable.left_arrow));
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onBackPressed();
+            }
+        });
 
         Point size = new Point();
         getWindowManager().getDefaultDisplay().getSize(size);
@@ -92,6 +102,7 @@ public class Profile extends AppCompatActivity {
         oneliner.setTypeface(MainActivity.typeface);
         title.setTypeface(MainActivity.typeface);
 
+        // TODO : Fix using Utilities.getGETMethodArgStr
         StringRequest stringRequest = new StringRequest(BuildConfig.DBMS_URL + "?get_user={\"socketElem\":\"" + Base64.encodeToString(BuildConfig.JSONParser_Socket.getBytes(),
                 Base64.DEFAULT) + "\",\"username\":\"" + brukernavn + "\"}", new Response.Listener<String>() {
             @Override

@@ -25,6 +25,11 @@ import android.widget.Toast;
 import com.partyspottr.appdir.R;
 import com.partyspottr.appdir.classes.adapters.EventAdapter;
 
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -77,6 +82,11 @@ public class Utilities {
         return null;
     }
 
+    /**
+     * This method is used for gettting the latest position of the user currently logged in.
+     *
+     * @param activity Activity to be used for checking permissions and getting location service @see Context.LOCATION_SERVICE.
+     */
     public static void getPosition(Activity activity) {
         if(ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED ||
                 ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -168,6 +178,12 @@ public class Utilities {
         });
     }
 
+    /**
+     * This is used to calculate the age of a user.
+     *
+     * @param DOB Date-Of-Birth calendar to be used in calculation.
+     * @return Returns age.
+     */
     public static int calcAge(Calendar DOB) {
         int result;
 
@@ -228,6 +244,11 @@ public class Utilities {
         return 0;
     }
 
+    /**
+     * This is used to prevent viewing an unloaded layout
+     *
+     * @param views the views passed to make visible
+     */
     public static void makeVisible(View ... views) {
         if(views == null || views.length == 0) {
             return;
@@ -239,6 +260,32 @@ public class Utilities {
 
             view.setVisibility(View.VISIBLE);
         }
+    }
+
+    /**
+     *
+     * @param name The provided name to be used as a key in the NameValuePair.
+     * @param strings Args to be used in the GET request, i == key, i + 1 == value.
+     * @return Returns full pair string to be used in a GET request.
+     */
+    public static String getGETMethodArgStr(String name, String ... strings) {
+        List<NameValuePair> pairs = new ArrayList<>();
+
+        JSONObject json = new JSONObject();
+
+        for(int i = 0; i < strings.length; i++) {
+            String strName = strings[i];
+            String strValue = strings[i+1];
+
+            try {
+                json.put(strName, strValue);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+
+        pairs.add(new BasicNameValuePair(name, json.toString()));
+        return pairs.toString();
     }
 
     /*private static int calculateInSampleSize(

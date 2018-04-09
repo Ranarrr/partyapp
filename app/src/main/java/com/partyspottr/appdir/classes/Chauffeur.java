@@ -1,8 +1,12 @@
 package com.partyspottr.appdir.classes;
 
+/**
+ * Created by Ranarrr on 09-Apr-18.
+ *
+ * @author Ranarrr
+ */
+
 public class Chauffeur {
-    private String m_fornavn;
-    private String m_etternavn;
     private double m_rating;
     private String m_brukernavn;
     private int m_age;
@@ -12,29 +16,11 @@ public class Chauffeur {
 
     }
 
-    public Chauffeur(String fornavn, String etternavn, double rating, String brukernavn, int age, int capacity) {
-        m_fornavn = fornavn;
-        m_etternavn = etternavn;
+    public Chauffeur(double rating, String brukernavn, int age, int capacity) {
         m_rating = rating;
         m_brukernavn = brukernavn;
         m_age = age;
         m_capacity = capacity;
-    }
-
-    public String getM_fornavn() {
-        return m_fornavn;
-    }
-
-    public void setM_fornavn(String m_fornavn) {
-        this.m_fornavn = m_fornavn;
-    }
-
-    public String getM_etternavn() {
-        return m_etternavn;
-    }
-
-    public void setM_etternavn(String m_etternavn) {
-        this.m_etternavn = m_etternavn;
     }
 
     public double getM_rating() {

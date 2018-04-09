@@ -44,10 +44,6 @@
             android:name=".ui.other_ui.EventDetails"
             android:windowSoftInputMode="adjustNothing" />
 
-        <!--<service
-            android:name=".classes.NotificationService"
-            android:exported="false" />-->
-
         <activity android:name=".ui.other_ui.SettingActivity"/>
 
         <activity android:name=".ui.other_ui.Chat" android:windowFullscreen="false"/>

@@ -13,8 +13,10 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-/*
+/**
  * Created by Ranarrr on 23-Feb-18.
+ *
+ * @author Ranarrr
  */
 
 public class RemoveEvent extends AsyncTask {

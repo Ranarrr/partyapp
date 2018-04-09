@@ -6,7 +6,7 @@
     android:layout_height="match_parent">
 
     <android.support.v7.widget.Toolbar
-        android:id="@+id/toolbar7"
+        android:id="@+id/profile_toolbar"
         android:layout_width="0dp"
         android:layout_height="@dimen/_40sdp"
         android:background="?attr/colorPrimary"
@@ -52,7 +52,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/toolbar7"
+        app:layout_constraintTop_toBottomOf="@+id/profile_toolbar"
         app:srcCompat="@drawable/mannmeny" />
 
     <ImageView

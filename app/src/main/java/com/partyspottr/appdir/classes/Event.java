@@ -31,7 +31,7 @@ public class Event {
     private List<Participant> participants;
     private List<Requester> requests;
     private int maxparticipants;
-    private int postalcode;
+    private String postalcode;
     private String description;
     private boolean showguestlist;
     private boolean showaddress;
@@ -39,16 +39,16 @@ public class Event {
 
     public Event(String name) {
         this(0, name, "", "", "", false, 0.0, 0.0, 0, 0, 0, new ArrayList<Participant>(), 0,
-                0, "", "", false, false, new ArrayList<Requester>(), false);
+                "0", "", "", false, false, new ArrayList<Requester>(), false);
     }
 
     public Event(String name, String adress, String cntry, String host) {
         this(0, name, adress, cntry, host, false, 0.0, 0.0, 0, 0, 0, new ArrayList<Participant>(), 0,
-                0, "", "", false, false, new ArrayList<Requester>(), false);
+                "0", "", "", false, false, new ArrayList<Requester>(), false);
     }
 
     public Event(long eventid, String name, String adress, String cntry, String host, boolean privateevent, double longtude, double latude, long datfrom, long datto, int agerestr,
-                 List<Participant> particpants, int maxparticpants, int postcode, String twn, String desc, boolean showgstlist, boolean showadress, List<Requester> foresprsler, boolean hsimage) {
+                 List<Participant> particpants, int maxparticpants, String postcode, String twn, String desc, boolean showgstlist, boolean showadress, List<Requester> foresprsler, boolean hsimage) {
         eventId = eventid;
         nameofevent = name;
         address = adress;
@@ -242,11 +242,11 @@ public class Event {
         this.eventId = eventId;
     }
 
-    public int getPostalcode() {
+    public String getPostalcode() {
         return postalcode;
     }
 
-    public void setPostalcode(int postalcode) {
+    public void setPostalcode(String postalcode) {
         this.postalcode = postalcode;
     }
 
