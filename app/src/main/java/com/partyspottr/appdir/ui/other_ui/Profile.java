@@ -3,7 +3,6 @@ package com.partyspottr.appdir.ui.other_ui;
 import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.app.Dialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -13,11 +12,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.PagerAdapter;
-import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Base64;
 import android.util.DisplayMetrics;
@@ -29,6 +24,7 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -42,13 +38,11 @@ import com.partyspottr.appdir.R;
 import com.partyspottr.appdir.classes.Bruker;
 import com.partyspottr.appdir.classes.ChatPreview;
 import com.partyspottr.appdir.classes.Chatter;
+import com.partyspottr.appdir.classes.customviews.CustomViewPager;
 import com.partyspottr.appdir.classes.Event;
 import com.partyspottr.appdir.classes.Utilities;
 import com.partyspottr.appdir.classes.adapters.CountryCodes;
 import com.partyspottr.appdir.ui.MainActivity;
-import com.partyspottr.appdir.ui.mainfragments.eventchildfragments.alle_eventer_fragment;
-import com.partyspottr.appdir.ui.mainfragments.eventchildfragments.mine_eventer_fragment;
-import com.partyspottr.appdir.ui.mainfragments.eventchildfragments.mitt_arkiv_fragment;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -59,7 +53,6 @@ import java.util.Locale;
 import static com.partyspottr.appdir.ui.MainActivity.typeface;
 
 public class Profile extends AppCompatActivity {
-
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -78,6 +71,27 @@ public class Profile extends AppCompatActivity {
                 return;
         }
 
+        final TextView fornavn_etternavn = findViewById(R.id.fornavn_etternavn);
+        final TextView by = findViewById(R.id.profil_by);
+        final ImageView countryflag = findViewById(R.id.countryflag_profil);
+        final TextView oneliner = findViewById(R.id.profil_oneliner);
+        final TextView title = findViewById(R.id.brukernavn_profil);
+        final Button send_message = findViewById(R.id.send_message);
+        final Button add_friend = findViewById(R.id.add_friend);
+        LinearLayout content = findViewById(R.id.profile_content);
+        final CustomViewPager pager = findViewById(R.id.customviewpager);
+
+        Point size = new Point();
+        getWindowManager().getDefaultDisplay().getSize(size);
+        content.setBackground(new BitmapDrawable(getResources(), Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.forsidebilde), size.x, size.y, true)));
+
+        send_message.setTypeface(MainActivity.typeface);
+        add_friend.setTypeface(MainActivity.typeface);
+        fornavn_etternavn.setTypeface(MainActivity.typeface);
+        by.setTypeface(MainActivity.typeface);
+        oneliner.setTypeface(MainActivity.typeface);
+        title.setTypeface(MainActivity.typeface);
+
         StringRequest stringRequest = new StringRequest(BuildConfig.DBMS_URL + "?get_user={\"socketElem\":\"" + Base64.encodeToString(BuildConfig.JSONParser_Socket.getBytes(),
                 Base64.DEFAULT) + "\",\"username\":\"" + brukernavn + "\"}", new Response.Listener<String>() {
             @Override
@@ -87,30 +101,15 @@ public class Profile extends AppCompatActivity {
                     return;
                 }
 
-                TextView fornavn_etternavn = findViewById(R.id.fornavn_etternavn);
-                TextView by = findViewById(R.id.profil_by);
-                ImageView countryflag = findViewById(R.id.countryflag_profil);
-                TextView oneliner = findViewById(R.id.profil_oneliner);
-                TextView title = findViewById(R.id.brukernavn_profil);
-                Button send_message = findViewById(R.id.send_message);
-                Button add_friend = findViewById(R.id.add_friend);
-                ConstraintLayout content = findViewById(R.id.profile_content);
-                CustomViewPager pager = findViewById(R.id.profile_eventpager);
-
-                Point size = new Point();
-                getWindowManager().getDefaultDisplay().getSize(size);
-                content.setBackground(new BitmapDrawable(getResources(), Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.forsidebilde), size.x, size.y, true)));
-
-                send_message.setTypeface(MainActivity.typeface);
-                add_friend.setTypeface(MainActivity.typeface);
-                fornavn_etternavn.setTypeface(MainActivity.typeface);
-                by.setTypeface(MainActivity.typeface);
-                oneliner.setTypeface(MainActivity.typeface);
-                title.setTypeface(MainActivity.typeface);
-
                 final Bruker fullparticipant = Bruker.retBrukerFromJSON(response);
 
                 if(fullparticipant != null) {
+                    ConstraintLayout layout1 = findViewById(R.id.profile_info);
+                    LinearLayout layout = findViewById(R.id.profile_events);
+                    ConstraintLayout layout2 = findViewById(R.id.profile_buttons);
+
+                    Utilities.makeVisible(layout, layout1, layout2);
+
                     List<Integer> eventids = Bruker.get().getAllEventIDUserGoingTo(fullparticipant.getBrukernavn());
 
                     EventSlidePagerAdapter adapter = new EventSlidePagerAdapter(Profile.this, eventids);
@@ -212,35 +211,12 @@ public class Profile extends AppCompatActivity {
             @Override
             public void onErrorResponse(VolleyError error) {
                 error.getCause().printStackTrace();
+                Profile.this.onBackPressed();
             }
         });
 
         RequestQueue queue = Volley.newRequestQueue(this);
         queue.add(stringRequest);
-    }
-
-    public class CustomViewPager extends ViewPager {
-
-        public CustomViewPager(Context context) {
-            super(context);
-        }
-
-        @Override
-        protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-            int height = 0;
-            for(int i = 0; i < getChildCount(); i++) {
-                View child = getChildAt(i);
-                child.measure(widthMeasureSpec, MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED));
-                int h = child.getMeasuredHeight();
-                if(h > height) height = h;
-            }
-
-            if (height != 0) {
-                heightMeasureSpec = MeasureSpec.makeMeasureSpec(height, MeasureSpec.EXACTLY);
-            }
-
-            super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-        }
     }
 
     private class EventSlidePagerAdapter extends PagerAdapter {
@@ -274,8 +250,11 @@ public class Profile extends AppCompatActivity {
                 stedText.setText(event.getAddress());
                 hostText.setText(event.getHostStr());
 
-                datoText.setText(String.format(Locale.ENGLISH, "%d %s %d", event.getDatefrom().get(Calendar.DAY_OF_MONTH), event.getDatefrom().getDisplayName(Calendar.MONTH, Calendar.SHORT,
-                        inflater.getContext().getResources().getConfiguration().locale).toLowerCase(), event.getDatefrom().get(Calendar.YEAR)));
+                GregorianCalendar datefrom = new GregorianCalendar();
+                datefrom.setTimeInMillis(event.getDatefrom());
+
+                datoText.setText(String.format(Locale.ENGLISH, "%d %s %d", datefrom.get(Calendar.DAY_OF_MONTH), datefrom.getDisplayName(Calendar.MONTH, Calendar.SHORT,
+                        inflater.getContext().getResources().getConfiguration().locale).toLowerCase(), datefrom.get(Calendar.YEAR)));
             }
 
             container.addView(v);

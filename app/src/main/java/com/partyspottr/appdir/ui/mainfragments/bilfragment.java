@@ -74,8 +74,7 @@ public class bilfragment extends Fragment {
     }
 
     private class ScreenSliderPagerAdapter extends FragmentStatePagerAdapter {
-
-        public ScreenSliderPagerAdapter(FragmentManager fragmentManager) {
+        ScreenSliderPagerAdapter(FragmentManager fragmentManager) {
             super(fragmentManager);
         }
 

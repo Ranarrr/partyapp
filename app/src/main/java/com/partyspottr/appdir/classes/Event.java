@@ -24,8 +24,8 @@ public class Event {
     private boolean privateEvent;
     private Double longitude;
     private Double latitude;
-    private GregorianCalendar datefrom;
-    private GregorianCalendar dateto;
+    private long datefrom;
+    private long dateto;
     private int agerestriction;
     private String hostStr;
     private List<Participant> participants;
@@ -38,16 +38,16 @@ public class Event {
     private boolean hasimage;
 
     public Event(String name) {
-        this(0, name, "", "", "", false, 0.0, 0.0, null, null, 0, new ArrayList<Participant>(), 0,
+        this(0, name, "", "", "", false, 0.0, 0.0, 0, 0, 0, new ArrayList<Participant>(), 0,
                 0, "", "", false, false, new ArrayList<Requester>(), false);
     }
 
     public Event(String name, String adress, String cntry, String host) {
-        this(0, name, adress, cntry, host, false, 0.0, 0.0, null, null, 0, new ArrayList<Participant>(), 0,
+        this(0, name, adress, cntry, host, false, 0.0, 0.0, 0, 0, 0, new ArrayList<Participant>(), 0,
                 0, "", "", false, false, new ArrayList<Requester>(), false);
     }
 
-    public Event(long eventid, String name, String adress, String cntry, String host, boolean privateevent, double longtude, double latude, GregorianCalendar datfrom, GregorianCalendar datto, int agerestr,
+    public Event(long eventid, String name, String adress, String cntry, String host, boolean privateevent, double longtude, double latude, long datfrom, long datto, int agerestr,
                  List<Participant> particpants, int maxparticpants, int postcode, String twn, String desc, boolean showgstlist, boolean showadress, List<Requester> foresprsler, boolean hsimage) {
         eventId = eventid;
         nameofevent = name;
@@ -162,19 +162,19 @@ public class Event {
         this.latitude = latitude;
     }
 
-    public GregorianCalendar getDatefrom() {
+    public long getDatefrom() {
         return datefrom;
     }
 
-    public void setDatefrom(GregorianCalendar datefrom) {
+    public void setDatefrom(long datefrom) {
         this.datefrom = datefrom;
     }
 
-    public GregorianCalendar getDateto() {
+    public long getDateto() {
         return dateto;
     }
 
-    public void setDateto(GregorianCalendar dateto) {
+    public void setDateto(long dateto) {
         this.dateto = dateto;
     }
 

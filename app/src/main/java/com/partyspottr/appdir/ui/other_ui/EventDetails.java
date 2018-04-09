@@ -36,6 +36,7 @@ import com.partyspottr.appdir.classes.networking.RemoveEventRequest;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Locale;
 
@@ -112,14 +113,16 @@ public class EventDetails extends AppCompatActivity {
 
         StringBuilder finaldatofra = new StringBuilder(), finaldatotil = new StringBuilder();
 
-        if(event.getDatefrom() == null) {
+        if(event.getDatefrom() == 0) {
             return;
         } else {
-            if(event.getDateto() == null) {
-                if(event.getDatefrom().get(Calendar.YEAR) == Calendar.getInstance().get(Calendar.YEAR)) {
-                    finaldatofra.append(String.format(Locale.ENGLISH, "Starter %02d %s kl: %02d:%02d", event.getDatefrom().get(Calendar.DAY_OF_MONTH),
-                            event.getDatefrom().getDisplayName(Calendar.MONTH, Calendar.SHORT, getResources().getConfiguration().locale).toLowerCase(),
-                            event.getDatefrom().get(Calendar.HOUR_OF_DAY), event.getDatefrom().get(Calendar.MINUTE)));
+            GregorianCalendar datefrom = new GregorianCalendar();
+            datefrom.setTimeInMillis(event.getDatefrom());
+            if(event.getDateto() == 0) {
+                if(datefrom.get(Calendar.YEAR) == Calendar.getInstance().get(Calendar.YEAR)) {
+                    finaldatofra.append(String.format(Locale.ENGLISH, "Starter %02d %s kl: %02d:%02d", datefrom.get(Calendar.DAY_OF_MONTH),
+                            datefrom.getDisplayName(Calendar.MONTH, Calendar.SHORT, getResources().getConfiguration().locale).toLowerCase(),
+                            datefrom.get(Calendar.HOUR_OF_DAY), datefrom.get(Calendar.MINUTE)));
 
                     Spannable spannable = new SpannableString(finaldatofra.toString());
 
@@ -129,19 +132,21 @@ public class EventDetails extends AppCompatActivity {
 
                     datofra.setText(spannable, TextView.BufferType.SPANNABLE);
                 } else {
-                    finaldatofra.append(String.format(Locale.ENGLISH, "Starter %02d %s %d kl: %02d:%02d", event.getDatefrom().get(Calendar.DAY_OF_MONTH),
-                            event.getDatefrom().getDisplayName(Calendar.MONTH, Calendar.SHORT, getResources().getConfiguration().locale).toLowerCase(), event.getDatefrom().get(Calendar.YEAR),
-                            event.getDatefrom().get(Calendar.HOUR_OF_DAY), event.getDatefrom().get(Calendar.MINUTE)));
+                    finaldatofra.append(String.format(Locale.ENGLISH, "Starter %02d %s %d kl: %02d:%02d", datefrom.get(Calendar.DAY_OF_MONTH),
+                            datefrom.getDisplayName(Calendar.MONTH, Calendar.SHORT, getResources().getConfiguration().locale).toLowerCase(), datefrom.get(Calendar.YEAR),
+                            datefrom.get(Calendar.HOUR_OF_DAY), datefrom.get(Calendar.MINUTE)));
                 }
 
                 datotil.setVisibility(View.GONE);
             } else {
-                if(event.getDateto().get(Calendar.YEAR) == event.getDatefrom().get(Calendar.YEAR)) {
-                    if(event.getDateto().get(Calendar.DAY_OF_MONTH) == event.getDatefrom().get(Calendar.DAY_OF_MONTH)) {
-                        if(event.getDatefrom().get(Calendar.YEAR) == Calendar.getInstance().get(Calendar.YEAR)) {
-                            finaldatofra.append(String.format(Locale.ENGLISH, "Fra %02d %s kl: %02d:%02d - %02d:%02d", event.getDatefrom().get(Calendar.DAY_OF_MONTH),
-                                    event.getDatefrom().getDisplayName(Calendar.MONTH, Calendar.SHORT, getResources().getConfiguration().locale).toLowerCase(), event.getDatefrom().get(Calendar.HOUR_OF_DAY),
-                                    event.getDatefrom().get(Calendar.MINUTE), event.getDateto().get(Calendar.HOUR_OF_DAY), event.getDateto().get(Calendar.MINUTE)));
+                GregorianCalendar dateto = new GregorianCalendar();
+                dateto.setTimeInMillis(event.getDateto());
+                if(dateto.get(Calendar.YEAR) == datefrom.get(Calendar.YEAR)) {
+                    if(dateto.get(Calendar.DAY_OF_MONTH) == datefrom.get(Calendar.DAY_OF_MONTH)) {
+                        if(datefrom.get(Calendar.YEAR) == Calendar.getInstance().get(Calendar.YEAR)) {
+                            finaldatofra.append(String.format(Locale.ENGLISH, "Fra %02d %s kl: %02d:%02d - %02d:%02d", datefrom.get(Calendar.DAY_OF_MONTH),
+                                    datefrom.getDisplayName(Calendar.MONTH, Calendar.SHORT, getResources().getConfiguration().locale).toLowerCase(), datefrom.get(Calendar.HOUR_OF_DAY),
+                                    datefrom.get(Calendar.MINUTE), dateto.get(Calendar.HOUR_OF_DAY), dateto.get(Calendar.MINUTE)));
 
                             Spannable spannable = new SpannableString(finaldatofra.toString());
 
@@ -151,29 +156,29 @@ public class EventDetails extends AppCompatActivity {
 
                             datofra.setText(spannable, TextView.BufferType.SPANNABLE);
                         } else {
-                            finaldatofra.append(String.format(Locale.ENGLISH, "Fra %02d %s %d kl: %02d:%02d - %02d:%02d", event.getDatefrom().get(Calendar.DAY_OF_MONTH),
-                                    event.getDatefrom().getDisplayName(Calendar.MONTH, Calendar.SHORT, getResources().getConfiguration().locale).toLowerCase(), event.getDatefrom().get(Calendar.YEAR),
-                                    event.getDatefrom().get(Calendar.HOUR_OF_DAY), event.getDatefrom().get(Calendar.MINUTE), event.getDateto().get(Calendar.HOUR_OF_DAY), event.getDateto().get(Calendar.MINUTE)));
+                            finaldatofra.append(String.format(Locale.ENGLISH, "Fra %02d %s %d kl: %02d:%02d - %02d:%02d", datefrom.get(Calendar.DAY_OF_MONTH),
+                                    datefrom.getDisplayName(Calendar.MONTH, Calendar.SHORT, getResources().getConfiguration().locale).toLowerCase(), datefrom.get(Calendar.YEAR),
+                                    datefrom.get(Calendar.HOUR_OF_DAY), datefrom.get(Calendar.MINUTE), dateto.get(Calendar.HOUR_OF_DAY), dateto.get(Calendar.MINUTE)));
                         }
 
                         datotil.setVisibility(View.GONE);
                     } else {
-                        finaldatofra.append(String.format(Locale.ENGLISH, "Fra %02d %s kl: %02d:%02d", event.getDatefrom().get(Calendar.DAY_OF_MONTH),
-                                event.getDatefrom().getDisplayName(Calendar.MONTH, Calendar.SHORT, getResources().getConfiguration().locale).toLowerCase(), event.getDatefrom().get(Calendar.HOUR_OF_DAY),
-                                event.getDatefrom().get(Calendar.MINUTE)));
+                        finaldatofra.append(String.format(Locale.ENGLISH, "Fra %02d %s kl: %02d:%02d", datefrom.get(Calendar.DAY_OF_MONTH),
+                                datefrom.getDisplayName(Calendar.MONTH, Calendar.SHORT, getResources().getConfiguration().locale).toLowerCase(), datefrom.get(Calendar.HOUR_OF_DAY),
+                                datefrom.get(Calendar.MINUTE)));
 
-                        finaldatotil.append(String.format(Locale.ENGLISH, "Til %02d %s kl: %02d:%02d", event.getDateto().get(Calendar.DAY_OF_MONTH),
-                                event.getDateto().getDisplayName(Calendar.MONTH, Calendar.SHORT, getResources().getConfiguration().locale).toLowerCase(), event.getDateto().get(Calendar.HOUR_OF_DAY),
-                                event.getDateto().get(Calendar.MINUTE)));
+                        finaldatotil.append(String.format(Locale.ENGLISH, "Til %02d %s kl: %02d:%02d", dateto.get(Calendar.DAY_OF_MONTH),
+                                dateto.getDisplayName(Calendar.MONTH, Calendar.SHORT, getResources().getConfiguration().locale).toLowerCase(), dateto.get(Calendar.HOUR_OF_DAY),
+                                dateto.get(Calendar.MINUTE)));
                     }
                 } else {
-                    finaldatofra.append(String.format(Locale.ENGLISH, "Fra %02d %s %d kl: %02d:%02d", event.getDatefrom().get(Calendar.DAY_OF_MONTH),
-                            event.getDatefrom().getDisplayName(Calendar.MONTH, Calendar.SHORT, getResources().getConfiguration().locale).toLowerCase(), event.getDatefrom().get(Calendar.YEAR),
-                            event.getDatefrom().get(Calendar.HOUR_OF_DAY), event.getDatefrom().get(Calendar.MINUTE)));
+                    finaldatofra.append(String.format(Locale.ENGLISH, "Fra %02d %s %d kl: %02d:%02d", datefrom.get(Calendar.DAY_OF_MONTH),
+                            datefrom.getDisplayName(Calendar.MONTH, Calendar.SHORT, getResources().getConfiguration().locale).toLowerCase(), datefrom.get(Calendar.YEAR),
+                            datefrom.get(Calendar.HOUR_OF_DAY), datefrom.get(Calendar.MINUTE)));
 
-                    finaldatotil.append(String.format(Locale.ENGLISH, "Til %02d %s %d kl: %02d:%02d", event.getDateto().get(Calendar.DAY_OF_MONTH),
-                            event.getDateto().getDisplayName(Calendar.MONTH, Calendar.SHORT, getResources().getConfiguration().locale).toLowerCase(), event.getDateto().get(Calendar.YEAR),
-                            event.getDateto().get(Calendar.HOUR_OF_DAY), event.getDateto().get(Calendar.MINUTE)));
+                    finaldatotil.append(String.format(Locale.ENGLISH, "Til %02d %s %d kl: %02d:%02d", dateto.get(Calendar.DAY_OF_MONTH),
+                            dateto.getDisplayName(Calendar.MONTH, Calendar.SHORT, getResources().getConfiguration().locale).toLowerCase(), dateto.get(Calendar.YEAR),
+                            dateto.get(Calendar.HOUR_OF_DAY), dateto.get(Calendar.MINUTE)));
                 }
             }
         }

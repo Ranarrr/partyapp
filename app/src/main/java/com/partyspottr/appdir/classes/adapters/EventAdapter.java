@@ -16,6 +16,7 @@ import com.partyspottr.appdir.ui.other_ui.EventDetails;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Locale;
 
@@ -95,8 +96,10 @@ public class EventAdapter extends BaseAdapter {
             //bildeIListe.setImageBitmap(bmp);
 
             stedText.setText(eventList.get(position).getCountry());
-            datoText.setText(String.format(Locale.ENGLISH, "%d %s %d", event.getDatefrom().get(Calendar.DAY_OF_MONTH), event.getDatefrom().getDisplayName(Calendar.MONTH, Calendar.SHORT,
-                    thisActivity.getResources().getConfiguration().locale).toLowerCase(), event.getDatefrom().get(Calendar.YEAR)));
+            GregorianCalendar datefrom = new GregorianCalendar();
+            datefrom.setTimeInMillis(event.getDatefrom());
+            datoText.setText(String.format(Locale.ENGLISH, "%d %s %d", datefrom.get(Calendar.DAY_OF_MONTH), datefrom.getDisplayName(Calendar.MONTH, Calendar.SHORT,
+                    thisActivity.getResources().getConfiguration().locale).toLowerCase(), datefrom.get(Calendar.YEAR)));
             hostText.setText(eventList.get(position).getHostStr());
             arrangementNavn.setText(eventList.get(position).getNameofevent());
 

@@ -121,16 +121,16 @@
 
     <ImageButton
         android:id="@+id/add_event"
-        android:layout_width="@dimen/_50sdp"
+        android:layout_width="@dimen/_70sdp"
         android:layout_height="match_parent"
         android:layout_alignBottom="@+id/toolbar_profil"
         android:layout_alignParentStart="true"
         android:background="@color/transparent"
         android:contentDescription="@null"
         android:onClick="onLeggTilEventClick"
-        android:scaleType="fitXY"
-        android:scaleX="0.5"
-        android:scaleY="0.55"
+        android:scaleType="fitStart"
+        android:scaleX="0.65"
+        android:scaleY="0.65"
         app:srcCompat="@drawable/add_white" />
 
 

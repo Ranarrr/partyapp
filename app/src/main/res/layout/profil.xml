@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/profile_content"
@@ -10,7 +10,7 @@
 
     <android.support.v7.widget.Toolbar
         android:id="@+id/toolbar7"
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="@dimen/_40sdp"
         android:background="?attr/colorPrimary"
         android:minHeight="?attr/actionBarSize"
@@ -33,13 +33,14 @@
     </android.support.v7.widget.Toolbar>
 
     <android.support.constraint.ConstraintLayout
-        android:id="@+id/constraintLayout"
+        android:id="@+id/profile_info"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginEnd="@dimen/_15sdp"
         android:layout_marginStart="@dimen/_15sdp"
         android:layout_marginTop="@dimen/_18sdp"
         android:background="@drawable/rounded_alpha_rect"
+        android:visibility="invisible"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/toolbar7">
@@ -107,45 +108,66 @@
             app:srcCompat="@drawable/mannmeny" />
     </android.support.constraint.ConstraintLayout>
 
-    <Button
-        android:id="@+id/add_friend"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/_15sdp"
-        android:text="Add friend"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/send_message"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent" />
 
-    <Button
-        android:id="@+id/send_message"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:id="@+id/profile_events"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Send message"
-        app:layout_constraintBottom_toBottomOf="@+id/add_friend"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/add_friend"
-        app:layout_constraintTop_toTopOf="@+id/add_friend" />
+        android:layout_marginTop="@dimen/_5sdp"
+        android:orientation="vertical"
+        android:visibility="invisible">
 
-    <view
-        android:id="@+id/profile_eventpager"
-        class="com.partyspottr.appdir.ui.other_ui.Profile$CustomViewPager"
-        android:layout_width="0dp"
+        <TextView
+            android:id="@+id/textView13"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:text="Deltar på"
+            android:textColor="@android:color/black"
+            android:textSize="@dimen/_13ssp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/profile_info" />
+
+        <com.partyspottr.appdir.classes.customviews.CustomViewPager
+            android:id="@+id/customviewpager"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/_100sdp"
+            android:layout_marginEnd="@dimen/_15sdp"
+            android:layout_marginStart="@dimen/_15sdp" />
+    </LinearLayout>
+
+    <android.support.constraint.ConstraintLayout
+        android:id="@+id/profile_buttons"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/colorAlphaSite" />
+        android:visibility="invisible">
 
-    <TextView
-        android:id="@+id/textView13"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Deltar på"
-        android:textColor="@android:color/black"
-        android:textSize="@dimen/_13ssp"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="@+id/profile_eventpager"
-        app:layout_constraintStart_toStartOf="@+id/profile_eventpager"
-        app:layout_constraintTop_toBottomOf="@+id/constraintLayout" />
+        <Button
+            android:id="@+id/add_friend"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/_15sdp"
+            android:layout_marginTop="8dp"
+            android:text="Add friend"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/send_message"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-</android.support.constraint.ConstraintLayout>
+        <Button
+            android:id="@+id/send_message"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Send message"
+            app:layout_constraintBottom_toBottomOf="@+id/add_friend"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/add_friend"
+            app:layout_constraintTop_toTopOf="@+id/add_friend" />
+    </android.support.constraint.ConstraintLayout>
+
+</LinearLayout>

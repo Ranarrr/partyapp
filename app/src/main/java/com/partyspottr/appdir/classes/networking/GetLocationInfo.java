@@ -84,17 +84,16 @@ public class GetLocationInfo extends AsyncTask<Void, Void, Integer> {
                 addEvent.execute();
             } else {
                 if(dilog != null) {
-                    if(eventToUse.getTown() == null) {
-                        ((TextView) dilog.findViewById(R.id.by_textview)).setText("Not found."); // TODO : translation
-                    } else {
-                        ((TextView) dilog.findViewById(R.id.by_textview)).setText(eventToUse.getTown());
-                    }
+                    ((TextView) dilog.findViewById(R.id.by_textview)).setText(eventToUse.getTown());
                 }
 
             }
         } else {
             if(addEvent)
                 Toast.makeText(progressDialog.getContext(), "Failed to retreive location info for the event!", Toast.LENGTH_LONG).show();
+
+            if(dilog != null)
+                ((TextView) dilog.findViewById(R.id.by_textview)).setText("By"); // TODO : translation
         }
     }
 }

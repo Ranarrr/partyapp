@@ -394,7 +394,7 @@ public class ProfilActivity extends AppCompatActivity {
                                 Integer.valueOf(postnr.getText().toString().isEmpty() ? "0" : postnr.getText().toString()), new Event(""), null, false);
                         getLocationInfo.execute();
                     }
-                }, 1000);
+                }, 200);
             }
 
             @Override
@@ -566,42 +566,66 @@ public class ProfilActivity extends AppCompatActivity {
                 CheckBox vis_gjesteliste = dialog.findViewById(R.id.vis_gjesteliste);
                 EditText maks_deltakere = dialog.findViewById(R.id.maks_deltakere);
                 EditText aldersgrense = dialog.findViewById(R.id.aldersgrense);
+                TextView by = dialog.findViewById(R.id.by_textview);
 
-                if(titletext.length() >= 4 && !dato.getText().toString().isEmpty() && !time.getText().toString().isEmpty()) {
-                    if(!datotil.getText().toString().isEmpty() && !timetil.getText().toString().isEmpty()) {
-                        GregorianCalendar datefrom, dateto;
+                if(titletext.length() >= 4) {
+                    Toast.makeText(ProfilActivity.this, "Please choose a title longer than 3 characters.", Toast.LENGTH_SHORT).show();
+                    return;
+                }
 
-                        dateto = Utilities.getDateFromString(String.format(Locale.ENGLISH, "%s %s", datotil.getText().toString(), timetil.getText().toString()), "dd. MMMM. yyyy HH:mm");
-                        datefrom = Utilities.getDateFromString(String.format(Locale.ENGLISH, "%s %s", dato.getText().toString(), time.getText().toString()), "dd. MMMM. yyyy HH:mm");
+                if(!dato.getText().toString().isEmpty() || !time.getText().toString().isEmpty()) {
+                    Toast.makeText(ProfilActivity.this, "Please choose a starting date.", Toast.LENGTH_SHORT).show();
+                    return;
+                }
 
-                        if(dateto != null && datefrom != null && !dateto.before(datefrom)) {
+                if(Integer.valueOf(maks_deltakere.getText().toString()) <= 1) {
+                    Toast.makeText(ProfilActivity.this, "Max participants can not be lower than 2.", Toast.LENGTH_SHORT).show();
+                    return;
+                }
 
-                            Event creating_event = new Event(0, titletext.getText().toString(), gate.getText().toString(), Bruker.get().getCountry(), Bruker.get().getBrukernavn(),
-                                    alle_deltakere.isChecked(),0.0, 0.0, datefrom, dateto, Integer.valueOf(aldersgrense.getText().toString()),
-                                    new ArrayList<>(Collections.singletonList(Participant.convertBrukerParticipant(Bruker.get(), EventStilling.VERT))), Integer.valueOf(maks_deltakere.getText().toString()),
-                                    Integer.valueOf(postnr.getText().toString()), "", beskrivelse.getText().toString(), vis_gjesteliste.isChecked(), vis_adresse.isChecked(), new ArrayList<Requester>(),
-                                    false);
+                if(Integer.valueOf(aldersgrense.getText().toString()) <= 13) {
+                    Toast.makeText(ProfilActivity.this, "The agerestriction can not be lower than 14.", Toast.LENGTH_SHORT).show();
+                    return;
+                }
 
-                            GetLocationInfo getLocationInfo = new GetLocationInfo(dialog, gate.getText().toString(), Integer.valueOf(postnr.getText().toString()), creating_event,
-                                    imageChange.getImage(), true);
-                            getLocationInfo.execute();
-                        }
-                    } else if(datotil.getText().toString().isEmpty() && timetil.getText().toString().isEmpty()) {
-                        GregorianCalendar datefrom;
+                if(by.getText().toString().equals("By")) {
+                    Toast.makeText(ProfilActivity.this, "Please make sure the address is filled in correctly.", Toast.LENGTH_SHORT).show();
+                    return;
+                }
 
-                        datefrom = Utilities.getDateFromString(String.format(Locale.ENGLISH, "%s %s", dato.getText().toString(), time.getText().toString()), "dd. MMMM. yyyy HH:mm");
+                if(!datotil.getText().toString().isEmpty() && !timetil.getText().toString().isEmpty()) {
+                    GregorianCalendar datefrom, dateto;
 
-                        if(datefrom != null) {
-                            Event creating_event = new Event(0, titletext.getText().toString(), gate.getText().toString(), Bruker.get().getCountry(), Bruker.get().getBrukernavn(),
-                                    alle_deltakere.isChecked(),0.0, 0.0, datefrom, null, Integer.valueOf(aldersgrense.getText().toString()),
-                                    new ArrayList<>(Collections.singletonList(Participant.convertBrukerParticipant(Bruker.get(), EventStilling.VERT))), Integer.valueOf(maks_deltakere.getText().toString()),
-                                    Integer.valueOf(postnr.getText().toString()), "", beskrivelse.getText().toString(), vis_gjesteliste.isChecked(), vis_adresse.isChecked(), new ArrayList<Requester>(),
-                                    false);
+                    dateto = Utilities.getDateFromString(String.format(Locale.ENGLISH, "%s %s", datotil.getText().toString(), timetil.getText().toString()), "dd. MMMM. yyyy HH:mm");
+                    datefrom = Utilities.getDateFromString(String.format(Locale.ENGLISH, "%s %s", dato.getText().toString(), time.getText().toString()), "dd. MMMM. yyyy HH:mm");
 
-                            GetLocationInfo getLocationInfo = new GetLocationInfo(dialog, gate.getText().toString(), Integer.valueOf(postnr.getText().toString()), creating_event,
-                                    imageChange.getImage(), true);
-                            getLocationInfo.execute();
-                        }
+                    if(dateto != null && datefrom != null && !dateto.before(datefrom)) {
+
+                        Event creating_event = new Event(0, titletext.getText().toString(), gate.getText().toString(), Bruker.get().getCountry(), Bruker.get().getBrukernavn(),
+                                alle_deltakere.isChecked(),0.0, 0.0, datefrom.getTimeInMillis(), dateto.getTimeInMillis(), Integer.valueOf(aldersgrense.getText().toString()),
+                                new ArrayList<>(Collections.singletonList(Participant.convertBrukerParticipant(Bruker.get(), EventStilling.VERT))), Integer.valueOf(maks_deltakere.getText().toString()),
+                                Integer.valueOf(postnr.getText().toString()), "", beskrivelse.getText().toString(), vis_gjesteliste.isChecked(), vis_adresse.isChecked(), new ArrayList<Requester>(),
+                                false);
+
+                        GetLocationInfo getLocationInfo = new GetLocationInfo(dialog, gate.getText().toString(), Integer.valueOf(postnr.getText().toString()), creating_event,
+                                imageChange.getImage(), true);
+                        getLocationInfo.execute();
+                    }
+                } else if(datotil.getText().toString().isEmpty() && timetil.getText().toString().isEmpty()) {
+                    GregorianCalendar datefrom;
+
+                    datefrom = Utilities.getDateFromString(String.format(Locale.ENGLISH, "%s %s", dato.getText().toString(), time.getText().toString()), "dd. MMMM. yyyy HH:mm");
+
+                    if(datefrom != null) {
+                        Event creating_event = new Event(0, titletext.getText().toString(), gate.getText().toString(), Bruker.get().getCountry(), Bruker.get().getBrukernavn(),
+                                alle_deltakere.isChecked(),0.0, 0.0, datefrom.getTimeInMillis(), 0, Integer.valueOf(aldersgrense.getText().toString()),
+                                new ArrayList<>(Collections.singletonList(Participant.convertBrukerParticipant(Bruker.get(), EventStilling.VERT))), Integer.valueOf(maks_deltakere.getText().toString()),
+                                Integer.valueOf(postnr.getText().toString()), "", beskrivelse.getText().toString(), vis_gjesteliste.isChecked(), vis_adresse.isChecked(), new ArrayList<Requester>(),
+                                false);
+
+                        GetLocationInfo getLocationInfo = new GetLocationInfo(dialog, gate.getText().toString(), Integer.valueOf(postnr.getText().toString()), creating_event,
+                                imageChange.getImage(), true);
+                        getLocationInfo.execute();
                     }
                 }
             }

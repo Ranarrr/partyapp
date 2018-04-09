@@ -166,8 +166,7 @@ public class Bruker {
 
                 Event eventToAdd = new Event(Long.valueOf(event.getString("eventId")), event.getString("nameofevent"), event.getString("address"), event.getString("country"),
                         event.getString("hostStr"),Integer.valueOf(event.getString("privateEvent")) > 0, Double.valueOf(event.getString("longitude")),
-                        Double.valueOf(event.getString("latitude")), Utilities.getDateFromString(event.getString("datefrom"), "yyyy-MM-dd HH:mm:ss"),
-                        event.getString("dateto").equals("null") ? null : Utilities.getDateFromString(event.getString("dateto"), "yyyy-MM-dd HH:mm:ss"),
+                        Double.valueOf(event.getString("latitude")), Long.valueOf(event.getString("datefrom")), event.getString("dateto").equals("0") ? 0 : Long.valueOf(event.getString("dateto")),
                         Integer.valueOf(event.getString("agerestriction")), participantList, Integer.valueOf(event.getString("maxparticipants")),
                         Integer.valueOf(event.getString("postalcode")), event.getString("town"), event.getString("description"),
                         Integer.valueOf(event.getString("showguestlist")) > 0, Integer.valueOf(event.getString("showaddress")) > 0, requesterList,

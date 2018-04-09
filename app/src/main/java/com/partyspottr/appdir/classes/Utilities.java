@@ -228,6 +228,19 @@ public class Utilities {
         return 0;
     }
 
+    public static void makeVisible(View ... views) {
+        if(views == null || views.length == 0) {
+            return;
+        }
+
+        for(View view : views) {
+            if(view == null)
+                continue;
+
+            view.setVisibility(View.VISIBLE);
+        }
+    }
+
     /*private static int calculateInSampleSize(
             BitmapFactory.Options options, int reqWidth, int reqHeight) {
         // Raw height and width of image
