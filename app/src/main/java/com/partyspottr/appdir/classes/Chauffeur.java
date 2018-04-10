@@ -1,5 +1,7 @@
 package com.partyspottr.appdir.classes;
 
+import java.util.List;
+
 /**
  * Created by Ranarrr on 09-Apr-18.
  *
@@ -11,6 +13,9 @@ public class Chauffeur {
     private String m_brukernavn;
     private int m_age;
     private int m_capacity;
+    private long chauffeur_time_from;
+    private long chauffeur_time_to;
+    private List<Car> listOfCars;
 
     public Chauffeur() {
 
@@ -21,6 +26,11 @@ public class Chauffeur {
         m_brukernavn = brukernavn;
         m_age = age;
         m_capacity = capacity;
+    }
+
+    public void addCar(Car car) {
+        listOfCars.add(car);
+        Bruker.get().LagreBruker();
     }
 
     public double getM_rating() {
@@ -53,5 +63,29 @@ public class Chauffeur {
 
     public void setM_capacity(int m_capacity) {
         this.m_capacity = m_capacity;
+    }
+
+    public long getChauffeur_time_from() {
+        return chauffeur_time_from;
+    }
+
+    public void setChauffeur_time_from(long chauffeur_time_from) {
+        this.chauffeur_time_from = chauffeur_time_from;
+    }
+
+    public long getChauffeur_time_to() {
+        return chauffeur_time_to;
+    }
+
+    public void setChauffeur_time_to(long chauffeur_time_to) {
+        this.chauffeur_time_to = chauffeur_time_to;
+    }
+
+    public List<Car> getListOfCars() {
+        return listOfCars;
+    }
+
+    public void setListOfCars(List<Car> listOfCars) {
+        this.listOfCars = listOfCars;
     }
 }

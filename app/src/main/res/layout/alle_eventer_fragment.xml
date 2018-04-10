@@ -8,7 +8,7 @@
     <android.support.v4.widget.SwipeRefreshLayout
         android:id="@+id/swipe_layout_events"
         android:layout_width="0dp"
-        android:layout_height="@dimen/_300sdp"
+        android:layout_height="0dp"
         android:layout_marginEnd="@dimen/_8sdp"
         android:layout_marginStart="@dimen/_8sdp"
         android:layout_marginTop="@dimen/_5sdp"

@@ -102,13 +102,13 @@ public class Profile extends AppCompatActivity {
         oneliner.setTypeface(MainActivity.typeface);
         title.setTypeface(MainActivity.typeface);
 
-        // TODO : Fix using Utilities.getGETMethodArgStr
-        StringRequest stringRequest = new StringRequest(BuildConfig.DBMS_URL + "?get_user={\"socketElem\":\"" + Base64.encodeToString(BuildConfig.JSONParser_Socket.getBytes(),
-                Base64.DEFAULT) + "\",\"username\":\"" + brukernavn + "\"}", new Response.Listener<String>() {
+        StringRequest stringRequest = new StringRequest(Utilities.getGETMethodArgStr("get_user", "socketElem", Base64.encodeToString(BuildConfig.JSONParser_Socket.getBytes(), Base64.DEFAULT), "username", brukernavn), new Response.Listener<String>() { // BuildConfig.DBMS_URL + "?get_user={\"socketElem\":\"" + Base64.encodeToString(BuildConfig.JSONParser_Socket.getBytes(),
+            //Base64.DEFAULT) + "\",\"username\":\"" + brukernavn + "\"}"
             @Override
             public void onResponse(String response) {
                 if(response == null || response.isEmpty()) {
                     Toast.makeText(Profile.this, "Failed to load profile!", Toast.LENGTH_SHORT).show();
+                    onBackPressed();
                     return;
                 }
 

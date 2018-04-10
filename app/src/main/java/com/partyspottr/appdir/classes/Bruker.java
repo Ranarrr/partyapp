@@ -1,14 +1,19 @@
 package com.partyspottr.appdir.classes;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Base64;
 
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.partyspottr.appdir.BuildConfig;
-import com.partyspottr.appdir.classes.networking.UpdateUser;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -49,6 +54,8 @@ public class Bruker {
     private String oneliner;
     private Calendar created;
     private List<ChatPreview> chatMessageList;
+    private boolean hascar;
+    private Car current_car;
 
     private static final String idElem = "id";
     private static final String brukernavnElem = "brukernavnElem";
@@ -70,14 +77,18 @@ public class Bruker {
     private static final String socketElem = "socketElem";
     private static final String chatElem = "chatElem";
     private static final String onelinerElem = "oneliner";
+    private static final String carlistElem = "carlistElem";
+    private static final String time_fromElem = "time_fromElem";
+    private static final String time_toElem = "time_toElem";
 
     private static final Type listFriendsType = new TypeToken<List<Friend>>(){}.getType();
     private static final Type listParticipantsType = new TypeToken<List<Participant>>(){}.getType();
     private static final Type listRequestsType = new TypeToken<List<Requester>>(){}.getType();
     private static final Type listPreviewMsgsType = new TypeToken<List<ChatPreview>>(){}.getType();
-
+    private static final Type listOfCarsType = new TypeToken<List<Car>>(){}.getType();
 
     private static Bruker lokalBruker;
+    private Chauffeur chauffeur;
 
     private SharedPreferences sharedPreferences;
 
@@ -109,43 +120,56 @@ public class Bruker {
         editor.putString(mobilElem, mobilnummer);
         editor.putString(emailElem, email);
         editor.putString(onelinerElem, oneliner);
+        editor.putLong(time_fromElem, chauffeur.getChauffeur_time_from());
+        editor.putLong(time_toElem, chauffeur.getChauffeur_time_to());
         editor.putString(chatElem, new Gson().toJson(chatMessageList));
         editor.putString(friendlistElem, new Gson().toJson(friendList));
         editor.putString(requestlistElem, new Gson().toJson(requests));
+        editor.putString(carlistElem, new Gson().toJson(chauffeur.getListOfCars()));
         editor.apply();
     }
 
     private void HentBruker() {
-        lokalBruker.brukernavn = sharedPreferences.getString(brukernavnElem, "");
-        lokalBruker.passord = sharedPreferences.getString(passordElem, "");
-        lokalBruker.harakseptert = sharedPreferences.getBoolean(harakseptertElem, false);
-        lokalBruker.fornavn = sharedPreferences.getString(fornavnElem, "");
-        lokalBruker.etternavn = sharedPreferences.getString(etternavnElem, "");
-        lokalBruker.premium = sharedPreferences.getBoolean(premiumElem, false);
-        lokalBruker.country = sharedPreferences.getString(countryElem, "");
-        lokalBruker.day_of_month = sharedPreferences.getInt(day_of_monthElem, 0);
-        lokalBruker.month = sharedPreferences.getInt(monthElem, 0);
-        lokalBruker.year = sharedPreferences.getInt(yearElem, 0);
-        lokalBruker.mobilnummer = sharedPreferences.getString(mobilElem, "");
-        lokalBruker.email = sharedPreferences.getString(emailElem, "");
-        lokalBruker.oneliner = sharedPreferences.getString(onelinerElem, "");
-        lokalBruker.listOfEvents = new ArrayList<>();
-        lokalBruker.listOfMyEvents = new ArrayList<>();
+        brukernavn = sharedPreferences.getString(brukernavnElem, "");
+        passord = sharedPreferences.getString(passordElem, "");
+        harakseptert = sharedPreferences.getBoolean(harakseptertElem, false);
+        fornavn = sharedPreferences.getString(fornavnElem, "");
+        etternavn = sharedPreferences.getString(etternavnElem, "");
+        premium = sharedPreferences.getBoolean(premiumElem, false);
+        country = sharedPreferences.getString(countryElem, "");
+        day_of_month = sharedPreferences.getInt(day_of_monthElem, 0);
+        month = sharedPreferences.getInt(monthElem, 0);
+        year = sharedPreferences.getInt(yearElem, 0);
+        mobilnummer = sharedPreferences.getString(mobilElem, "");
+        email = sharedPreferences.getString(emailElem, "");
+        oneliner = sharedPreferences.getString(onelinerElem, "");
+        chauffeur.setChauffeur_time_from(sharedPreferences.getLong(time_fromElem, 0));
+        chauffeur.setChauffeur_time_to(sharedPreferences.getLong(time_toElem, 0));
+        listOfEvents = new ArrayList<>();
+        listOfMyEvents = new ArrayList<>();
 
         if(sharedPreferences.getString(chatElem, "").equals(""))
-            lokalBruker.chatMessageList = new ArrayList<>();
+            chatMessageList = new ArrayList<>();
         else
-            lokalBruker.chatMessageList = new Gson().fromJson(sharedPreferences.getString(chatElem, ""), listPreviewMsgsType);
+            chatMessageList = new Gson().fromJson(sharedPreferences.getString(chatElem, ""), listPreviewMsgsType);
 
         if(sharedPreferences.getString(friendlistElem, "").equals(""))
-            lokalBruker.friendList = new ArrayList<>();
+            friendList = new ArrayList<>();
         else
-            lokalBruker.friendList = new Gson().fromJson(sharedPreferences.getString(friendlistElem, ""), listFriendsType);
+            friendList = new Gson().fromJson(sharedPreferences.getString(friendlistElem, ""), listFriendsType);
 
         if(sharedPreferences.getString(requestlistElem, "").equals(""))
-            lokalBruker.requests = new ArrayList<>();
+            requests = new ArrayList<>();
         else
-            lokalBruker.requests = new Gson().fromJson(sharedPreferences.getString(requestlistElem, ""), listRequestsType);
+            requests = new Gson().fromJson(sharedPreferences.getString(requestlistElem, ""), listRequestsType);
+
+        if(sharedPreferences.getString(carlistElem, "").equals(""))
+            chauffeur.setListOfCars(new ArrayList<Car>());
+        else {
+            List<Car> cars = new Gson().fromJson(sharedPreferences.getString(carlistElem, ""), listOfCarsType);
+            chauffeur.setListOfCars(cars);
+        }
+
     }
 
     public void ParseEvents(JSONArray events) {
@@ -218,7 +242,40 @@ public class Bruker {
         return null;
     }
 
-    public void JSONToBruker(JSONObject json) {
+    public static void getChauffeur(Activity activity, final String brukernavn, final Chauffeur out) {
+        if(out == null)
+            return;
+
+        StringRequest stringRequest = new StringRequest(Utilities.getGETMethodArgStr("get_chauffeur", "socketElem", Base64.encodeToString(BuildConfig.JSONParser_Socket.getBytes(), Base64.DEFAULT),
+                "username", brukernavn), new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                try {
+                    JSONObject json = new JSONObject(response);
+                    out.setM_brukernavn(brukernavn);
+                    out.setChauffeur_time_from(Integer.valueOf(json.getString("timeDrivingFrom")));
+                    out.setChauffeur_time_to(Integer.valueOf(json.getString("timeDrivingTo")));
+                    List<Car> cars = new Gson().fromJson(json.getString("carlistElem"), listOfCarsType);
+                    out.setListOfCars(cars);
+                    out.setM_age(Integer.valueOf(json.getString("age")));
+                    out.setM_capacity(Integer.valueOf(json.getString("capacity")));
+                    out.setM_rating(Double.valueOf(json.getString("rating")));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+
+            }
+        });
+
+        RequestQueue queue = Volley.newRequestQueue(activity);
+        queue.add(stringRequest);
+    }
+
+    public void JSONToBruker(JSONObject json, boolean lagre) {
         try {
             userid = json.getLong(idElem);
             brukernavn = json.getString(brukernavnElem);
@@ -234,7 +291,9 @@ public class Bruker {
             oneliner = json.getString(onelinerElem);
             friendList = new Gson().fromJson(json.getString(friendlistElem), listFriendsType);
             requests = new Gson().fromJson(json.getString(requestlistElem), listFriendsType);
-            LagreBruker();
+
+            if(lagre)
+                LagreBruker();
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -268,6 +327,31 @@ public class Bruker {
         }
 
         return "";
+    }
+
+    public static void getBruker(Activity activity, String brukernavn, final Bruker out) {
+        if(out == null)
+            return;
+
+        StringRequest stringRequest = new StringRequest(Utilities.getGETMethodArgStr("get_user", "socketElem", Base64.encodeToString(BuildConfig.JSONParser_Socket.getBytes(), Base64.DEFAULT),
+                "username", brukernavn), new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                try {
+                    out.JSONToBruker(new JSONObject(response), false);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+
+            }
+        });
+
+        RequestQueue queue = Volley.newRequestQueue(activity);
+        queue.add(stringRequest);
     }
 
     public List<Integer> getAllEventIDUserGoingTo(String user) {
@@ -517,5 +601,21 @@ public class Bruker {
 
     public void setUserid(long userid) {
         this.userid = userid;
+    }
+
+    public boolean isHascar() {
+        return hascar;
+    }
+
+    public void setHascar(boolean hascar) {
+        this.hascar = hascar;
+    }
+
+    public Car getCurrent_car() {
+        return current_car;
+    }
+
+    public void setCurrent_car(Car current_car) {
+        this.current_car = current_car;
     }
 }

@@ -106,7 +106,7 @@ public class EventDetails extends AppCompatActivity {
 
         tittel.setText(event.getNameofevent());
         sted.setText(String.format(Locale.ENGLISH, "%s", event.getAddress()));
-        poststed.setText(String.format(Locale.ENGLISH, "%04d, %s", event.getPostalcode(), event.getTown()));
+        poststed.setText(String.format(Locale.ENGLISH, "%s, %s", event.getPostalcode(), event.getTown()));
 
         if(event.getDescription() != null)
             beskrivelse.setText(event.getDescription());

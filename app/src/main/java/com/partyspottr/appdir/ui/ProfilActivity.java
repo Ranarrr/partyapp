@@ -226,7 +226,7 @@ public class ProfilActivity extends AppCompatActivity {
 
     public void onBilMenyClick(View v) {
         replaceFragment(1);
-        ((TextView) findViewById(R.id.title_toolbar)).setText(getResources().getString(R.string.sjåfør));
+        ((TextView) findViewById(R.id.title_toolbar)).setText("Ride");
         ImageButton search_events = findViewById(R.id.search_events);
         search_events.setImageDrawable(getResources().getDrawable(R.drawable.search));
 
@@ -568,22 +568,22 @@ public class ProfilActivity extends AppCompatActivity {
                 EditText aldersgrense = dialog.findViewById(R.id.aldersgrense);
                 TextView by = dialog.findViewById(R.id.by_textview);
 
-                if(titletext.length() >= 4) {
+                if(titletext.length() <= 3) {
                     Toast.makeText(ProfilActivity.this, "Please choose a title longer than 3 characters.", Toast.LENGTH_SHORT).show();
                     return;
                 }
 
-                if(!dato.getText().toString().isEmpty() || !time.getText().toString().isEmpty()) {
+                if(dato.getText().toString().isEmpty() || time.getText().toString().isEmpty()) {
                     Toast.makeText(ProfilActivity.this, "Please choose a starting date.", Toast.LENGTH_SHORT).show();
                     return;
                 }
 
-                if(Integer.valueOf(maks_deltakere.getText().toString()) <= 1) {
+                if(maks_deltakere.getText().toString().isEmpty() || Integer.valueOf(maks_deltakere.getText().toString()) <= 1) {
                     Toast.makeText(ProfilActivity.this, "Max participants can not be lower than 2.", Toast.LENGTH_SHORT).show();
                     return;
                 }
 
-                if(Integer.valueOf(aldersgrense.getText().toString()) <= 13) {
+                if(aldersgrense.getText().toString().isEmpty() || Integer.valueOf(aldersgrense.getText().toString()) <= 13) {
                     Toast.makeText(ProfilActivity.this, "The agerestriction can not be lower than 14.", Toast.LENGTH_SHORT).show();
                     return;
                 }

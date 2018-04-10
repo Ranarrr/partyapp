@@ -80,6 +80,11 @@ public class AddEvent extends AsyncTask<Void, Void, Integer> {
             } else {
                 Toast.makeText(progressDialog.getContext(), progressDialog.getContext().getResources().getString(R.string.event_lagt_til), Toast.LENGTH_SHORT).show();
             }
+
+            if(progressDialog.getOwnerActivity() != null) {
+                progressDialog.getOwnerActivity().onBackPressed();
+            }
+
         } else if(integer == 0) {
             Toast.makeText(progressDialog.getContext(), progressDialog.getContext().getResources().getString(R.string.tilkoblingsfeil), Toast.LENGTH_SHORT).show();
         } else if(integer == -1) {

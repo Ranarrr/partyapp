@@ -22,6 +22,7 @@ import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.partyspottr.appdir.BuildConfig;
 import com.partyspottr.appdir.R;
 import com.partyspottr.appdir.classes.adapters.EventAdapter;
 
@@ -263,17 +264,14 @@ public class Utilities {
     }
 
     /**
-     *
      * @param name The provided name to be used as a key in the NameValuePair.
      * @param strings Args to be used in the GET request, i == key, i + 1 == value.
      * @return Returns full pair string to be used in a GET request.
      */
     public static String getGETMethodArgStr(String name, String ... strings) {
-        List<NameValuePair> pairs = new ArrayList<>();
-
         JSONObject json = new JSONObject();
 
-        for(int i = 0; i < strings.length; i++) {
+        for(int i = 0; i < strings.length; i += 2) {
             String strName = strings[i];
             String strValue = strings[i+1];
 
@@ -284,8 +282,7 @@ public class Utilities {
             }
         }
 
-        pairs.add(new BasicNameValuePair(name, json.toString()));
-        return pairs.toString();
+        return BuildConfig.DBMS_URL + "?" + name + "=" + json.toString();
     }
 
     /*private static int calculateInSampleSize(

@@ -52,7 +52,7 @@ public class getUser extends AsyncTask<Void, Void, Integer> {
             JSONObject json = new JSONParser().get_jsonobject("POST", params, null);
             if(json != null) {
                 if(json.getInt("success") == 1) {
-                    Bruker.get().JSONToBruker(json);
+                    Bruker.get().JSONToBruker(json, true);
                     SplashActivity.mAuth.signInWithEmailAndPassword(Bruker.get().getEmail(), Bruker.get().getPassord())
                             .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                                 @Override
