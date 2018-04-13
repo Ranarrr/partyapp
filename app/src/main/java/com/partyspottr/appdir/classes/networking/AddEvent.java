@@ -6,6 +6,9 @@ import android.util.Base64;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
+import com.loopj.android.http.AsyncHttpClient;
+import com.loopj.android.http.AsyncHttpResponseHandler;
+import com.loopj.android.http.RequestParams;
 import com.partyspottr.appdir.BuildConfig;
 import com.partyspottr.appdir.R;
 import com.partyspottr.appdir.classes.Bruker;
@@ -17,8 +20,11 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
+
+import cz.msebera.android.httpclient.Header;
 
 /**
  * Created by Ranarrr on 13-Feb-18.
@@ -81,9 +87,9 @@ public class AddEvent extends AsyncTask<Void, Void, Integer> {
                 Toast.makeText(progressDialog.getContext(), progressDialog.getContext().getResources().getString(R.string.event_lagt_til), Toast.LENGTH_SHORT).show();
             }
 
-            if(progressDialog.getOwnerActivity() != null) {
+            /*if(progressDialog.getOwnerActivity() != null) {
                 progressDialog.getOwnerActivity().onBackPressed();
-            }
+            }*/
 
         } else if(integer == 0) {
             Toast.makeText(progressDialog.getContext(), progressDialog.getContext().getResources().getString(R.string.tilkoblingsfeil), Toast.LENGTH_SHORT).show();

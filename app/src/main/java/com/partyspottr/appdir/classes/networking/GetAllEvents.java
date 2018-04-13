@@ -66,7 +66,9 @@ public class GetAllEvents extends AsyncTask<Void, Void, Integer> {
             ListView allevents = progressDialog.getOwnerActivity().findViewById(R.id.lvalle_eventer);
             SwipeRefreshLayout swipeRefreshLayout = progressDialog.getOwnerActivity().findViewById(R.id.swipe_layout_events);
 
-            allevents.setAdapter(new EventAdapter(progressDialog.getOwnerActivity(), Bruker.get().getListOfEvents()));
+            if(allevents != null)
+                allevents.setAdapter(new EventAdapter(progressDialog.getOwnerActivity(), Bruker.get().getListOfEvents()));
+
             ListView myevents = progressDialog.getOwnerActivity().findViewById(R.id.lvmine_eventer);
             if(myevents != null)
                 myevents.setAdapter(new EventAdapter(progressDialog.getOwnerActivity(), Bruker.get().getListOfMyEvents()));

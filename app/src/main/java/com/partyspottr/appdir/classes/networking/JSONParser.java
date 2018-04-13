@@ -1,6 +1,7 @@
 package com.partyspottr.appdir.classes.networking;
 
 import android.support.annotation.Nullable;
+import android.util.Base64;
 
 import com.google.common.io.ByteStreams;
 import com.partyspottr.appdir.BuildConfig;
@@ -14,6 +15,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
@@ -63,7 +66,9 @@ class JSONParser {
                 DefaultHttpClient defaultHttpClient = new DefaultHttpClient();
                 HttpPost httpPost = new HttpPost(BuildConfig.DBMS_URL);
                 MultipartEntity multipartEntity = new MultipartEntity();
-                multipartEntity.addPart("image_upload", bmp);
+                multipartEntity.addPart("image_upload", "something", new FileInputStream(bmp));
+                multipartEntity.addPart("socketElem", Base64.encodeToString(BuildConfig.JSONParser_Socket.getBytes(), Base64.DEFAULT));
+                multipartEntity.addPart("eventId", "34");
                 httpPost.setEntity(multipartEntity);
                 is = defaultHttpClient.execute(httpPost).getEntity().getContent();
             } catch (IOException e3) {

@@ -10,12 +10,13 @@
     <ListView
         android:id="@+id/lvmine_eventer"
         android:layout_width="0dp"
-        android:layout_height="551dp"
+        android:layout_height="0dp"
         android:layout_marginEnd="@dimen/_8sdp"
         android:layout_marginStart="@dimen/_8sdp"
         android:layout_marginTop="@dimen/_5sdp"
         android:divider="@color/transparent"
         android:dividerHeight="@dimen/_20sdp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/search_mine_eventer" />

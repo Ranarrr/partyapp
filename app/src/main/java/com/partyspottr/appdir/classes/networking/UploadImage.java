@@ -2,8 +2,14 @@ package com.partyspottr.appdir.classes.networking;
 
 import android.app.ProgressDialog;
 import android.os.AsyncTask;
+import android.os.Build;
+import android.os.Environment;
 import android.widget.Toast;
 
+import com.loopj.android.http.AsyncHttpClient;
+import com.loopj.android.http.AsyncHttpResponseHandler;
+import com.loopj.android.http.RequestParams;
+import com.partyspottr.appdir.BuildConfig;
 import com.partyspottr.appdir.R;
 import com.partyspottr.appdir.classes.Event;
 
@@ -13,8 +19,11 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
+
+import cz.msebera.android.httpclient.Header;
 
 /**
  * Created by Ranarrr on 26-Feb-18.

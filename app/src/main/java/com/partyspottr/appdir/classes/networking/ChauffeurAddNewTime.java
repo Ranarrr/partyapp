@@ -6,6 +6,7 @@ import android.os.AsyncTask;
 import android.util.Base64;
 
 import com.partyspottr.appdir.BuildConfig;
+import com.partyspottr.appdir.classes.Bruker;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
@@ -13,6 +14,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class ChauffeurAddNewTime extends AsyncTask<Void, Void, Integer> {
@@ -26,8 +28,9 @@ public class ChauffeurAddNewTime extends AsyncTask<Void, Void, Integer> {
         try {
             info = new JSONObject();
             info.put("socketElem", Base64.encodeToString(BuildConfig.JSONParser_Socket.getBytes(), Base64.DEFAULT));
-            info.put("timefrom", timefrom);
+            info.put("timefrom", new Date().getTime());
             info.put("timeto", timeto);
+            info.put("brukernavnElem", Bruker.get().getBrukernavn());
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -65,9 +68,17 @@ public class ChauffeurAddNewTime extends AsyncTask<Void, Void, Integer> {
     @Override
     protected void onPostExecute(Integer integer) {
         if(integer == 1) {
-
+            try {
+                Bruker.get().getChauffeur().setChauffeur_time_from(info.getLong("timefrom"));
+                Bruker.get().getChauffeur().setChauffeur_time_to(info.getLong("timeto"));
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
         } else {
-
+            Bruker.get().getChauffeur().setChauffeur_time_from(0);
+            Bruker.get().getChauffeur().setChauffeur_time_to(0);
         }
+
+        Bruker.get().getChauffeur().LagreChauffeur();
     }
 }

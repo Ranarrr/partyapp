@@ -33,8 +33,9 @@ public class getUser extends AsyncTask<Void, Void, Integer> {
     private ProgressDialog progressDialog;
     private JSONObject info;
 
-    public getUser(Activity activity) {
+    getUser(Activity activity) {
         progressDialog = new ProgressDialog(activity);
+        progressDialog.setOwnerActivity(activity);
         try {
             info = new JSONObject();
             info.put("socketElem", Base64.encodeToString(BuildConfig.JSONParser_Socket.getBytes(), Base64.DEFAULT));
@@ -53,6 +54,7 @@ public class getUser extends AsyncTask<Void, Void, Integer> {
             if(json != null) {
                 if(json.getInt("success") == 1) {
                     Bruker.get().JSONToBruker(json, true);
+                    Bruker.get().populateChauffeur(progressDialog.getOwnerActivity());
                     SplashActivity.mAuth.signInWithEmailAndPassword(Bruker.get().getEmail(), Bruker.get().getPassord())
                             .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                                 @Override

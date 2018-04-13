@@ -173,7 +173,10 @@ public class eventfragment extends Fragment {
                                                     @Override
                                                     public void afterTextChanged(Editable s) {}
                                                 });
+
                                             }
+
+                                            search_mine_eventer.setLayoutParams(params);
                                         } else {
                                             Toast.makeText(getContext(), "You don't have any events!", Toast.LENGTH_SHORT).show(); // TODO: fix translation
                                         }

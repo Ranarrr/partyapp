@@ -2,8 +2,10 @@ package com.partyspottr.appdir.classes;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.ContentUris;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.location.Address;
 import android.location.Criteria;
 import android.location.Geocoder;
@@ -11,6 +13,12 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
+import android.os.Build;
+import android.os.Environment;
+import android.os.Handler;
+import android.provider.DocumentsContract;
+import android.provider.MediaStore;
 import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
 import android.text.Editable;
@@ -26,8 +34,6 @@ import com.partyspottr.appdir.BuildConfig;
 import com.partyspottr.appdir.R;
 import com.partyspottr.appdir.classes.adapters.EventAdapter;
 
-import org.apache.http.NameValuePair;
-import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -50,8 +56,10 @@ import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
  */
 
 public class Utilities {
-    public static int SEND_SMS_REQUEST_CODE = 1002;
-    public static int LOCATION_REQUEST_CODE = 1000;
+    public static final int SEND_SMS_REQUEST_CODE = 1002;
+    public static final int LOCATION_REQUEST_CODE = 1000;
+    public static final int READ_EXTERNAL_STORAGE_CODE = 1001;
+    public static final int SELECT_IMAGE_CODE = 1003;
 
     public static boolean hasNetwork(Context c) {
         if(Settings.Global.getInt(c.getContentResolver(), "airplane_mode_on", 0) != 0)
@@ -124,7 +132,7 @@ public class Utilities {
     public static void onSearchEventsClickAlle(final Activity activity) {
         final ListView listView = activity.findViewById(R.id.lvalle_eventer);
         ImageButton searchevents = activity.findViewById(R.id.search_events);
-        final EditText search_alle_eventer = activity.findViewById(R.id.søk_alle_eventer);
+        final EditText search_alle_eventer = activity.findViewById(R.id.search_alle_eventer);
 
         if(listView == null || searchevents == null || search_alle_eventer == null)
             return;
@@ -132,48 +140,58 @@ public class Utilities {
         searchevents.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(Bruker.get().getListOfEvents() != null) {
-                    if(!Bruker.get().getListOfEvents().isEmpty()) {
-                        search_alle_eventer.setVisibility(search_alle_eventer.getVisibility() == View.VISIBLE ? View.INVISIBLE : View.VISIBLE);
-                        ViewGroup.LayoutParams params = search_alle_eventer.getLayoutParams();
+                if(Bruker.get().getListOfEvents() != null && !Bruker.get().getListOfEvents().isEmpty()) {
+                    search_alle_eventer.setVisibility(search_alle_eventer.getVisibility() == View.VISIBLE ? View.INVISIBLE : View.VISIBLE);
+                    ViewGroup.LayoutParams params = search_alle_eventer.getLayoutParams();
 
-                        if(search_alle_eventer.getVisibility() == View.INVISIBLE)
-                            params.height = 0;
-                        else {
-                            params.height = WRAP_CONTENT;
-
-                            search_alle_eventer.addTextChangedListener(new TextWatcher() {
-                                @Override
-                                public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-
-                                @Override
-                                public void onTextChanged(CharSequence s, int start, int before, int count) {
-                                    if(s.toString().isEmpty()) {
-                                        listView.setAdapter(new EventAdapter(activity, Bruker.get().getListOfEvents()));
-                                        return;
-                                    }
-
-                                    List<Event> list = new ArrayList<>();
-                                    for(Event event : Bruker.get().getListOfEvents()) {
-                                        if(event.getHostStr().contains(s))
-                                            list.add(event);
-
-                                        if(event.getNameofevent().contains(s))
-                                            list.add(event);
-                                    }
-
-                                    listView.setAdapter(new EventAdapter(activity, list));
-                                }
-
-                                @Override
-                                public void afterTextChanged(Editable s) {}
-                            });
-                        }
+                    if(search_alle_eventer.getVisibility() == View.INVISIBLE) {
+                        params.height = 0;
 
                         search_alle_eventer.setLayoutParams(params);
                     } else {
-                        Toast.makeText(activity, "The list is empty!", Toast.LENGTH_SHORT).show();
+                        params.height = WRAP_CONTENT;
+
+                        search_alle_eventer.addTextChangedListener(new TextWatcher() {
+                            @Override
+                            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+                            @Override
+                            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                                if(s.toString().isEmpty()) {
+                                    listView.setAdapter(new EventAdapter(activity, Bruker.get().getListOfEvents()));
+                                    return;
+                                }
+
+                                List<Event> list = new ArrayList<>();
+                                for(Event event : Bruker.get().getListOfEvents()) {
+                                    if(event.getHostStr().contains(s))
+                                        list.add(event);
+
+                                    if(event.getNameofevent().contains(s))
+                                        list.add(event);
+                                }
+
+                                listView.setAdapter(new EventAdapter(activity, list));
+                            }
+
+                            @Override
+                            public void afterTextChanged(Editable s) {}
+                        });
                     }
+
+                    search_alle_eventer.setLayoutParams(params);
+
+                    new Handler().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            if(search_alle_eventer.getVisibility() == View.INVISIBLE)
+                                listView.setPadding(0,0,0, 0);
+                            else
+                                listView.setPadding(0,0,0, search_alle_eventer.getHeight());
+                        }
+                    }, 100);
+                } else {
+                    Toast.makeText(activity, "The list is empty!", Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -283,6 +301,129 @@ public class Utilities {
         }
 
         return BuildConfig.DBMS_URL + "?" + name + "=" + json.toString();
+    }
+
+    public static String getPathFromUri(final Context context, final Uri uri) {
+
+        final boolean isKitKat = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
+
+        // DocumentProvider
+        if (isKitKat && DocumentsContract.isDocumentUri(context, uri)) {
+            // ExternalStorageProvider
+            if (isExternalStorageDocument(uri)) {
+                final String docId = DocumentsContract.getDocumentId(uri);
+                final String[] split = docId.split(":");
+                final String type = split[0];
+
+                if ("primary".equalsIgnoreCase(type)) {
+                    return Environment.getExternalStorageDirectory() + "/" + split[1];
+                }
+
+                // TODO handle non-primary volumes
+            }
+            // DownloadsProvider
+            else if (isDownloadsDocument(uri)) {
+
+                final String id = DocumentsContract.getDocumentId(uri);
+                final Uri contentUri = ContentUris.withAppendedId(
+                        Uri.parse("content://downloads/public_downloads"), Long.valueOf(id));
+
+                return getDataColumn(context, contentUri, null, null);
+            }
+            // MediaProvider
+            else if (isMediaDocument(uri)) {
+                final String docId = DocumentsContract.getDocumentId(uri);
+                final String[] split = docId.split(":");
+                final String type = split[0];
+
+                Uri contentUri = null;
+                if ("image".equals(type)) {
+                    contentUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+                } else if ("video".equals(type)) {
+                    contentUri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
+                } else if ("audio".equals(type)) {
+                    contentUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+                }
+
+                final String selection = "_id=?";
+                final String[] selectionArgs = new String[] {
+                        split[1]
+                };
+
+                return getDataColumn(context, contentUri, selection, selectionArgs);
+            }
+        }
+        // MediaStore (and general)
+        else if ("content".equalsIgnoreCase(uri.getScheme())) {
+
+            // Return the remote address
+            if (isGooglePhotosUri(uri))
+                return uri.getLastPathSegment();
+
+            return getDataColumn(context, uri, null, null);
+        }
+        // File
+        else if ("file".equalsIgnoreCase(uri.getScheme())) {
+            return uri.getPath();
+        }
+
+        return null;
+    }
+
+    private static String getDataColumn(Context context, Uri uri, String selection,
+                                       String[] selectionArgs) {
+
+        Cursor cursor = null;
+        final String column = "_data";
+        final String[] projection = {
+                column
+        };
+
+        try {
+            cursor = context.getContentResolver().query(uri, projection, selection, selectionArgs,
+                    null);
+            if (cursor != null && cursor.moveToFirst()) {
+                final int index = cursor.getColumnIndexOrThrow(column);
+                return cursor.getString(index);
+            }
+        } finally {
+            if (cursor != null)
+                cursor.close();
+        }
+        return null;
+    }
+
+
+    /**
+     * @param uri The Uri to check.
+     * @return Whether the Uri authority is ExternalStorageProvider.
+     */
+    private static boolean isExternalStorageDocument(Uri uri) {
+        return "com.android.externalstorage.documents".equals(uri.getAuthority());
+    }
+
+    /**
+     * @param uri The Uri to check.
+     * @return Whether the Uri authority is DownloadsProvider.
+     */
+    private static boolean isDownloadsDocument(Uri uri) {
+        return "com.android.providers.downloads.documents".equals(uri.getAuthority());
+    }
+
+    /**
+     * @param uri The Uri to check.
+     * @return Whether the Uri authority is MediaProvider.
+     */
+    private static boolean isMediaDocument(Uri uri) {
+        return "com.android.providers.media.documents".equals(uri.getAuthority());
+    }
+
+    /**
+     * @param uri The Uri to check.
+     * @return Whether the Uri authority is Google Photos.
+     */
+    private static boolean isGooglePhotosUri(Uri uri) {
+        return "com.google.android.apps.photos.content".equals(uri.getAuthority());
     }
 
     /*private static int calculateInSampleSize(

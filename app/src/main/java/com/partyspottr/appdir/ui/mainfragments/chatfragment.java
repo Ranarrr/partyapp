@@ -68,7 +68,8 @@ public class chatfragment extends Fragment {
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                Toast.makeText(getContext(), "Could not find chats.", Toast.LENGTH_SHORT).show();
+                if(getContext() != null && databaseError.getCode() == DatabaseError.NETWORK_ERROR)
+                    Toast.makeText(getContext(), "Could not find chats.", Toast.LENGTH_SHORT).show();
             }
         });
     }

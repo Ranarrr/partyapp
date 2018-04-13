@@ -77,15 +77,14 @@ public class Bruker {
     private static final String socketElem = "socketElem";
     private static final String chatElem = "chatElem";
     private static final String onelinerElem = "oneliner";
-    private static final String carlistElem = "carlistElem";
-    private static final String time_fromElem = "time_fromElem";
-    private static final String time_toElem = "time_toElem";
+    private static final String currentCarElem = "currentCarElem";
+    private static final String hascarElem = "hascarElem";
 
     private static final Type listFriendsType = new TypeToken<List<Friend>>(){}.getType();
     private static final Type listParticipantsType = new TypeToken<List<Participant>>(){}.getType();
     private static final Type listRequestsType = new TypeToken<List<Requester>>(){}.getType();
     private static final Type listPreviewMsgsType = new TypeToken<List<ChatPreview>>(){}.getType();
-    private static final Type listOfCarsType = new TypeToken<List<Car>>(){}.getType();
+    private static final Type carType = new TypeToken<Car>(){}.getType();
 
     private static Bruker lokalBruker;
     private Chauffeur chauffeur;
@@ -101,8 +100,13 @@ public class Bruker {
     }
 
     public void Init(Context c) {
-        lokalBruker.sharedPreferences = c.getSharedPreferences("Bruker", Context.MODE_PRIVATE);
+        sharedPreferences = c.getSharedPreferences("Bruker", Context.MODE_PRIVATE);
+        chauffeur = new Chauffeur(sharedPreferences);
         HentBruker();
+    }
+
+    public void populateChauffeur(Activity activity) {
+        Chauffeur.getChauffeur(activity, brukernavn, chauffeur);
     }
 
     public void LagreBruker() {
@@ -120,12 +124,11 @@ public class Bruker {
         editor.putString(mobilElem, mobilnummer);
         editor.putString(emailElem, email);
         editor.putString(onelinerElem, oneliner);
-        editor.putLong(time_fromElem, chauffeur.getChauffeur_time_from());
-        editor.putLong(time_toElem, chauffeur.getChauffeur_time_to());
+        editor.putBoolean(hascarElem, hascar);
+        editor.putString(currentCarElem, new Gson().toJson(current_car));
         editor.putString(chatElem, new Gson().toJson(chatMessageList));
         editor.putString(friendlistElem, new Gson().toJson(friendList));
         editor.putString(requestlistElem, new Gson().toJson(requests));
-        editor.putString(carlistElem, new Gson().toJson(chauffeur.getListOfCars()));
         editor.apply();
     }
 
@@ -143,8 +146,13 @@ public class Bruker {
         mobilnummer = sharedPreferences.getString(mobilElem, "");
         email = sharedPreferences.getString(emailElem, "");
         oneliner = sharedPreferences.getString(onelinerElem, "");
-        chauffeur.setChauffeur_time_from(sharedPreferences.getLong(time_fromElem, 0));
-        chauffeur.setChauffeur_time_to(sharedPreferences.getLong(time_toElem, 0));
+        hascar = sharedPreferences.getBoolean(hascarElem, false);
+
+        if(sharedPreferences.getString(currentCarElem, "").equals(""))
+            current_car = new Car();
+        else
+            current_car = new Gson().fromJson(sharedPreferences.getString(currentCarElem, ""), carType);
+
         listOfEvents = new ArrayList<>();
         listOfMyEvents = new ArrayList<>();
 
@@ -162,14 +170,6 @@ public class Bruker {
             requests = new ArrayList<>();
         else
             requests = new Gson().fromJson(sharedPreferences.getString(requestlistElem, ""), listRequestsType);
-
-        if(sharedPreferences.getString(carlistElem, "").equals(""))
-            chauffeur.setListOfCars(new ArrayList<Car>());
-        else {
-            List<Car> cars = new Gson().fromJson(sharedPreferences.getString(carlistElem, ""), listOfCarsType);
-            chauffeur.setListOfCars(cars);
-        }
-
     }
 
     public void ParseEvents(JSONArray events) {
@@ -240,39 +240,6 @@ public class Bruker {
         }
 
         return null;
-    }
-
-    public static void getChauffeur(Activity activity, final String brukernavn, final Chauffeur out) {
-        if(out == null)
-            return;
-
-        StringRequest stringRequest = new StringRequest(Utilities.getGETMethodArgStr("get_chauffeur", "socketElem", Base64.encodeToString(BuildConfig.JSONParser_Socket.getBytes(), Base64.DEFAULT),
-                "username", brukernavn), new Response.Listener<String>() {
-            @Override
-            public void onResponse(String response) {
-                try {
-                    JSONObject json = new JSONObject(response);
-                    out.setM_brukernavn(brukernavn);
-                    out.setChauffeur_time_from(Integer.valueOf(json.getString("timeDrivingFrom")));
-                    out.setChauffeur_time_to(Integer.valueOf(json.getString("timeDrivingTo")));
-                    List<Car> cars = new Gson().fromJson(json.getString("carlistElem"), listOfCarsType);
-                    out.setListOfCars(cars);
-                    out.setM_age(Integer.valueOf(json.getString("age")));
-                    out.setM_capacity(Integer.valueOf(json.getString("capacity")));
-                    out.setM_rating(Double.valueOf(json.getString("rating")));
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-
-            }
-        });
-
-        RequestQueue queue = Volley.newRequestQueue(activity);
-        queue.add(stringRequest);
     }
 
     public void JSONToBruker(JSONObject json, boolean lagre) {
@@ -617,5 +584,13 @@ public class Bruker {
 
     public void setCurrent_car(Car current_car) {
         this.current_car = current_car;
+    }
+
+    public Chauffeur getChauffeur() {
+        return chauffeur;
+    }
+
+    public void setChauffeur(Chauffeur chauffeur) {
+        this.chauffeur = chauffeur;
     }
 }

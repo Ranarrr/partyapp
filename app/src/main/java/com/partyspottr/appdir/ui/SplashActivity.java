@@ -13,11 +13,14 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 
+import com.crashlytics.android.Crashlytics;
 import com.google.firebase.auth.FirebaseAuth;
 import com.partyspottr.appdir.R;
 import com.partyspottr.appdir.classes.Bruker;
 import com.partyspottr.appdir.classes.Utilities;
 import com.partyspottr.appdir.classes.networking.LoginUser;
+
+import io.fabric.sdk.android.Fabric;
 
 /**
  * Created by Ranarrr on 14-Mar-18.
@@ -31,7 +34,6 @@ public class SplashActivity extends AppCompatActivity {
     private boolean hasCoarseLocation;
     private boolean hasSendSMS;
     public static boolean hasSwitched;
-    private boolean once;
     private static boolean passedfirst;
 
     @Override
@@ -42,6 +44,12 @@ public class SplashActivity extends AppCompatActivity {
         Bruker.get().Init(this);
         //FacebookSdk.sdkInitialize(this);
         mAuth = FirebaseAuth.getInstance();
+
+        final Fabric fabric = new Fabric.Builder(this)
+                .kits(new Crashlytics())
+                .debuggable(false)
+                .build();
+        Fabric.with(fabric);
 
         MainActivity.typeface = Typeface.createFromAsset(getAssets(), "valeraround.otf");
 
@@ -59,7 +67,6 @@ public class SplashActivity extends AppCompatActivity {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, Utilities.LOCATION_REQUEST_CODE);
         }
 
-        once = false;
         passedfirst = false;
         hasSwitched = false;
 
@@ -99,6 +106,23 @@ public class SplashActivity extends AppCompatActivity {
                 if(permissions[i].equals(Manifest.permission.SEND_SMS)) {
                     if(grantResults[i] == PackageManager.PERMISSION_GRANTED) {
                         hasSendSMS = true;
+
+                        if(!hasCoarseLocation || !hasFineLocation)
+                            ActivityCompat.requestPermissions(SplashActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION},
+                                    Utilities.LOCATION_REQUEST_CODE);
+
+                    } else {
+                        new AlertDialog.Builder(this)
+                                .setTitle("Required permissions")
+                                .setMessage("These permissions are required to use Partyspottr, and they are only used to better your experience with this app.")
+                                .setCancelable(false)
+                                .setNeutralButton("Ok", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        ActivityCompat.requestPermissions(SplashActivity.this, new String[]{Manifest.permission.SEND_SMS}, Utilities.SEND_SMS_REQUEST_CODE);
+                                    }
+                                })
+                                .show();
                     }
                 }
             }
@@ -110,12 +134,29 @@ public class SplashActivity extends AppCompatActivity {
                     if(grantResults[i] == PackageManager.PERMISSION_GRANTED) {
                         hasCoarseLocation = true;
                         hasFineLocation = true;
+
+                        if(!hasSendSMS)
+                            ActivityCompat.requestPermissions(SplashActivity.this, new String[]{Manifest.permission.SEND_SMS}, Utilities.SEND_SMS_REQUEST_CODE);
+
+                    } else {
+                        new AlertDialog.Builder(this)
+                                .setTitle("Required permissions")
+                                .setMessage("These permissions are required to use Partyspottr, and they are only used to better your experience with this app.")
+                                .setCancelable(false)
+                                .setNeutralButton("Ok", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        ActivityCompat.requestPermissions(SplashActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION},
+                                                Utilities.LOCATION_REQUEST_CODE);
+                                    }
+                                })
+                                .show();
                     }
                 }
             }
         }
 
-        if(hasSendSMS && hasFineLocation && hasCoarseLocation && (requestCode == Utilities.SEND_SMS_REQUEST_CODE || requestCode == Utilities.LOCATION_REQUEST_CODE) && passedfirst) {
+        if(hasSendSMS && hasFineLocation && hasCoarseLocation && passedfirst) {
             new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
@@ -126,25 +167,7 @@ public class SplashActivity extends AppCompatActivity {
                     }
                 }
             }, 1000);
-        } else if((!hasSendSMS || !hasFineLocation || !hasCoarseLocation) && (requestCode == Utilities.SEND_SMS_REQUEST_CODE || requestCode == Utilities.LOCATION_REQUEST_CODE) && once) {
-            new AlertDialog.Builder(this)
-                    .setTitle("Required permissions")
-                    .setMessage("These permissions are required to use Partyspottr, and they are only used to better your experience with this app.")
-                    .setCancelable(false)
-                    .setNeutralButton("Ok", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            if(!hasSendSMS)
-                                ActivityCompat.requestPermissions(SplashActivity.this, new String[]{Manifest.permission.SEND_SMS}, Utilities.SEND_SMS_REQUEST_CODE);
-                            if(!hasCoarseLocation || !hasFineLocation)
-                                ActivityCompat.requestPermissions(SplashActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION},
-                                    Utilities.LOCATION_REQUEST_CODE);
-                        }
-                    })
-                    .show();
         }
-
-        once = true;
 
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }

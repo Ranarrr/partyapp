@@ -15,7 +15,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/søk_alle_eventer"
+        app:layout_constraintTop_toBottomOf="@+id/search_alle_eventer"
         app:layout_constraintVertical_bias="0.0">
 
         <ListView
@@ -34,15 +34,16 @@
     </android.support.v4.widget.SwipeRefreshLayout>
 
     <EditText
-        android:id="@+id/søk_alle_eventer"
+        android:id="@+id/search_alle_eventer"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginEnd="@dimen/_8sdp"
         android:layout_marginStart="@dimen/_8sdp"
         android:layout_marginTop="@dimen/_90sdp"
         android:background="@drawable/border_rounded"
-        android:hint="Søk.."
+        android:hint="Search.."
         android:inputType="text"
+        android:paddingEnd="@dimen/_10sdp"
         android:paddingStart="@dimen/_10sdp"
         android:textColor="@android:color/black"
         android:textSize="@dimen/_15ssp"
@@ -50,6 +51,4 @@
         app:layout_constraintEnd_toEndOf="@+id/swipe_layout_events"
         app:layout_constraintStart_toStartOf="@+id/swipe_layout_events"
         app:layout_constraintTop_toTopOf="parent" />
-
-
 </android.support.constraint.ConstraintLayout>

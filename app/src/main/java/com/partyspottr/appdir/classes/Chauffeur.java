@@ -1,5 +1,23 @@
 package com.partyspottr.appdir.classes;
 
+import android.app.Activity;
+import android.content.SharedPreferences;
+import android.util.Base64;
+
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import com.partyspottr.appdir.BuildConfig;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -17,8 +35,22 @@ public class Chauffeur {
     private long chauffeur_time_to;
     private List<Car> listOfCars;
 
-    public Chauffeur() {
+    private static final String carlistElem = "carlistElem";
+    private static final String time_fromElem = "timeDrivingFrom";
+    private static final String time_toElem = "timeDrivingTo";
+    private static final String rating = "rating";
+    private static final String capacity = "capacity";
+    private static final String age = "age";
 
+    public static final Type listOfCarsType = new TypeToken<List<Car>>(){}.getType();
+
+    private SharedPreferences m_sharedPreferences;
+
+    public Chauffeur() {}
+
+    public Chauffeur(SharedPreferences sharedPreferences) {
+        m_sharedPreferences = sharedPreferences;
+        HentChauffeur();
     }
 
     public Chauffeur(double rating, String brukernavn, int age, int capacity) {
@@ -30,7 +62,94 @@ public class Chauffeur {
 
     public void addCar(Car car) {
         listOfCars.add(car);
-        Bruker.get().LagreBruker();
+        LagreChauffeur();
+    }
+
+    public String ChauffeurJSONString() {
+        String ret = "";
+
+        try {
+            JSONObject json = new JSONObject();
+            json.put(carlistElem, new Gson().toJson(listOfCars));
+            json.put(time_fromElem, chauffeur_time_from);
+            json.put(time_toElem, chauffeur_time_to);
+            json.put(rating, m_rating);
+            json.put(capacity, m_capacity);
+            json.put(age, m_age);
+            ret = json.toString();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        return ret;
+    }
+
+    public void HentChauffeur() {
+        chauffeur_time_from = m_sharedPreferences.getLong(time_fromElem, 0);
+        chauffeur_time_to = m_sharedPreferences.getLong(time_toElem, 0);
+        m_rating = m_sharedPreferences.getFloat(rating, 0.0f);
+        m_capacity = m_sharedPreferences.getInt(capacity, 0);
+        m_age = m_sharedPreferences.getInt(age, 0);
+        m_brukernavn = Bruker.get().getBrukernavn();
+
+        if(m_sharedPreferences.getString(Chauffeur.carlistElem, "").equals(""))
+            listOfCars = new ArrayList<>();
+        else
+            listOfCars = new Gson().fromJson(m_sharedPreferences.getString(Chauffeur.carlistElem, ""), Chauffeur.listOfCarsType);
+
+        Bruker.get().setHascar(listOfCars.size() > 0);
+
+    }
+
+    public void LagreChauffeur() {
+        SharedPreferences.Editor editor = m_sharedPreferences.edit();
+        editor.putLong(time_fromElem, chauffeur_time_from);
+        editor.putLong(time_toElem, chauffeur_time_to);
+        editor.putString(carlistElem, new Gson().toJson(listOfCars));
+        editor.putFloat(rating, (float) m_rating);
+        editor.putInt(age, m_age);
+        editor.putInt(capacity, m_capacity);
+        editor.apply();
+    }
+
+    public static void getChauffeur(Activity activity, final String brukernavn, final Chauffeur out) {
+        StringRequest stringRequest = new StringRequest(Utilities.getGETMethodArgStr("get_chauffeur", "socketElem", Base64.encodeToString(BuildConfig.JSONParser_Socket.getBytes(), Base64.DEFAULT),
+                "username", brukernavn), new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                try {
+                    JSONObject json = new JSONObject(response);
+                    if(json.getInt("success") == 1) {
+                        out.setM_brukernavn(brukernavn);
+                        Bruker.get().setHascar(true);
+                        out.setChauffeur_time_from(Integer.valueOf(json.getString("timeDrivingFrom")));
+                        out.setChauffeur_time_to(Integer.valueOf(json.getString("timeDrivingTo")));
+                        List<Car> cars = new Gson().fromJson(json.getString("carlistElem"), listOfCarsType);
+                        out.setListOfCars(cars);
+                        Bruker.get().setCurrent_car(cars.get(0));
+                        out.setM_age(Integer.valueOf(json.getString("age")));
+                        out.setM_capacity(Integer.valueOf(json.getString("capacity")));
+                        out.setM_rating(Double.valueOf(json.getString("rating")));
+                    } else {
+                        Bruker.get().setHascar(false);
+                        Bruker.get().setCurrent_car(null);
+                        Bruker.get().getChauffeur().setListOfCars(new ArrayList<Car>());
+                        Bruker.get().getChauffeur().LagreChauffeur();
+                        Bruker.get().LagreBruker();
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+
+            }
+        });
+
+        RequestQueue queue = Volley.newRequestQueue(activity);
+        queue.add(stringRequest);
     }
 
     public double getM_rating() {

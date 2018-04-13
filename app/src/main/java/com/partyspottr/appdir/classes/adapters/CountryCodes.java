@@ -18,7 +18,7 @@ import java.util.Locale;
  * @author Alexander Bitnes
  */
 
-public class CountryCodes extends BaseAdapter{
+public class CountryCodes extends BaseAdapter {
 
     private static final String[] m_fullCountry = {
             "Andorra",

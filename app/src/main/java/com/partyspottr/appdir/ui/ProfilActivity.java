@@ -1,9 +1,13 @@
 package com.partyspottr.appdir.ui;
 
+import android.Manifest;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.TimePickerDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Paint;
@@ -14,13 +18,16 @@ import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatButton;
 import android.support.v7.widget.Toolbar;
@@ -69,7 +76,7 @@ import java.util.Locale;
 import static com.partyspottr.appdir.ui.MainActivity.typeface;
 
 /**
- * Created by Ranarrr on Unknown date.
+ * Created by Ranarrr on 26-01-18.
  *
  * @author Ranarrr
  */
@@ -245,12 +252,7 @@ public class ProfilActivity extends AppCompatActivity {
         ImageButton search_events = findViewById(R.id.search_events);
         search_events.setImageDrawable(getResources().getDrawable(R.drawable.search));
 
-        search_events.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Utilities.onSearchEventsClickAlle(ProfilActivity.this);
-            }
-        });
+        Utilities.onSearchEventsClickAlle(ProfilActivity.this);
 
         findViewById(R.id.add_event).setVisibility(View.VISIBLE);
     }
@@ -413,10 +415,15 @@ public class ProfilActivity extends AppCompatActivity {
         legg_til_bilde.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent();
-                intent.setType("image/*");
-                intent.setAction(Intent.ACTION_GET_CONTENT);
-                startActivityForResult(Intent.createChooser(intent, "Select Picture"), 1001);
+                if(ActivityCompat.checkSelfPermission(ProfilActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                    Intent intent = new Intent();
+                    intent.setType("image/*");
+                    intent.setAction(Intent.ACTION_GET_CONTENT);
+                    startActivityForResult(Intent.createChooser(intent, "Select Picture"), 1003);
+                } else {
+                    ActivityCompat.requestPermissions(ProfilActivity.this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, Utilities.READ_EXTERNAL_STORAGE_CODE);
+                }
+
             }
         });
 
@@ -581,6 +588,19 @@ public class ProfilActivity extends AppCompatActivity {
                 if(maks_deltakere.getText().toString().isEmpty() || Integer.valueOf(maks_deltakere.getText().toString()) <= 1) {
                     Toast.makeText(ProfilActivity.this, "Max participants can not be lower than 2.", Toast.LENGTH_SHORT).show();
                     return;
+                } else if(!maks_deltakere.getText().toString().isEmpty() && (Integer.valueOf(maks_deltakere.getText().toString()) > 40 && !Bruker.get().isPremium())) {
+                    new AlertDialog.Builder(ProfilActivity.this)
+                            .setTitle("Premium")
+                            .setMessage("To use this feature you need to have premium.\nWould you like to purchase premium? (This will not prompt you with a purchase, rather with information.)")
+                            .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    // show info about premium and it's features.
+                                }})
+                            .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {}})
+                            .show();
                 }
 
                 if(aldersgrense.getText().toString().isEmpty() || Integer.valueOf(aldersgrense.getText().toString()) <= 13) {
@@ -635,14 +655,33 @@ public class ProfilActivity extends AppCompatActivity {
     }
 
     @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if(requestCode == Utilities.READ_EXTERNAL_STORAGE_CODE) {
+            for(int i = 0; i < permissions.length; i++) {
+                if(permissions[i].equals(Manifest.permission.READ_EXTERNAL_STORAGE)) {
+                    if(grantResults[i] == PackageManager.PERMISSION_GRANTED) {
+                        Intent intent = new Intent();
+                        intent.setType("image/*");
+                        intent.setAction(Intent.ACTION_GET_CONTENT);
+                        startActivityForResult(Intent.createChooser(intent, "Select Picture"), Utilities.SELECT_IMAGE_CODE);
+                    }
+                }
+            }
+        }
+
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
+
+    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if(requestCode == 1001 && resultCode == RESULT_OK && data.getData() != null) {
+        if(requestCode == Utilities.SELECT_IMAGE_CODE && resultCode == RESULT_OK && data.getData() != null) {
             Uri image = data.getData();
 
             imageChange.setUri(image);
-            imageChange.setImage(new File(image.getPath()));
+            String str = Utilities.getPathFromUri(this, image);
+            imageChange.setImage(new File(str));
         }
     }
 }
