@@ -15,6 +15,12 @@ import com.partyspottr.appdir.classes.Bruker;
 import com.partyspottr.appdir.enums.måneder;
 import com.partyspottr.appdir.ui.MainActivity;
 
+/**
+ * Created by Ranarrr on 26-Jan-18.
+ *
+ * @author Ranarrr
+ */
+
 public class RegisterActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,7 +31,7 @@ public class RegisterActivity extends AppCompatActivity {
         EditText etternavnText = findViewById(R.id.etternavnText);
         EditText ddNum = findViewById(R.id.ddNum);
         EditText mmNum = findViewById(R.id.mmNum);
-        EditText ååååNum = findViewById(R.id.ååååNum);
+        EditText yyyyNum = findViewById(R.id.ååååNum);
         TextView name = findViewById(R.id.textView2);
         TextView birth = findViewById(R.id.textView);
         TextView title = findViewById(R.id.textView3);
@@ -35,7 +41,7 @@ public class RegisterActivity extends AppCompatActivity {
         etternavnText.setTypeface(MainActivity.typeface);
         ddNum.setTypeface(MainActivity.typeface);
         mmNum.setTypeface(MainActivity.typeface);
-        ååååNum.setTypeface(MainActivity.typeface);
+        yyyyNum.setTypeface(MainActivity.typeface);
         name.setTypeface(MainActivity.typeface);
         birth.setTypeface(MainActivity.typeface);
         title.setTypeface(MainActivity.typeface);
@@ -47,7 +53,7 @@ public class RegisterActivity extends AppCompatActivity {
 
             ddNum.setText(String.valueOf(Bruker.get().getDay_of_month()));
             mmNum.setText(String.valueOf(Bruker.get().getMonth()));
-            ååååNum.setText(String.valueOf(Bruker.get().getYear()));
+            yyyyNum.setText(String.valueOf(Bruker.get().getYear()));
         }
     }
 
@@ -57,8 +63,8 @@ public class RegisterActivity extends AppCompatActivity {
 
         EditText ddNum = findViewById(R.id.ddNum);
         EditText mmNum = findViewById(R.id.mmNum);
-        EditText ååååNum = findViewById(R.id.ååååNum);
-        Integer dagNum = 0, mndNum = 0, årNum = 0;
+        EditText yyyyNum = findViewById(R.id.ååååNum);
+        Integer dagNum = 0, mndNum = 0, yrNum = 0;
 
         if(ddNum.getText() != null && ddNum.length() > 0) {
             dagNum = Integer.valueOf(ddNum.getText().toString());
@@ -68,8 +74,8 @@ public class RegisterActivity extends AppCompatActivity {
             mndNum = Integer.valueOf(mmNum.getText().toString());
         }
 
-        if(ååååNum.getText() != null && ååååNum.length() > 0) {
-            årNum = Integer.valueOf(ååååNum.getText().toString());
+        if(yyyyNum.getText() != null && yyyyNum.length() > 0) {
+            yrNum = Integer.valueOf(yyyyNum.getText().toString());
         }
 
         if(dagNum > 0 && dagNum < 32 || (dagNum == 31 && (mndNum == måneder.JANUAR.ordinal() || mndNum == måneder.MARS.ordinal() || mndNum == måneder.MAI.ordinal()
@@ -80,9 +86,9 @@ public class RegisterActivity extends AppCompatActivity {
             if(mndNum > 0 && mndNum < 13) {
                 ViewCompat.setBackgroundTintList(mmNum, ContextCompat.getColorStateList(getApplicationContext(), R.color.greentint));
 
-                if(årNum > 1929 && årNum < 2002) {
-                    Bruker.get().setDOB(dagNum, mndNum, årNum);
-                    ViewCompat.setBackgroundTintList(ååååNum, ContextCompat.getColorStateList(getApplicationContext(), R.color.greentint));
+                if(yrNum > 1929 && yrNum < 2002) {
+                    Bruker.get().setDOB(dagNum, mndNum, yrNum);
+                    ViewCompat.setBackgroundTintList(yyyyNum, ContextCompat.getColorStateList(getApplicationContext(), R.color.greentint));
 
                     if(fornavnText.length() > 1) {
                         ViewCompat.setBackgroundTintList(fornavnText, ContextCompat.getColorStateList(getApplicationContext(), R.color.greentint));
@@ -103,7 +109,7 @@ public class RegisterActivity extends AppCompatActivity {
                         ViewCompat.setBackgroundTintList(fornavnText, ContextCompat.getColorStateList(getApplicationContext(), R.color.redtint));
                     }
                 } else {
-                    ViewCompat.setBackgroundTintList(ååååNum, ContextCompat.getColorStateList(getApplicationContext(), R.color.redtint));
+                    ViewCompat.setBackgroundTintList(yyyyNum, ContextCompat.getColorStateList(getApplicationContext(), R.color.redtint));
                 }
             } else {
                 ViewCompat.setBackgroundTintList(mmNum, ContextCompat.getColorStateList(getApplicationContext(), R.color.redtint));

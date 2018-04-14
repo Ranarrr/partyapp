@@ -45,6 +45,7 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import com.crashlytics.android.Crashlytics;
 import com.partyspottr.appdir.R;
 import com.partyspottr.appdir.classes.Bruker;
 import com.partyspottr.appdir.classes.Event;
@@ -73,16 +74,17 @@ import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Locale;
 
+import io.fabric.sdk.android.Fabric;
+
 import static com.partyspottr.appdir.ui.MainActivity.typeface;
 
 /**
- * Created by Ranarrr on 26-01-18.
+ * Created by Ranarrr on 26-Jan-18.
  *
  * @author Ranarrr
  */
 
 public class ProfilActivity extends AppCompatActivity {
-
     private AppCompatButton alle_eventer_btn;
     private AppCompatButton mine_eventer_btn;
     private AppCompatButton mitt_arkiv_btn;
@@ -177,6 +179,8 @@ public class ProfilActivity extends AppCompatActivity {
 
     @Override
     protected void onPause() {
+        Fabric.with(null);
+
         ctd.cancel();
         super.onPause();
     }
@@ -189,6 +193,13 @@ public class ProfilActivity extends AppCompatActivity {
         } else {
             Bruker.get().setConnected(true);
         }
+
+        Fabric fabric = new Fabric.Builder(this)
+                .kits(new Crashlytics())
+                .debuggable(false)
+                .build();
+
+        Fabric.with(fabric);
 
         ctd.start();
         super.onResume();
@@ -252,7 +263,7 @@ public class ProfilActivity extends AppCompatActivity {
         ImageButton search_events = findViewById(R.id.search_events);
         search_events.setImageDrawable(getResources().getDrawable(R.drawable.search));
 
-        Utilities.onSearchEventsClickAlle(ProfilActivity.this);
+        mine_eventer_fragment.once = false;
 
         findViewById(R.id.add_event).setVisibility(View.VISIBLE);
     }
@@ -353,6 +364,10 @@ public class ProfilActivity extends AppCompatActivity {
         fjern_sluttidspunkt.setPaintFlags(fjern_sluttidspunkt.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
         final CheckBox vis_adresse = dialog.findViewById(R.id.vis_adresse);
         final ImageButton legg_til_bilde = dialog.findViewById(R.id.imageButton6);
+        final EditText maks_deltakere = dialog.findViewById(R.id.maks_deltakere);
+        final EditText titletext = dialog.findViewById(R.id.create_eventText);
+        final EditText beskrivelse = dialog.findViewById(R.id.beskrivelse_create);
+        final EditText aldersgrense = dialog.findViewById(R.id.aldersgrense);
         final TextView sluttidspunkt = dialog.findViewById(R.id.legg_til_sluttidspunkt);
         sluttidspunkt.setPaintFlags(sluttidspunkt.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
         Toolbar create_event_toolbar = dialog.findViewById(R.id.toolbar2);
@@ -453,7 +468,6 @@ public class ProfilActivity extends AppCompatActivity {
             public boolean onTouch(View v, MotionEvent event) {
                 if(event.getAction() == MotionEvent.ACTION_UP) {
                     Calendar nowtime = Calendar.getInstance();
-
                     TimePickerDialog timePickerDialog = new TimePickerDialog(ProfilActivity.this, new TimePickerDialog.OnTimeSetListener() {
                         @Override
                         public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
@@ -501,7 +515,6 @@ public class ProfilActivity extends AppCompatActivity {
             public boolean onTouch(View v, MotionEvent event) {
                 if(event.getAction() == MotionEvent.ACTION_UP) {
                     Calendar nowtime = Calendar.getInstance();
-
                     TimePickerDialog timePickerDialog = new TimePickerDialog(ProfilActivity.this, new TimePickerDialog.OnTimeSetListener() {
                         @Override
                         public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
@@ -522,6 +535,8 @@ public class ProfilActivity extends AppCompatActivity {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 if(event.getAction() == MotionEvent.ACTION_UP) {
+                    v.requestFocusFromTouch();
+
                     Calendar c = Calendar.getInstance();
                     DatePickerDialog dialog = new DatePickerDialog(ProfilActivity.this, new DatePickerDialog.OnDateSetListener() {
                         @Override
@@ -568,11 +583,7 @@ public class ProfilActivity extends AppCompatActivity {
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                EditText titletext = dialog.findViewById(R.id.create_eventText);
-                EditText beskrivelse = dialog.findViewById(R.id.beskrivelse_create);
                 CheckBox vis_gjesteliste = dialog.findViewById(R.id.vis_gjesteliste);
-                EditText maks_deltakere = dialog.findViewById(R.id.maks_deltakere);
-                EditText aldersgrense = dialog.findViewById(R.id.aldersgrense);
                 TextView by = dialog.findViewById(R.id.by_textview);
 
                 if(titletext.length() <= 3) {

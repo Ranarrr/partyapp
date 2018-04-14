@@ -80,7 +80,7 @@ public class GetLocationInfo extends AsyncTask<Void, Void, Integer> {
     protected void onPostExecute(Integer integer) {
         if(integer == 1) {
             if(addEvent) {
-                AddEvent addEvent = new AddEvent(progressDialog, eventToUse, bitmap);
+                AddEvent addEvent = new AddEvent(dilog, progressDialog, eventToUse, bitmap);
                 addEvent.execute();
             } else {
                 if(dilog != null) {

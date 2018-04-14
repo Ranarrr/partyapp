@@ -5,12 +5,9 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
-import android.support.design.widget.TextInputEditText;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
-import android.text.Html;
-import android.text.TextUtils;
 import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -40,23 +37,16 @@ import com.partyspottr.appdir.classes.Chauffeur;
 import com.partyspottr.appdir.classes.Utilities;
 import com.partyspottr.appdir.classes.adapters.CarBrands;
 import com.partyspottr.appdir.classes.networking.ChauffeurAddNewTime;
-import com.partyspottr.appdir.classes.networking.CreateChauffeur;
-import com.partyspottr.appdir.classes.networking.NewStringRequest;
 import com.partyspottr.appdir.ui.MainActivity;
-import com.partyspottr.appdir.ui.ProfilActivity;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.GregorianCalendar;
-import java.util.HashMap;
 import java.util.Locale;
-import java.util.Map;
 
 public class min_bil_fragment extends Fragment {
 
@@ -252,7 +242,7 @@ public class min_bil_fragment extends Fragment {
                         to = Utilities.getDateFromString(time_to.getText().toString(), "HH:mm");
 
                         if(to != null && to.after(from) && to.getTimeInMillis() - from.getTimeInMillis() <= 21600000) {
-                            ChauffeurAddNewTime chauffeurAddNewTime = new ChauffeurAddNewTime(getActivity(), from.getTimeInMillis(), to.getTimeInMillis());
+                            ChauffeurAddNewTime chauffeurAddNewTime = new ChauffeurAddNewTime(getActivity(), to.getTimeInMillis());
                             chauffeurAddNewTime.execute();
                         }
                     } else {

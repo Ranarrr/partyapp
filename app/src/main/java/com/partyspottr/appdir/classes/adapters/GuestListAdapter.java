@@ -39,6 +39,7 @@ import com.partyspottr.appdir.classes.ChatPreview;
 import com.partyspottr.appdir.classes.Chatter;
 import com.partyspottr.appdir.classes.Participant;
 import com.partyspottr.appdir.classes.Utilities;
+import com.partyspottr.appdir.classes.networking.AddFriendRequest;
 import com.partyspottr.appdir.classes.networking.AddParticipant;
 import com.partyspottr.appdir.classes.networking.RemoveParticipant;
 import com.partyspottr.appdir.enums.EventStilling;
@@ -144,6 +145,8 @@ public class GuestListAdapter extends BaseAdapter {
                                     return true;
 
                                 case R.id.som_venn:
+                                    AddFriendRequest addFriendRequest = new AddFriendRequest(thisActivity, participant.getBrukernavn());
+                                    addFriendRequest.execute();
 
                                     return true;
 

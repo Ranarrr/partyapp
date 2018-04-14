@@ -23,6 +23,12 @@ import com.partyspottr.appdir.classes.Utilities;
 import com.partyspottr.appdir.classes.networking.LoginUser;
 import com.partyspottr.appdir.ui.registerui.RegisterActivity;
 
+/**
+ * Created by Ranarrr on 26-Jan-18.
+ *
+ * @author Ranarrr
+ */
+
 public class MainActivity extends AppCompatActivity {
 
     public static Typeface typeface;

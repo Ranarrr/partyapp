@@ -10,6 +10,12 @@ import com.partyspottr.appdir.R;
 import com.partyspottr.appdir.classes.networking.CreateUser;
 import com.partyspottr.appdir.ui.MainActivity;
 
+/**
+ * Created by Ranarrr on 26-Jan-18.
+ *
+ * @author Ranarrr
+ */
+
 public class Register5Activity extends AppCompatActivity {
 
     @Override

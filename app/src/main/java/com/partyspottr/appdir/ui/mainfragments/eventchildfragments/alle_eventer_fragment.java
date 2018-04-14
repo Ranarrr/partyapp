@@ -3,6 +3,7 @@ package com.partyspottr.appdir.ui.mainfragments.eventchildfragments;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.view.ViewPager;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,8 +17,6 @@ import com.partyspottr.appdir.classes.adapters.EventAdapter;
 import com.partyspottr.appdir.classes.networking.GetAllEvents;
 
 public class alle_eventer_fragment extends Fragment {
-    private static boolean once = false;
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -30,11 +29,6 @@ public class alle_eventer_fragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         final ListView listView = view.findViewById(R.id.lvalle_eventer);
         final SwipeRefreshLayout swipeRefreshLayout = view.findViewById(R.id.swipe_layout_events);
-
-        if(!once) {
-            Utilities.onSearchEventsClickAlle(getActivity());
-            once = true;
-        }
 
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override

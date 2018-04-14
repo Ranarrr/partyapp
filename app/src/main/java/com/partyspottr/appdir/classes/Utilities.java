@@ -2,6 +2,7 @@ package com.partyspottr.appdir.classes;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.Service;
 import android.content.ContentUris;
 import android.content.Context;
 import android.content.pm.PackageManager;
@@ -25,6 +26,8 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethod;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
@@ -192,6 +195,63 @@ public class Utilities {
                     }, 100);
                 } else {
                     Toast.makeText(activity, "The list is empty!", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+    }
+
+    public static void onSearchMineEventer(final Activity activity) {
+        final ListView lvmine_eventer = activity.findViewById(R.id.lvmine_eventer);
+        final EditText search_mine_eventer = activity.findViewById(R.id.search_mine_eventer);
+        final ImageButton search_events = activity.findViewById(R.id.search_events);
+
+        if(lvmine_eventer == null || search_events == null || search_mine_eventer == null)
+            return;
+
+        search_events.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(Bruker.get().getListOfMyEvents() != null && !Bruker.get().getListOfMyEvents().isEmpty()) {
+                    search_mine_eventer.setVisibility(search_mine_eventer.getVisibility() == View.VISIBLE ? View.INVISIBLE : View.VISIBLE);
+                    ViewGroup.LayoutParams params = search_mine_eventer.getLayoutParams();
+
+                    if(search_mine_eventer.getVisibility() == View.INVISIBLE)
+                        params.height = 0;
+                    else {
+                        params.height = WRAP_CONTENT;
+
+                        search_mine_eventer.addTextChangedListener(new TextWatcher() {
+                            @Override
+                            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+                            @Override
+                            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                                if(s.toString().isEmpty()) {
+                                    lvmine_eventer.setAdapter(new EventAdapter(activity, Bruker.get().getListOfMyEvents()));
+                                    return;
+                                }
+
+                                List<Event> list = new ArrayList<>();
+                                for(Event event : Bruker.get().getListOfMyEvents()) {
+                                    if(event.getHostStr().contains(s))
+                                        list.add(event);
+
+                                    if(event.getNameofevent().contains(s))
+                                        list.add(event);
+                                }
+
+                                lvmine_eventer.setAdapter(new EventAdapter(activity, list));
+                            }
+
+                            @Override
+                            public void afterTextChanged(Editable s) {}
+                        });
+
+                    }
+
+                    search_mine_eventer.setLayoutParams(params);
+                } else {
+                    Toast.makeText(activity, "You don't have any events!", Toast.LENGTH_SHORT).show(); // TODO: fix translation
                 }
             }
         });

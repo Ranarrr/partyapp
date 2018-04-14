@@ -53,6 +53,12 @@ import java.util.Locale;
 
 import static com.partyspottr.appdir.ui.MainActivity.typeface;
 
+/**
+ * Created by Ranarrr on 05-Apr-18.
+ *
+ * @author Ranarrr
+ */
+
 public class Profile extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {

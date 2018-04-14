@@ -10,14 +10,18 @@ import java.util.Date;
 
 public class Friend {
     private String brukernavn;
+    private String fornavn;
+    private String etternavn;
     private long FriendSince;
 
     public Friend() {}
 
-    public Friend BrukerToFriend(Bruker bruker) {
+    public static Friend BrukerToFriend(Bruker bruker) {
         Friend result = new Friend();
         result.brukernavn = bruker.getBrukernavn();
         result.FriendSince = new Date().getTime();
+        result.fornavn = bruker.getFornavn();
+        result.etternavn = bruker.getEtternavn();
         return result;
     }
 
@@ -35,5 +39,21 @@ public class Friend {
 
     public void setFriendSince(long friendSince) {
         FriendSince = friendSince;
+    }
+
+    public String getFornavn() {
+        return fornavn;
+    }
+
+    public void setFornavn(String fornavn) {
+        this.fornavn = fornavn;
+    }
+
+    public String getEtternavn() {
+        return etternavn;
+    }
+
+    public void setEtternavn(String etternavn) {
+        this.etternavn = etternavn;
     }
 }

@@ -1,7 +1,10 @@
 package com.partyspottr.appdir.classes.networking;
 
+import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.AsyncTask;
+import android.widget.Toast;
 
 import com.partyspottr.appdir.classes.Bruker;
 
@@ -19,14 +22,16 @@ import java.util.List;
  * @author Ranarrr
  */
 
-public class RemoveEvent extends AsyncTask {
-
+public class RemoveEvent extends AsyncTask<Void, Void, Integer> {
     private JSONObject eventidanduser;
+    private ProgressDialog progressDialog;
 
-    public RemoveEvent(Context c, long eventid) {
+    public RemoveEvent(Activity c, long eventid) {
+        progressDialog = new ProgressDialog(c);
         try {
             eventidanduser = new JSONObject();
             eventidanduser.put("user", Bruker.get().getBrukernavn());
+            eventidanduser.put("pass", Bruker.get().getPassord());
             eventidanduser.put("eventId", eventid);
         } catch(JSONException e) {
             e.printStackTrace();
@@ -35,11 +40,14 @@ public class RemoveEvent extends AsyncTask {
 
     @Override
     protected void onPreExecute() {
+        progressDialog.setCancelable(false);
+        progressDialog.setCanceledOnTouchOutside(false);
+        progressDialog.show();
         super.onPreExecute();
     }
 
     @Override
-    protected Object doInBackground(Object[] objects) {
+    protected Integer doInBackground(Void ... voids) {
         try {
             List<NameValuePair> params = new ArrayList<>();
             params.add(new BasicNameValuePair("remove_event", eventidanduser.toString()));
@@ -55,11 +63,16 @@ public class RemoveEvent extends AsyncTask {
             e.printStackTrace();
         }
 
-        return 0;
+        return -1;
     }
 
     @Override
-    protected void onPostExecute(Object o) {
-
+    protected void onPostExecute(Integer o) {
+        progressDialog.hide();
+        if(o == 1) {
+            Toast.makeText(progressDialog.getContext(), "Removed event!", Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(progressDialog.getContext(), "Failed to remove event.", Toast.LENGTH_SHORT).show();
+        }
     }
 }

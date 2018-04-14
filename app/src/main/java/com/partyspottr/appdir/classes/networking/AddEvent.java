@@ -1,5 +1,6 @@
 package com.partyspottr.appdir.classes.networking;
 
+import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.os.AsyncTask;
 import android.util.Base64;
@@ -37,9 +38,11 @@ public class AddEvent extends AsyncTask<Void, Void, Integer> {
     private Event eventToUse;
     private ProgressDialog progressDialog;
     private File bitmap;
+    private Dialog dialog;
 
-    AddEvent(ProgressDialog pD, Event event, File bmp) {
+    AddEvent(Dialog dilog, ProgressDialog pD, Event event, File bmp) {
         progressDialog = pD;
+        dialog = dilog;
         eventToUse = event;
         bitmap = bmp;
         try {
@@ -87,9 +90,9 @@ public class AddEvent extends AsyncTask<Void, Void, Integer> {
                 Toast.makeText(progressDialog.getContext(), progressDialog.getContext().getResources().getString(R.string.event_lagt_til), Toast.LENGTH_SHORT).show();
             }
 
-            /*if(progressDialog.getOwnerActivity() != null) {
-                progressDialog.getOwnerActivity().onBackPressed();
-            }*/
+            if(dialog != null) {
+                dialog.onBackPressed();
+            }
 
         } else if(integer == 0) {
             Toast.makeText(progressDialog.getContext(), progressDialog.getContext().getResources().getString(R.string.tilkoblingsfeil), Toast.LENGTH_SHORT).show();

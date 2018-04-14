@@ -20,6 +20,12 @@ import com.partyspottr.appdir.ui.MainActivity;
 
 import java.util.Locale;
 
+/**
+ * Created by Ranarrr on 26-Jan-18.
+ *
+ * @author Ranarrr
+ */
+
 public class Register2Activity extends AppCompatActivity {
 
     @Override

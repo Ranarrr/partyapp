@@ -129,59 +129,7 @@ public class eventfragment extends Fragment {
                                 ViewCompat.setBackgroundTintList(mine_eventer_btn, ContextCompat.getColorStateList(getActivity().getApplicationContext(), R.color.lightgrey));
                                 ViewCompat.setBackgroundTintList(mitt_arkiv_btn, ContextCompat.getColorStateList(getActivity().getApplicationContext(), R.color.lightlightgrey));
 
-                                final ListView lvmine_eventer = getActivity().findViewById(R.id.lvmine_eventer);
-                                final EditText search_mine_eventer = getActivity().findViewById(R.id.search_mine_eventer);
-
-                                if(lvmine_eventer == null || search_mine_eventer == null)
-                                    break;
-
-                                search_events.setOnClickListener(new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View v) {
-                                        if(Bruker.get().getListOfMyEvents() != null && !Bruker.get().getListOfMyEvents().isEmpty()) {
-                                            search_mine_eventer.setVisibility(search_mine_eventer.getVisibility() == View.VISIBLE ? View.INVISIBLE : View.VISIBLE);
-                                            ViewGroup.LayoutParams params = search_mine_eventer.getLayoutParams();
-
-                                            if(search_mine_eventer.getVisibility() == View.INVISIBLE)
-                                                params.height = 0;
-                                            else {
-                                                params.height = WRAP_CONTENT;
-
-                                                search_mine_eventer.addTextChangedListener(new TextWatcher() {
-                                                    @Override
-                                                    public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-
-                                                    @Override
-                                                    public void onTextChanged(CharSequence s, int start, int before, int count) {
-                                                        if(s.toString().isEmpty()) {
-                                                            lvmine_eventer.setAdapter(new EventAdapter(getActivity(), Bruker.get().getListOfMyEvents()));
-                                                            return;
-                                                        }
-
-                                                        List<Event> list = new ArrayList<>();
-                                                        for(Event event : Bruker.get().getListOfMyEvents()) {
-                                                            if(event.getHostStr().contains(s))
-                                                                list.add(event);
-
-                                                            if(event.getNameofevent().contains(s))
-                                                                list.add(event);
-                                                        }
-
-                                                        lvmine_eventer.setAdapter(new EventAdapter(getActivity(), list));
-                                                    }
-
-                                                    @Override
-                                                    public void afterTextChanged(Editable s) {}
-                                                });
-
-                                            }
-
-                                            search_mine_eventer.setLayoutParams(params);
-                                        } else {
-                                            Toast.makeText(getContext(), "You don't have any events!", Toast.LENGTH_SHORT).show(); // TODO: fix translation
-                                        }
-                                    }
-                                });
+                                Utilities.onSearchMineEventer(getActivity());
                                 break;
 
                             case 2:

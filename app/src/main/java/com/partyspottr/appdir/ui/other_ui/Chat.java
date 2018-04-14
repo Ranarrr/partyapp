@@ -44,6 +44,12 @@ import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Locale;
 
+/**
+ * Created by Ranarrr on 04-Apr-18.
+ *
+ * @author Ranarrr
+ */
+
 public class Chat extends AppCompatActivity {
     private List<ChatMessage> m_list;
     private int amountChatTime;

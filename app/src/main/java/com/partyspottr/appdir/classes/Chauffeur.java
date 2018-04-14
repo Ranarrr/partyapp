@@ -70,12 +70,14 @@ public class Chauffeur {
 
         try {
             JSONObject json = new JSONObject();
+            json.put("brukernavnElem", m_brukernavn);
             json.put(carlistElem, new Gson().toJson(listOfCars));
             json.put(time_fromElem, chauffeur_time_from);
             json.put(time_toElem, chauffeur_time_to);
             json.put(rating, m_rating);
             json.put(capacity, m_capacity);
             json.put(age, m_age);
+            json.put("socketElem", Base64.encodeToString(BuildConfig.JSONParser_Socket.getBytes(), Base64.DEFAULT));
             ret = json.toString();
         } catch (JSONException e) {
             e.printStackTrace();

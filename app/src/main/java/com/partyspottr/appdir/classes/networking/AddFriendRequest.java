@@ -4,9 +4,12 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.os.AsyncTask;
 import android.util.Base64;
+import android.widget.Toast;
 
+import com.google.gson.Gson;
 import com.partyspottr.appdir.BuildConfig;
 import com.partyspottr.appdir.classes.Bruker;
+import com.partyspottr.appdir.classes.Friend;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
@@ -14,34 +17,29 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
-public class ChauffeurAddNewTime extends AsyncTask<Void, Void, Integer> {
-    private ProgressDialog progressDialog;
-    private JSONObject info;
+public class AddFriendRequest extends AsyncTask<Void, Void, Integer> {
+    JSONObject info;
+    ProgressDialog progressDialog;
 
-    public ChauffeurAddNewTime(Activity activity, long timeto) {
+    public AddFriendRequest(Activity activity, String bruker) {
         progressDialog = new ProgressDialog(activity);
-        progressDialog.setOwnerActivity(activity);
-
+        info = new JSONObject();
         try {
-            info = new JSONObject();
             info.put("socketElem", Base64.encodeToString(BuildConfig.JSONParser_Socket.getBytes(), Base64.DEFAULT));
-            info.put("timefrom", new Date().getTime());
-            info.put("timeto", timeto);
-            info.put("brukernavnElem", Bruker.get().getBrukernavn());
+            info.put("brukernavn", bruker);
+            info.put("friend", new Gson().toJson(Friend.BrukerToFriend(Bruker.get())));
         } catch (JSONException e) {
             e.printStackTrace();
         }
-
     }
 
     @Override
     protected void onPreExecute() {
         progressDialog.setCancelable(false);
         progressDialog.setCanceledOnTouchOutside(false);
-        progressDialog.setMessage("Adding new time.."); // TODO : Fix translation
+        progressDialog.show();
         super.onPreExecute();
     }
 
@@ -49,7 +47,7 @@ public class ChauffeurAddNewTime extends AsyncTask<Void, Void, Integer> {
     protected Integer doInBackground(Void... voids) {
         try {
             List<NameValuePair> params = new ArrayList<>();
-            params.add(new BasicNameValuePair("add_new_time", info.toString()));
+            params.add(new BasicNameValuePair("add_friend_request", info.toString()));
             JSONObject json = new JSONParser().get_jsonobject("POST", params, null);
             if(json != null) {
                 if(json.getInt("success") == 1) {
@@ -67,18 +65,11 @@ public class ChauffeurAddNewTime extends AsyncTask<Void, Void, Integer> {
 
     @Override
     protected void onPostExecute(Integer integer) {
+        progressDialog.hide();
         if(integer == 1) {
-            try {
-                Bruker.get().getChauffeur().setChauffeur_time_from(info.getLong("timefrom"));
-                Bruker.get().getChauffeur().setChauffeur_time_to(info.getLong("timeto"));
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
+            Toast.makeText(progressDialog.getContext(), "Sent friend request!", Toast.LENGTH_SHORT).show(); // TODO : Fix translation
         } else {
-            Bruker.get().getChauffeur().setChauffeur_time_from(0);
-            Bruker.get().getChauffeur().setChauffeur_time_to(0);
+            Toast.makeText(progressDialog.getContext(), "Failed to send friend request! Please try again later.", Toast.LENGTH_LONG).show();
         }
-
-        Bruker.get().getChauffeur().LagreChauffeur();
     }
 }

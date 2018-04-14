@@ -10,11 +10,11 @@ import org.apache.http.message.BasicNameValuePair;
 import java.util.ArrayList;
 import java.util.List;
 
-public class UpdateUser extends AsyncTask<Void, Void, Integer> {
+public class UpdateUser extends AsyncTask<Void, Void, Void> {
     public UpdateUser() {}
 
     @Override
-    protected Integer doInBackground(Void... voids) {
+    protected Void doInBackground(Void... voids) {
         List<NameValuePair> params = new ArrayList<>();
         params.add(new BasicNameValuePair("update_user", Bruker.get().BrukerToJSON()));
         new JSONParser().get_jsonobject("POST", params, null);

@@ -15,6 +15,12 @@ import com.partyspottr.appdir.classes.Bruker;
 import com.partyspottr.appdir.classes.networking.CheckUsername;
 import com.partyspottr.appdir.ui.MainActivity;
 
+/**
+ * Created by Ranarrr on 26-Jan-18.
+ *
+ * @author Ranarrr
+ */
+
 public class Register3Activity extends AppCompatActivity {
 
     @Override
