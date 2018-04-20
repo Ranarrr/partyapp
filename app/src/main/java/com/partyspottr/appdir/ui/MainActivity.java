@@ -30,9 +30,7 @@ import com.partyspottr.appdir.ui.registerui.RegisterActivity;
  */
 
 public class MainActivity extends AppCompatActivity {
-
     public static Typeface typeface;
-    private CallbackManager callbackManager;
 
     @Override
     public void onBackPressed() {

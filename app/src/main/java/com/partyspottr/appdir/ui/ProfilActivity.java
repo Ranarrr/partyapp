@@ -41,21 +41,31 @@ import android.widget.CompoundButton;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.crashlytics.android.Crashlytics;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.partyspottr.appdir.R;
 import com.partyspottr.appdir.classes.Bruker;
+import com.partyspottr.appdir.classes.ChatPreview;
 import com.partyspottr.appdir.classes.Event;
 import com.partyspottr.appdir.classes.ImageChange;
 import com.partyspottr.appdir.classes.Participant;
 import com.partyspottr.appdir.classes.Requester;
 import com.partyspottr.appdir.classes.Utilities;
+import com.partyspottr.appdir.classes.adapters.ChatPreviewAdapter;
 import com.partyspottr.appdir.classes.networking.GetLocationInfo;
 import com.partyspottr.appdir.enums.EventStilling;
 import com.partyspottr.appdir.ui.mainfragments.bilfragment;
+import com.partyspottr.appdir.ui.mainfragments.chatchildfragments.mine_chats_fragment;
+import com.partyspottr.appdir.ui.mainfragments.chatchildfragments.venner_fragment;
 import com.partyspottr.appdir.ui.mainfragments.chatfragment;
 import com.partyspottr.appdir.ui.mainfragments.eventchildfragments.alle_eventer_fragment;
 import com.partyspottr.appdir.ui.mainfragments.eventchildfragments.mine_eventer_fragment;
@@ -85,36 +95,62 @@ import static com.partyspottr.appdir.ui.MainActivity.typeface;
  */
 
 public class ProfilActivity extends AppCompatActivity {
-    private AppCompatButton alle_eventer_btn;
-    private AppCompatButton mine_eventer_btn;
-    private AppCompatButton mitt_arkiv_btn;
-
     public static List<String> childfragmentsinstack;
+    public static List<String> childfragmentsinstackChat;
+
+    public static ValueEventListener valueEventListener;
+    public static DatabaseReference ref;
 
     private ImageChange imageChange = new ImageChange();
 
     @Override
     public void onBackPressed() {
         int count = getSupportFragmentManager().getBackStackEntryCount();
-        ViewPager viewPager = findViewById(R.id.pagerview_event);
 
-        if(childfragmentsinstack.size() > 0 && (viewPager != null && viewPager.getCurrentItem() != 0)) {
-            if(childfragmentsinstack.size() > 1) {
-                if(childfragmentsinstack.get(childfragmentsinstack.size() - 2).equals(alle_eventer_fragment.class.getName()))
-                    viewPager.setCurrentItem(0, true);
-                else if(childfragmentsinstack.get(childfragmentsinstack.size() - 2).equals(mine_eventer_fragment.class.getName()))
-                    viewPager.setCurrentItem(1, true);
-                else
-                    viewPager.setCurrentItem(2, true);
-            } else {
-                viewPager.setCurrentItem(0, true);
+        ViewPager eventPager = findViewById(R.id.pagerview_event);
+
+        if(eventPager != null) {
+            if(childfragmentsinstack.size() > 0 && eventPager.getCurrentItem() != 0) {
+                if(childfragmentsinstack.size() > 1) {
+                    if(childfragmentsinstack.get(childfragmentsinstack.size() - 2).equals(alle_eventer_fragment.class.getName()))
+                        eventPager.setCurrentItem(0, true);
+                    else if(childfragmentsinstack.get(childfragmentsinstack.size() - 2).equals(mine_eventer_fragment.class.getName()))
+                        eventPager.setCurrentItem(1, true);
+                    else
+                        eventPager.setCurrentItem(2, true);
+                } else {
+                    eventPager.setCurrentItem(0, true);
+                }
+
+                if(childfragmentsinstack.size() > 1)
+                    childfragmentsinstack.remove(childfragmentsinstack.size() - 1);
+                if(childfragmentsinstack.size() == 0)
+                    childfragmentsinstack.add(alle_eventer_fragment.class.getName());
+                return;
             }
+        } else {
+            ViewPager chatPager = findViewById(R.id.viewpager_chat);
 
-            if(childfragmentsinstack.size() > 1)
-                childfragmentsinstack.remove(childfragmentsinstack.size() - 1);
-            if(childfragmentsinstack.size() == 0)
-                childfragmentsinstack.add(alle_eventer_fragment.class.getName());
-            return;
+            if(chatPager != null) {
+                if(childfragmentsinstackChat.size() > 0 && chatPager.getCurrentItem() != 0) {
+                    if(childfragmentsinstackChat.size() > 1) {
+                        if(childfragmentsinstackChat.get(childfragmentsinstackChat.size() - 2).equals(mine_chats_fragment.class.getName()))
+                            chatPager.setCurrentItem(0, true);
+                        else if(childfragmentsinstackChat.get(childfragmentsinstackChat.size() - 2).equals(venner_fragment.class.getName()))
+                            chatPager.setCurrentItem(1, true);
+                        else
+                            chatPager.setCurrentItem(2, true);
+                    } else {
+                        chatPager.setCurrentItem(0, true);
+                    }
+
+                    if(childfragmentsinstackChat.size() > 1)
+                        childfragmentsinstackChat.remove(childfragmentsinstackChat.size() - 1);
+                    if(childfragmentsinstackChat.size() == 0)
+                        childfragmentsinstackChat.add(alle_eventer_fragment.class.getName());
+                    return;
+                }
+            }
         }
 
         if (count <= 1) {
@@ -125,9 +161,8 @@ public class ProfilActivity extends AppCompatActivity {
         }
     }
 
-    CountDownTimer ctd = new CountDownTimer(Long.MAX_VALUE, 200) {
+    CountDownTimer ctd = new CountDownTimer(Long.MAX_VALUE, 1000) {
         public void onTick(long millisUntilFinished) {
-
             if(!Utilities.hasNetwork(getApplicationContext())) {
                 Bruker.get().setConnected(false);
             } else if(Utilities.hasNetwork(getApplicationContext())) {
@@ -143,22 +178,61 @@ public class ProfilActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profil);
 
-        /*if(!Bruker.get().isLoggetpa()) {
-            Toast.makeText(this, "Fatal error!", Toast.LENGTH_SHORT).show();
-            System.exit(0);
-        }*/
-
         setSupportActionBar((Toolbar) findViewById(R.id.toolbar_profil));
 
         childfragmentsinstack = new ArrayList<>();
+        childfragmentsinstackChat = new ArrayList<>();
         childfragmentsinstack.add(alle_eventer_fragment.class.getName());
 
         ctd.start();
+
+        ref = FirebaseDatabase.getInstance().getReference().child("messagepreviews");
+
+        valueEventListener = ref.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                List<ChatPreview> list = new ArrayList<>();
+
+                if(dataSnapshot.getChildren() == null)
+                    return;
+
+                for(DataSnapshot child : dataSnapshot.getChildren()) {
+                    if(child.getKey().contains(Bruker.get().getBrukernavn())) {
+                        list.add(child.getValue(ChatPreview.class));
+                    }
+                }
+
+                ListView lv_chat = findViewById(R.id.lv_chat);
+
+                if(lv_chat != null)
+                    lv_chat.setAdapter(new ChatPreviewAdapter(ProfilActivity.this, list));
+
+                Bruker.get().setChatMessageList(list);
+                Bruker.get().LagreBruker();
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                if(databaseError.getCode() == DatabaseError.NETWORK_ERROR)
+                    Toast.makeText(ProfilActivity.this, "Could not find chats.", Toast.LENGTH_SHORT).show();
+            }
+        });
 
         if(!Utilities.hasNetwork(getApplicationContext())) {
             Bruker.get().setConnected(false);
             Toast.makeText(this, "You are not connected.", Toast.LENGTH_SHORT).show();
         } else if(Utilities.hasNetwork(getApplicationContext())) {
+            if(Bruker.get().isLoggetpa()) {
+                Utilities.getPosition(this);
+            } else {
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        Utilities.getPosition(ProfilActivity.this);
+                    }
+                }, 3000);
+            }
+
             Bruker.get().setConnected(true);
         }
 
@@ -179,8 +253,6 @@ public class ProfilActivity extends AppCompatActivity {
 
     @Override
     protected void onPause() {
-        Fabric.with(null);
-
         ctd.cancel();
         super.onPause();
     }
@@ -194,20 +266,17 @@ public class ProfilActivity extends AppCompatActivity {
             Bruker.get().setConnected(true);
         }
 
-        Fabric fabric = new Fabric.Builder(this)
-                .kits(new Crashlytics())
-                .debuggable(false)
-                .build();
-
-        Fabric.with(fabric);
+        Utilities.getPosition(this);
 
         ctd.start();
         super.onResume();
     }
 
     private void replaceFragment(int fragmentNum) {
-        if(!Bruker.get().isConnected())
+        if(!Bruker.get().isConnected()) {
+            Toast.makeText(this, "You are not connected.", Toast.LENGTH_SHORT).show();
             return;
+        }
 
         Fragment fragment;
         switch (fragmentNum) {
@@ -270,6 +339,15 @@ public class ProfilActivity extends AppCompatActivity {
 
     public void onChatMenyClick(View v) {
         replaceFragment(3);
+        ImageButton search_chat = findViewById(R.id.search_events);
+
+        if(search_chat == null)
+            return;
+
+        venner_fragment.once = false;
+
+        search_chat.setImageDrawable(getResources().getDrawable(R.drawable.search));
+
         ((TextView) findViewById(R.id.title_toolbar)).setText("Messages"); // TODO : Translation
     }
 
@@ -277,6 +355,10 @@ public class ProfilActivity extends AppCompatActivity {
         replaceFragment(2);
         ((TextView) findViewById(R.id.title_toolbar)).setText(Bruker.get().getBrukernavn());
         ImageButton now_cog = findViewById(R.id.search_events);
+
+        if(now_cog == null)
+            return;
+
         now_cog.setImageDrawable(getResources().getDrawable(R.drawable.cog));
 
         now_cog.setOnClickListener(new View.OnClickListener() {
@@ -291,53 +373,99 @@ public class ProfilActivity extends AppCompatActivity {
     }
 
     public void onAlleEventerClick(View v) {
-        mine_eventer_btn = findViewById(R.id.mine_eventer_btn);
-        mitt_arkiv_btn = findViewById(R.id.arkiv_btn);
+        AppCompatButton mine_eventer_btn = findViewById(R.id.mine_eventer_btn);
+        AppCompatButton mitt_arkiv_btn = findViewById(R.id.arkiv_btn);
+        ViewPager viewPager = findViewById(R.id.pagerview_event);
+
+        if(mine_eventer_btn == null || mitt_arkiv_btn == null || viewPager == null)
+            return;
 
         ViewCompat.setBackgroundTintList(v, ContextCompat.getColorStateList(getApplicationContext(), R.color.lightgrey));
         ViewCompat.setBackgroundTintList(mine_eventer_btn, ContextCompat.getColorStateList(getApplicationContext(), R.color.lightlightgrey));
         ViewCompat.setBackgroundTintList(mitt_arkiv_btn, ContextCompat.getColorStateList(getApplicationContext(), R.color.lightlightgrey));
-        ViewPager viewPager = findViewById(R.id.pagerview_event);
+
         viewPager.setCurrentItem(0, true);
         }
 
     public void onMineEventerClick(View v) {
-        alle_eventer_btn = findViewById(R.id.alle_eventer_btn);
-        mitt_arkiv_btn = findViewById(R.id.arkiv_btn);
+        AppCompatButton alle_eventer_btn = findViewById(R.id.alle_eventer_btn);
+        AppCompatButton mitt_arkiv_btn = findViewById(R.id.arkiv_btn);
+        ViewPager viewPager = findViewById(R.id.pagerview_event);
+
+        if(alle_eventer_btn == null || mitt_arkiv_btn == null || viewPager == null)
+            return;
 
         ViewCompat.setBackgroundTintList(alle_eventer_btn, ContextCompat.getColorStateList(getApplicationContext(), R.color.lightlightgrey));
         ViewCompat.setBackgroundTintList(v, ContextCompat.getColorStateList(getApplicationContext(), R.color.lightgrey));
         ViewCompat.setBackgroundTintList(mitt_arkiv_btn, ContextCompat.getColorStateList(getApplicationContext(), R.color.lightlightgrey));
-        ViewPager viewPager = findViewById(R.id.pagerview_event);
+
         viewPager.setCurrentItem(1, true);
     }
 
     public void onMittArkivClick(View v) {
-        alle_eventer_btn = findViewById(R.id.alle_eventer_btn);
-        mine_eventer_btn = findViewById(R.id.mine_eventer_btn);
+        AppCompatButton alle_eventer_btn = findViewById(R.id.alle_eventer_btn);
+        AppCompatButton mine_eventer_btn = findViewById(R.id.mine_eventer_btn);
+        ViewPager viewPager = findViewById(R.id.pagerview_event);
+
+        if(alle_eventer_btn == null || mine_eventer_btn == null || viewPager == null)
+            return;
 
         ViewCompat.setBackgroundTintList(alle_eventer_btn, ContextCompat.getColorStateList(getApplicationContext(), R.color.lightlightgrey));
         ViewCompat.setBackgroundTintList(mine_eventer_btn, ContextCompat.getColorStateList(getApplicationContext(), R.color.lightlightgrey));
         ViewCompat.setBackgroundTintList(v, ContextCompat.getColorStateList(getApplicationContext(), R.color.lightgrey));
-        ViewPager viewPager = findViewById(R.id.pagerview_event);
+
         viewPager.setCurrentItem(2, true);
     }
 
     public void onFinnBilClick(View v) {
         AppCompatButton min_bil_btn = findViewById(R.id.min_bil_btn);
+        ViewPager viewPager = findViewById(R.id.pagerview_bil);
+
+        if(min_bil_btn == null || viewPager == null)
+            return;
 
         ViewCompat.setBackgroundTintList(v, ContextCompat.getColorStateList(getApplicationContext(), R.color.lightgrey));
         ViewCompat.setBackgroundTintList(min_bil_btn, ContextCompat.getColorStateList(getApplicationContext(), R.color.lightlightgrey));
-        ViewPager viewPager = findViewById(R.id.pagerview_bil);
+
         viewPager.setCurrentItem(0, true);
     }
 
     public void onMinBilClick(View v) {
         AppCompatButton finn_bil_btn = findViewById(R.id.finn_bil_btn);
+        ViewPager viewPager = findViewById(R.id.pagerview_bil);
+
+        if(finn_bil_btn == null || viewPager == null)
+            return;
 
         ViewCompat.setBackgroundTintList(v, ContextCompat.getColorStateList(getApplicationContext(), R.color.lightgrey));
         ViewCompat.setBackgroundTintList(finn_bil_btn, ContextCompat.getColorStateList(getApplicationContext(), R.color.lightlightgrey));
-        ViewPager viewPager = findViewById(R.id.pagerview_bil);
+
+        viewPager.setCurrentItem(1, true);
+    }
+
+    public void onMineChatsClick(View v) {
+        AppCompatButton venner_btn = findViewById(R.id.venner);
+        ViewPager viewPager = findViewById(R.id.viewpager_chat);
+
+        if(venner_btn == null || viewPager == null)
+            return;
+
+        ViewCompat.setBackgroundTintList(v, ContextCompat.getColorStateList(getApplicationContext(), R.color.lightgrey));
+        ViewCompat.setBackgroundTintList(venner_btn, ContextCompat.getColorStateList(getApplicationContext(), R.color.lightlightgrey));
+
+        viewPager.setCurrentItem(0, true);
+    }
+
+    public void onVennerClick(View v) {
+        AppCompatButton mine_chats = findViewById(R.id.mine_chats);
+        ViewPager viewPager = findViewById(R.id.viewpager_chat);
+
+        if(mine_chats == null || viewPager == null)
+            return;
+
+        ViewCompat.setBackgroundTintList(v, ContextCompat.getColorStateList(getApplicationContext(), R.color.lightgrey));
+        ViewCompat.setBackgroundTintList(mine_chats, ContextCompat.getColorStateList(getApplicationContext(), R.color.lightlightgrey));
+
         viewPager.setCurrentItem(1, true);
     }
 
@@ -390,7 +518,7 @@ public class ProfilActivity extends AppCompatActivity {
                                 null, false);
                         getLocationInfo.execute();
                     }
-                }, 1000);
+                }, 200);
             }
 
             @Override

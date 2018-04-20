@@ -70,10 +70,6 @@ public class SplashActivity extends AppCompatActivity {
         passedfirst = false;
         hasSwitched = false;
 
-        if(hasFineLocation && hasCoarseLocation) {
-            Utilities.getPosition(this);
-        }
-
         if(!hasSendSMS) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.SEND_SMS}, Utilities.SEND_SMS_REQUEST_CODE);
         }

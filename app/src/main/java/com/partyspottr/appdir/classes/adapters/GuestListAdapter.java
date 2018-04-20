@@ -145,8 +145,10 @@ public class GuestListAdapter extends BaseAdapter {
                                     return true;
 
                                 case R.id.som_venn:
-                                    AddFriendRequest addFriendRequest = new AddFriendRequest(thisActivity, participant.getBrukernavn());
-                                    addFriendRequest.execute();
+                                    if(!participant.getBrukernavn().equals(Bruker.get().getBrukernavn())) {
+                                        AddFriendRequest addFriendRequest = new AddFriendRequest(thisActivity, participant.getBrukernavn());
+                                        addFriendRequest.execute();
+                                    }
 
                                     return true;
 

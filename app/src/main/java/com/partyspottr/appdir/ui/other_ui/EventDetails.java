@@ -114,6 +114,7 @@ public class EventDetails extends AppCompatActivity {
         StringBuilder finaldatofra = new StringBuilder(), finaldatotil = new StringBuilder();
 
         if(event.getDatefrom() == 0) {
+            onBackPressed();
             return;
         } else {
             GregorianCalendar datefrom = new GregorianCalendar();
@@ -182,7 +183,6 @@ public class EventDetails extends AppCompatActivity {
                 }
             }
         }
-
 
         datotil.setText(finaldatotil.toString());
 
@@ -288,23 +288,23 @@ public class EventDetails extends AppCompatActivity {
                             .setTitle("Remove")
                             .setMessage("Do you want to remove your request?")
                             .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            RemoveEventRequest eventRequest = new RemoveEventRequest(EventDetails.this, event.getEventId(), Bruker.get().getBrukernavn(), false);
-                            eventRequest.execute();
-                        }
-                    })
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    RemoveEventRequest eventRequest = new RemoveEventRequest(EventDetails.this, event.getEventId(), Bruker.get().getBrukernavn(), false);
+                                    eventRequest.execute();
+                                }
+                            })
                             .setNegativeButton("No", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {}
-                    })
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {}
+                            })
                             .show();
                 }
             });
         }
 
         if(event.getHostStr().equals(Bruker.get().getBrukernavn())) {
-            //details_deltaforesprsler.;
+            details_deltaforesprsler.setImageDrawable(getResources().getDrawable(R.drawable.view_queue));
 
             host.setText(String.format(Locale.ENGLISH, "Host: %s (deg)", event.getHostStr()));
         } else {
@@ -364,8 +364,6 @@ public class EventDetails extends AppCompatActivity {
                             });
                         }
                     });
-
-
 
                     toolbar.setNavigationIcon(getResources().getDrawable(R.drawable.left_arrow));
 

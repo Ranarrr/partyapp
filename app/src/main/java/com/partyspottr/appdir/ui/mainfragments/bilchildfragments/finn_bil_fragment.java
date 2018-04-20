@@ -1,6 +1,5 @@
 package com.partyspottr.appdir.ui.mainfragments.bilchildfragments;
 
-
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -8,13 +7,18 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
-import android.widget.TextView;
 
 import com.partyspottr.appdir.R;
 import com.partyspottr.appdir.classes.Chauffeur;
 import com.partyspottr.appdir.classes.adapters.ChauffeurAdapter;
 
 import java.util.ArrayList;
+
+/**
+ * Created by Ranarrr on 30-Jan-18.
+ *
+ * @author Ranarrr
+ */
 
 public class finn_bil_fragment extends Fragment {
 

@@ -91,19 +91,20 @@ public class profilfragment extends Fragment {
             oneliner.setText(Bruker.get().getOneliner());
         }
 
+        if(Bruker.get().getCountry() != null) {
+            if(!Bruker.get().getCountry().equals("Dominican Republic")) { // because android studio reserves the resource name "do"
+                String identifier = CountryCodes.getCountrySign(Bruker.get().getCountry()).toLowerCase();
 
-        if(!Bruker.get().getCountry().equals("Dominican Republic")) { // because android studio reserves the resource name "do"
-            String identifier = CountryCodes.getCountrySign(Bruker.get().getCountry()).toLowerCase();
+                int resource = getActivity().getResources().getIdentifier(identifier, "drawable", getActivity().getPackageName());
 
-            int resource = getActivity().getResources().getIdentifier(identifier, "drawable", getActivity().getPackageName());
+                if(resource > 0) {
+                    Drawable drawable = getActivity().getResources().getDrawable(resource);
 
-            if(resource > 0) {
-                Drawable drawable = getActivity().getResources().getDrawable(resource);
-
-                countryflag.setImageDrawable(drawable);
+                    countryflag.setImageDrawable(drawable);
+                }
+            } else {
+                countryflag.setImageResource(R.drawable.dominican_republic);
             }
-        } else {
-            countryflag.setImageResource(R.drawable.dominican_republic);
         }
     }
 }

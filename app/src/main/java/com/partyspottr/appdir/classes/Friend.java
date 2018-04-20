@@ -16,6 +16,10 @@ public class Friend {
 
     public Friend() {}
 
+    public Friend(String bruker) {
+        brukernavn = bruker;
+    }
+
     public static Friend BrukerToFriend(Bruker bruker) {
         Friend result = new Friend();
         result.brukernavn = bruker.getBrukernavn();

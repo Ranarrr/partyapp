@@ -39,6 +39,15 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
+        <ImageView
+            android:id="@+id/profile_image_chat"
+            android:layout_width="@dimen/_25sdp"
+            android:layout_height="@dimen/_25sdp"
+            android:layout_marginEnd="@dimen/_8sdp"
+            app:layout_constraintEnd_toStartOf="@id/chat_title"
+            app:srcCompat="@drawable/mannmeny"
+            tools:layout_editor_absoluteY="3dp" />
+
         <TextView
             android:id="@+id/chat_title"
             android:layout_width="wrap_content"

@@ -10,8 +10,8 @@ import android.widget.Toast;
 import com.partyspottr.appdir.BuildConfig;
 import com.partyspottr.appdir.classes.Bruker;
 import com.partyspottr.appdir.ui.MainActivity;
+import com.partyspottr.appdir.ui.ProfilActivity;
 import com.partyspottr.appdir.ui.SplashActivity;
-import com.partyspottr.appdir.ui.mainfragments.chatfragment;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
@@ -72,8 +72,8 @@ public class LogoutUser extends AsyncTask<Void, Void, Integer> {
             JSONObject json = new JSONParser().get_jsonobject("POST", params, null);
             if(json != null) {
                 if(json.getInt("success") == 1) {
-                    if(chatfragment.valueEventListener != null && chatfragment.ref != null)
-                        chatfragment.ref.removeEventListener(chatfragment.valueEventListener);
+                    if(ProfilActivity.valueEventListener != null && ProfilActivity.ref != null)
+                        ProfilActivity.ref.removeEventListener(ProfilActivity.valueEventListener);
 
                     if(SplashActivity.mAuth.getCurrentUser() != null)
                         SplashActivity.mAuth.signOut();

@@ -88,6 +88,7 @@ public class Profile extends AppCompatActivity {
         final Button add_friend = findViewById(R.id.add_friend);
         LinearLayout content = findViewById(R.id.profile_content);
         final CustomViewPager pager = findViewById(R.id.customviewpager);
+        final TextView skal_paa = findViewById(R.id.profil_going_to);
 
         toolbar.setNavigationIcon(getResources().getDrawable(R.drawable.left_arrow));
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
@@ -101,6 +102,7 @@ public class Profile extends AppCompatActivity {
         getWindowManager().getDefaultDisplay().getSize(size);
         content.setBackground(new BitmapDrawable(getResources(), Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.forsidebilde), size.x, size.y, true)));
 
+        skal_paa.setTypeface(MainActivity.typeface);
         send_message.setTypeface(MainActivity.typeface);
         add_friend.setTypeface(MainActivity.typeface);
         fornavn_etternavn.setTypeface(MainActivity.typeface);
@@ -129,9 +131,13 @@ public class Profile extends AppCompatActivity {
 
                     List<Integer> eventids = Bruker.get().getAllEventIDUserGoingTo(fullparticipant.getBrukernavn());
 
-                    EventSlidePagerAdapter adapter = new EventSlidePagerAdapter(Profile.this, eventids);
-
-                    pager.setAdapter(adapter);
+                    if(eventids.size() == 0) {
+                        pager.setVisibility(View.GONE);
+                        skal_paa.setText("Denne brukeren skal ikke på en event.");
+                    } else {
+                        EventSlidePagerAdapter adapter = new EventSlidePagerAdapter(Profile.this, eventids);
+                        pager.setAdapter(adapter);
+                    }
 
                     send_message.setOnClickListener(new View.OnClickListener() {
                         @Override
@@ -277,6 +283,11 @@ public class Profile extends AppCompatActivity {
             container.addView(v);
 
             return v;
+        }
+
+        @Override
+        public void destroyItem(ViewGroup container, int position, Object object) {
+            container.removeView((View) object);
         }
 
         @Override

@@ -23,6 +23,7 @@ import android.provider.MediaStore;
 import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.View;
 import android.view.ViewGroup;
@@ -35,7 +36,10 @@ import android.widget.Toast;
 
 import com.partyspottr.appdir.BuildConfig;
 import com.partyspottr.appdir.R;
+import com.partyspottr.appdir.classes.adapters.ChatPreviewAdapter;
 import com.partyspottr.appdir.classes.adapters.EventAdapter;
+import com.partyspottr.appdir.classes.adapters.FriendListAdapter;
+import com.partyspottr.appdir.classes.networking.UpdateUser;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -97,7 +101,7 @@ public class Utilities {
     /**
      * This method is used for gettting the latest position of the user currently logged in.
      *
-     * @param activity Activity to be used for checking permissions and getting location service @see Context.LOCATION_SERVICE.
+     * @param activity Activity to be used for checking permissions and getting location service5 see Context.LOCATION_SERVICE.
      */
     public static void getPosition(Activity activity) {
         if(ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED ||
@@ -124,6 +128,8 @@ public class Utilities {
                         Bruker.get().setCountry(address.getCountryName());
                         Bruker.get().setTown(address.getLocality());
                         Bruker.get().LagreBruker();
+                        UpdateUser updateUser = new UpdateUser();
+                        updateUser.execute();
                     }
                 }
             } catch (IOException e) {
@@ -137,23 +143,23 @@ public class Utilities {
         ImageButton searchevents = activity.findViewById(R.id.search_events);
         final EditText search_alle_eventer = activity.findViewById(R.id.search_alle_eventer);
 
-        if(listView == null || searchevents == null || search_alle_eventer == null)
+        if(listView == null || searchevents == null || search_alle_eventer == null) {
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    onSearchEventsClickAlle(activity);
+                }
+            }, 300);
             return;
+        }
 
         searchevents.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if(Bruker.get().getListOfEvents() != null && !Bruker.get().getListOfEvents().isEmpty()) {
-                    search_alle_eventer.setVisibility(search_alle_eventer.getVisibility() == View.VISIBLE ? View.INVISIBLE : View.VISIBLE);
-                    ViewGroup.LayoutParams params = search_alle_eventer.getLayoutParams();
+                    search_alle_eventer.setVisibility(search_alle_eventer.getVisibility() == View.VISIBLE ? View.GONE : View.VISIBLE);
 
-                    if(search_alle_eventer.getVisibility() == View.INVISIBLE) {
-                        params.height = 0;
-
-                        search_alle_eventer.setLayoutParams(params);
-                    } else {
-                        params.height = WRAP_CONTENT;
-
+                    if(search_alle_eventer.getVisibility() == View.VISIBLE) {
                         search_alle_eventer.addTextChangedListener(new TextWatcher() {
                             @Override
                             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
@@ -165,12 +171,19 @@ public class Utilities {
                                     return;
                                 }
 
+                                if(s.toString().length() <= 2) {
+                                    listView.setAdapter(new EventAdapter(activity, Bruker.get().getListOfEvents()));
+                                    return;
+                                }
+
                                 List<Event> list = new ArrayList<>();
                                 for(Event event : Bruker.get().getListOfEvents()) {
-                                    if(event.getHostStr().contains(s))
+                                    if(event.getHostStr().toLowerCase().contains(s.toString().toLowerCase())) {
                                         list.add(event);
+                                        continue;
+                                    }
 
-                                    if(event.getNameofevent().contains(s))
+                                    if(event.getNameofevent().toLowerCase().contains(s.toString().toLowerCase()))
                                         list.add(event);
                                 }
 
@@ -181,18 +194,6 @@ public class Utilities {
                             public void afterTextChanged(Editable s) {}
                         });
                     }
-
-                    search_alle_eventer.setLayoutParams(params);
-
-                    new Handler().postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            if(search_alle_eventer.getVisibility() == View.INVISIBLE)
-                                listView.setPadding(0,0,0, 0);
-                            else
-                                listView.setPadding(0,0,0, search_alle_eventer.getHeight());
-                        }
-                    }, 100);
                 } else {
                     Toast.makeText(activity, "The list is empty!", Toast.LENGTH_SHORT).show();
                 }
@@ -205,21 +206,23 @@ public class Utilities {
         final EditText search_mine_eventer = activity.findViewById(R.id.search_mine_eventer);
         final ImageButton search_events = activity.findViewById(R.id.search_events);
 
-        if(lvmine_eventer == null || search_events == null || search_mine_eventer == null)
+        if(lvmine_eventer == null || search_events == null || search_mine_eventer == null) {
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    onSearchMineEventer(activity);
+                }
+            }, 300);
             return;
+        }
 
         search_events.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if(Bruker.get().getListOfMyEvents() != null && !Bruker.get().getListOfMyEvents().isEmpty()) {
-                    search_mine_eventer.setVisibility(search_mine_eventer.getVisibility() == View.VISIBLE ? View.INVISIBLE : View.VISIBLE);
-                    ViewGroup.LayoutParams params = search_mine_eventer.getLayoutParams();
+                    search_mine_eventer.setVisibility(search_mine_eventer.getVisibility() == View.VISIBLE ? View.GONE : View.VISIBLE);
 
-                    if(search_mine_eventer.getVisibility() == View.INVISIBLE)
-                        params.height = 0;
-                    else {
-                        params.height = WRAP_CONTENT;
-
+                    if(search_mine_eventer.getVisibility() == View.VISIBLE) {
                         search_mine_eventer.addTextChangedListener(new TextWatcher() {
                             @Override
                             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
@@ -231,12 +234,19 @@ public class Utilities {
                                     return;
                                 }
 
+                                if(s.toString().length() <= 2) {
+                                    lvmine_eventer.setAdapter(new EventAdapter(activity, Bruker.get().getListOfMyEvents()));
+                                    return;
+                                }
+
                                 List<Event> list = new ArrayList<>();
                                 for(Event event : Bruker.get().getListOfMyEvents()) {
-                                    if(event.getHostStr().contains(s))
+                                    if(event.getHostStr().toLowerCase().contains(s.toString().toLowerCase())) {
                                         list.add(event);
+                                        continue;
+                                    }
 
-                                    if(event.getNameofevent().contains(s))
+                                    if(event.getNameofevent().toLowerCase().contains(s.toString().toLowerCase()))
                                         list.add(event);
                                 }
 
@@ -246,12 +256,153 @@ public class Utilities {
                             @Override
                             public void afterTextChanged(Editable s) {}
                         });
-
                     }
-
-                    search_mine_eventer.setLayoutParams(params);
                 } else {
                     Toast.makeText(activity, "You don't have any events!", Toast.LENGTH_SHORT).show(); // TODO: fix translation
+                }
+            }
+        });
+    }
+
+    public static void onSearchMineChats(final Activity activity) {
+        final ListView lvmine_chats = activity.findViewById(R.id.lv_chat);
+        final EditText search_chats = activity.findViewById(R.id.search_chat);
+        final ImageButton search_events = activity.findViewById(R.id.search_events);
+
+        if(lvmine_chats == null || search_events == null || search_chats == null) {
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    onSearchMineChats(activity);
+                }
+            }, 300);
+            return;
+        }
+
+        search_events.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(Bruker.get().getChatMessageList() != null && !Bruker.get().getChatMessageList().isEmpty()) {
+                    search_chats.setVisibility(search_chats.getVisibility() == View.VISIBLE ? View.GONE : View.VISIBLE);
+
+                    if(search_chats.getVisibility() == View.VISIBLE) {
+                        search_chats.addTextChangedListener(new TextWatcher() {
+                            @Override
+                            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+                            @Override
+                            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                                if(s.toString().isEmpty()) {
+                                    lvmine_chats.setAdapter(new ChatPreviewAdapter(activity, Bruker.get().getChatMessageList()));
+                                    return;
+                                }
+
+                                if(s.toString().length() <= 2) {
+                                    lvmine_chats.setAdapter(new ChatPreviewAdapter(activity, Bruker.get().getChatMessageList()));
+                                    return;
+                                }
+
+                                List<ChatPreview> list = new ArrayList<>();
+                                for(ChatPreview preview : Bruker.get().getChatMessageList()) {
+                                    if(preview.isGroupchat() && !preview.getGroupname().isEmpty() && preview.getGroupname().toLowerCase().contains(s.toString().toLowerCase())) {
+                                        list.add(preview);
+                                        continue;
+                                    }
+
+                                    for(Chatter chatter : preview.getChatters()) {
+                                        if(chatter.getBrukernavn().equals(Bruker.get().getBrukernavn()))
+                                            continue;
+
+                                        if(chatter.getBrukernavn().toLowerCase().contains(s.toString().toLowerCase())) {
+                                            list.add(preview);
+                                            continue;
+                                        }
+
+                                        if(chatter.getEtternavn().toLowerCase().contains(s.toString().toLowerCase())) {
+                                            list.add(preview);
+                                            continue;
+                                        }
+
+                                        if(chatter.getFornavn().toLowerCase().contains(s.toString().toLowerCase()))
+                                            list.add(preview);
+                                    }
+                                }
+
+                                lvmine_chats.setAdapter(new ChatPreviewAdapter(activity, list));
+                            }
+
+                            @Override
+                            public void afterTextChanged(Editable s) {}
+                        });
+                    }
+                } else {
+                    Toast.makeText(activity, "The list is empty.", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+    }
+
+    public static void onSearchVenner(final Activity activity) {
+        final ListView lv_venner = activity.findViewById(R.id.lv_venner);
+        final EditText search_venner = activity.findViewById(R.id.search_venner);
+        final ImageButton search_events = activity.findViewById(R.id.search_events);
+
+        if(lv_venner == null || search_events == null || search_venner == null) {
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    onSearchVenner(activity);
+                }
+            }, 300);
+            return;
+        }
+
+        search_events.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(Bruker.get().getFriendList() != null && !Bruker.get().getFriendList().isEmpty()) {
+                    search_venner.setVisibility(search_venner.getVisibility() == View.VISIBLE ? View.GONE : View.VISIBLE);
+
+                    if(search_venner.getVisibility() == View.VISIBLE) {
+                        search_venner.addTextChangedListener(new TextWatcher() {
+                            @Override
+                            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+                            @Override
+                            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                                if(s.toString().isEmpty()) {
+                                    lv_venner.setAdapter(new FriendListAdapter(activity, Bruker.get().getFriendList()));
+                                    return;
+                                }
+
+                                if(s.toString().length() <= 2)
+                                    return;
+
+                                List<Friend> list = new ArrayList<>();
+                                for(Friend friend : Bruker.get().getFriendList()) {
+                                    if(friend.getBrukernavn().toLowerCase().contains(s.toString().toLowerCase())) {
+                                        list.add(friend);
+                                        continue;
+                                    }
+
+                                    if(friend.getFornavn().toLowerCase().contains(s.toString().toLowerCase())) {
+                                        list.add(friend);
+                                        continue;
+                                    }
+
+                                    if(friend.getEtternavn().toLowerCase().contains(s.toString().toLowerCase()))
+                                        list.add(friend);
+                                }
+
+                                lv_venner.setAdapter(new FriendListAdapter(activity, list));
+                            }
+
+                            @Override
+                            public void afterTextChanged(Editable s) {}
+                        });
+                    }
+                } else {
+                    Toast.makeText(activity, "The list is empty.", Toast.LENGTH_SHORT).show();
                 }
             }
         });

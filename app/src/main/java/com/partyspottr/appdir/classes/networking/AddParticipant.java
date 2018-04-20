@@ -34,7 +34,6 @@ import java.util.Locale;
  */
 
 public class AddParticipant extends AsyncTask<Void, Void, Integer> {
-
     private JSONObject eventidanduser;
     private ProgressDialog progressDialog;
     private List<Participant> participantList;

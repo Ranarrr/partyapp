@@ -5,35 +5,48 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <EditText
-        android:id="@+id/søk_chat"
+    <android.support.v7.widget.AppCompatButton
+        android:id="@+id/mine_chats"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="@dimen/_20sdp"
-        android:layout_marginStart="@dimen/_20sdp"
+        android:layout_height="@dimen/_25sdp"
+        android:layout_marginEnd="1dp"
+        android:layout_marginStart="@dimen/_13sdp"
         android:layout_marginTop="@dimen/_50sdp"
-        android:background="@drawable/border_rounded"
-        android:hint="Søk.."
-        android:inputType="textPersonName"
-        android:paddingStart="@dimen/_10sdp"
-        android:textSize="@dimen/_15ssp"
-        android:visibility="visible"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:background="@drawable/rounded_btn_left"
+        android:onClick="onMineChatsClick"
+        android:text="Mine chats"
+        android:textSize="@dimen/_10ssp"
+        app:backgroundTint="@color/lightlightgrey"
+        app:layout_constraintEnd_toStartOf="@+id/venner"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <ListView
-        android:id="@+id/lv_chat"
+    <android.support.v7.widget.AppCompatButton
+        android:id="@+id/venner"
         android:layout_width="0dp"
-        android:layout_height="339dp"
-        android:layout_marginEnd="@dimen/_10sdp"
-        android:layout_marginStart="@dimen/_10sdp"
-        android:layout_marginTop="@dimen/_10sdp"
-        android:divider="@android:color/transparent"
-        android:dividerHeight="@dimen/_5sdp"
+        android:layout_height="@dimen/_25sdp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginTop="@dimen/_50sdp"
+        android:background="@drawable/rounded_btn_right"
+        android:onClick="onVennerClick"
+        android:text="Venner"
+        android:textSize="@dimen/_10ssp"
+        app:backgroundTint="@color/lightlightgrey"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toEndOf="@+id/mine_chats"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <android.support.v4.view.ViewPager
+        android:id="@+id/viewpager_chat"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginBottom="@dimen/_90sdp"
+        android:layout_marginTop="@dimen/_5sdp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/søk_chat" />
+        app:layout_constraintTop_toBottomOf="@+id/mine_chats" />
+
 </android.support.constraint.ConstraintLayout>

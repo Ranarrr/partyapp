@@ -150,12 +150,11 @@
             android:id="@+id/time_to"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:ems="2"
+            android:ems="4"
             android:inputType="time"
+            android:singleLine="true"
             app:layout_constraintBottom_toBottomOf="@+id/chauffeur_til_kl"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toEndOf="@+id/chauffeur_til_kl"
+            app:layout_constraintStart_toStartOf="@+id/maks_passasjerer"
             app:layout_constraintTop_toTopOf="@+id/chauffeur_til_kl" />
 
         <TextView
@@ -199,8 +198,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            android:ems="2"
+            android:ems="1"
+            android:imeOptions="actionDone"
             android:inputType="numberSigned"
+            android:maxEms="1"
+            android:singleLine="true"
             app:layout_constraintBaseline_toBaselineOf="@+id/antall_passasjerer"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
@@ -210,12 +212,13 @@
             android:id="@+id/chauffeur_til_kl"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
+            android:layout_marginTop="@dimen/_15sdp"
             android:text="Til kl:"
-            app:layout_constraintEnd_toStartOf="@+id/time_to"
+            app:layout_constraintEnd_toEndOf="@+id/antall_passasjerer"
+            app:layout_constraintHorizontal_bias="1.0"
             app:layout_constraintHorizontal_chainStyle="packed"
             app:layout_constraintStart_toStartOf="parent"
-            tools:layout_editor_absoluteY="73dp" />
+            app:layout_constraintTop_toBottomOf="@+id/antall_passasjerer" />
 
         <Button
             android:id="@+id/legg_til_tid_btn"

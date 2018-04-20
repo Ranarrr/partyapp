@@ -3,6 +3,7 @@ package com.partyspottr.appdir.ui.mainfragments.bilchildfragments;
 import android.app.TimePickerDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.TextInputLayout;
@@ -48,6 +49,12 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Locale;
 
+/**
+ * Created by Ranarrr on 30-Jan-18.
+ *
+ * @author Ranarrr
+ */
+
 public class min_bil_fragment extends Fragment {
 
     @Override
@@ -88,28 +95,35 @@ public class min_bil_fragment extends Fragment {
                     TimePickerDialog timePickerDialog = new TimePickerDialog(getActivity(), new TimePickerDialog.OnTimeSetListener() {
                         @Override
                         public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-                            GregorianCalendar to = new GregorianCalendar(), from = new GregorianCalendar();
+                            GregorianCalendar to, from = new GregorianCalendar();
                             from.setTimeInMillis(System.currentTimeMillis());
 
-                            to.set(Calendar.HOUR_OF_DAY, hourOfDay);
-                            to.set(Calendar.MINUTE, minute);
+                            to = from;
+
+                            if(hourOfDay < from.get(Calendar.HOUR_OF_DAY)) {
+                                to.add(Calendar.DAY_OF_MONTH, 1);
+                            }
 
                             if(to.before(from)) {
-                                    Toast.makeText(getActivity(), "Please select a time atleast 30 minutes after the time you start driving.", Toast.LENGTH_LONG).show();
-                                    time_to.setText(String.format(Locale.ENGLISH, "%02d:%02d", from.get(Calendar.HOUR_OF_DAY), from.get(Calendar.MINUTE)));
+                                Toast.makeText(getActivity(), "Please select a time atleast 30 minutes after the time you start driving.", Toast.LENGTH_LONG).show();
+                                time_to.setText(String.format(Locale.ENGLISH, "%02d:%02d", from.get(Calendar.HOUR_OF_DAY), from.get(Calendar.MINUTE)));
                             } else if(to.getTimeInMillis() - from.getTimeInMillis() > 21600000) {
                                 Toast.makeText(getActivity(), "You can not have more than 6 hours registrated as driver.", Toast.LENGTH_LONG).show();
                                 if (from.get(Calendar.HOUR_OF_DAY) + 6 >= 24) {
                                         time_to.setText(String.format(Locale.ENGLISH, "%02d:%02d", (from.get(Calendar.HOUR_OF_DAY) + 6) - 24, from.get(Calendar.MINUTE)));
                                 }
+                            } else {
+                                time_to.setText(String.format(Locale.ENGLISH, "%02d:%02d", hourOfDay, minute));
                             }
                         }
                     }, nowtime.get(Calendar.HOUR_OF_DAY), nowtime.get(Calendar.MINUTE), true);
                     timePickerDialog.setButton(TimePickerDialog.BUTTON_POSITIVE, getActivity().getResources().getString(R.string.angi), timePickerDialog);
                     timePickerDialog.setButton(TimePickerDialog.BUTTON_NEGATIVE, getActivity().getResources().getString(R.string.avbryt), timePickerDialog);
                     timePickerDialog.show();
+
                     return true;
                 }
+
                 return false;
             }
         });
@@ -130,7 +144,7 @@ public class min_bil_fragment extends Fragment {
                     merke.setTypeface(MainActivity.typeface);
                     farge.setTypeface(MainActivity.typeface);
 
-                    if(Bruker.get().isPremium()) {
+                    if(!Bruker.get().isPremium()) {
                         registrate.setVisibility(View.INVISIBLE);
 
                         registrate_car_layout.setVisibility(View.VISIBLE);
@@ -192,7 +206,7 @@ public class min_bil_fragment extends Fragment {
         }
     }
 
-    private void setAfterRegistrated(ConstraintLayout registrate_car_layout, TextView title, ConstraintLayout current_car, TextView img_add, ConstraintLayout legg_til_tid, Button legg_til_tid_btn,
+    private void setAfterRegistrated(ConstraintLayout registrate_car_layout, TextView title, ConstraintLayout current_car, TextView img_add, ConstraintLayout legg_til_tid, final Button legg_til_tid_btn,
                                      final EditText time_to) {
         final Chauffeur brukerChauffeur = Bruker.get().getChauffeur();
 
@@ -200,12 +214,16 @@ public class min_bil_fragment extends Fragment {
         TextView bil = getActivity().findViewById(R.id.chauffeur_bil);
         TextView plassering = getActivity().findViewById(R.id.chauffeur_plassering);
 
-        TextView legg_til_tid_title = getActivity().findViewById(R.id.legg_til_tid_title);
-        TextView antall_passasjerer = getActivity().findViewById(R.id.antall_passasjerer);
-        EditText maks_passasjerer = getActivity().findViewById(R.id.maks_passasjerer);
-        TextView til_kl = getActivity().findViewById(R.id.chauffeur_til_kl);
-        ProgressBar time_progressbar = getActivity().findViewById(R.id.chauffeur_progressbar);
+        final TextView legg_til_tid_title = getActivity().findViewById(R.id.legg_til_tid_title);
+        final TextView antall_passasjerer = getActivity().findViewById(R.id.antall_passasjerer);
+        final EditText maks_passasjerer = getActivity().findViewById(R.id.maks_passasjerer);
+        final TextView til_kl = getActivity().findViewById(R.id.chauffeur_til_kl);
+        final ProgressBar time_progressbar = getActivity().findViewById(R.id.chauffeur_progressbar);
+        final Button forny_tid = getActivity().findViewById(R.id.chauffeur_forny);
+        final Button avslutt_tid = getActivity().findViewById(R.id.chauffeur_avslutt);
 
+        avslutt_tid.setTypeface(MainActivity.typeface);
+        forny_tid.setTypeface(MainActivity.typeface);
         legg_til_tid_title.setTypeface(MainActivity.typeface);
         antall_passasjerer.setTypeface(MainActivity.typeface);
         til_kl.setTypeface(MainActivity.typeface);
@@ -232,13 +250,18 @@ public class min_bil_fragment extends Fragment {
         legg_til_tid.setVisibility(View.VISIBLE);
 
         if(Bruker.get().getChauffeur().getChauffeur_time_from() == 0 && Bruker.get().getChauffeur().getChauffeur_time_to() == 0) {
+            legg_til_tid_title.setText("Legg til tid:");
+            forny_tid.setVisibility(View.INVISIBLE);
+            avslutt_tid.setVisibility(View.INVISIBLE);
+            time_progressbar.setVisibility(View.INVISIBLE);
+
             legg_til_tid_btn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     GregorianCalendar from = new GregorianCalendar(), to;
                     from.setTimeInMillis(System.currentTimeMillis());
 
-                    if(Bruker.get().isPremium()) {
+                    if(!Bruker.get().isPremium()) {
                         to = Utilities.getDateFromString(time_to.getText().toString(), "HH:mm");
 
                         if(to != null && to.after(from) && to.getTimeInMillis() - from.getTimeInMillis() <= 21600000) {
@@ -268,26 +291,46 @@ public class min_bil_fragment extends Fragment {
             til_kl.setVisibility(View.INVISIBLE);
             time_to.setVisibility(View.INVISIBLE);
 
-            long time = Bruker.get().getChauffeur().getChauffeur_time_to() - Bruker.get().getChauffeur().getChauffeur_time_from();
+            final long time = Bruker.get().getChauffeur().getChauffeur_time_to() - Bruker.get().getChauffeur().getChauffeur_time_from();
             if(time >= Integer.MAX_VALUE) {
                 time_progressbar.setMax((int) time / 1000);
             } else {
                 time_progressbar.setMax((int) time);
             }
 
-            long current = Bruker.get().getChauffeur().getChauffeur_time_to() - new Date().getTime();
+            final long current = Bruker.get().getChauffeur().getChauffeur_time_to() - new Date().getTime();
             if(current >= Integer.MAX_VALUE) {
-                time_progressbar.setProgress((int) time / 1000);
+                time_progressbar.setProgress((int) current / 1000);
             } else {
-                time_progressbar.setProgress((int) time);
+                time_progressbar.setProgress((int) current);
             }
 
-            GregorianCalendar timetoset = new GregorianCalendar();
-            timetoset.setTimeInMillis(current);
+            new CountDownTimer(current, 1000) {
+                @Override
+                public void onTick(long millisUntilFinished) {
+                    GregorianCalendar timetoset = new GregorianCalendar();
+                    timetoset.setTimeInMillis(millisUntilFinished);
 
-            legg_til_tid_title.setText(String.format(Locale.ENGLISH, "Gjenstående tid som sjåfør: %02d t %02d min %02d sek", timetoset.get(Calendar.HOUR_OF_DAY), timetoset.get(Calendar.MINUTE),
-                    timetoset.get(Calendar.SECOND)));
+                    legg_til_tid_title.setText(String.format(Locale.ENGLISH, "Gjenstående tid som sjåfør: %02d t %02d min %02d sek", timetoset.get(Calendar.HOUR_OF_DAY), timetoset.get(Calendar.MINUTE),
+                            timetoset.get(Calendar.SECOND)));
 
+                    time_progressbar.setProgress((int) +(millisUntilFinished - time));
+                }
+
+                @Override
+                public void onFinish() {
+                    legg_til_tid_btn.setVisibility(View.VISIBLE);
+                    antall_passasjerer.setVisibility(View.VISIBLE);
+                    maks_passasjerer.setVisibility(View.VISIBLE);
+                    til_kl.setVisibility(View.VISIBLE);
+                    time_to.setVisibility(View.VISIBLE);
+
+                    legg_til_tid_title.setText("Legg til tid:");
+                    forny_tid.setVisibility(View.INVISIBLE);
+                    avslutt_tid.setVisibility(View.INVISIBLE);
+                    time_progressbar.setVisibility(View.INVISIBLE);
+                }
+            }.start();
         }
     }
 }

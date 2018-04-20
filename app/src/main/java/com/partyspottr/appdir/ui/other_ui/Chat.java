@@ -1,6 +1,7 @@
 package com.partyspottr.appdir.ui.other_ui;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
@@ -17,6 +18,7 @@ import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -155,9 +157,28 @@ public class Chat extends AppCompatActivity {
         final EditText write_msg = findViewById(R.id.write_msg);
         ImageButton send_msg_btn = findViewById(R.id.chat_send);
         TextView title = findViewById(R.id.chat_title);
+        ImageView pic = findViewById(R.id.profile_image_chat);
 
         title.setTypeface(MainActivity.typeface);
         write_msg.setTypeface(MainActivity.typeface);
+
+        title.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(Chat.this, Profile.class);
+                intent.putExtra("user", preview.getChatters().get(0).getBrukernavn().equals(Bruker.get().getBrukernavn()) ? preview.getChatters().get(1).getBrukernavn() : preview.getChatters().get(0).getBrukernavn());
+                startActivity(intent);
+            }
+        });
+
+        pic.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(Chat.this, Profile.class);
+                intent.putExtra("user", preview.getChatters().get(0).getBrukernavn().equals(Bruker.get().getBrukernavn()) ? preview.getChatters().get(1).getBrukernavn() : preview.getChatters().get(0).getBrukernavn());
+                startActivity(intent);
+            }
+        });
 
         if(!preview.isGroupchat()) {
             Chatter other_chatter = Chatter.getChatterNotEqualToBruker(preview.getChatters());

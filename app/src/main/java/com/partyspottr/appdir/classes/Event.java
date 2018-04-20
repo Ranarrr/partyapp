@@ -93,6 +93,9 @@ public class Event {
 
     public boolean isBrukerInList(String brukernavn) {
         for(Participant participant : participants) {
+            if(participant == null)
+                continue;
+
             if(participant.getBrukernavn().equals(brukernavn)) {
                 return true;
             }
