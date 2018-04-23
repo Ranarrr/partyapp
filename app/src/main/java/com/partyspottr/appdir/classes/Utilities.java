@@ -84,7 +84,7 @@ public class Utilities {
     }
 
     public static GregorianCalendar getDateFromString(String str, String format) {
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat(format, Locale.ENGLISH);
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat(format, Locale.getDefault());
 
         GregorianCalendar gregorianCalendar = new GregorianCalendar();
 

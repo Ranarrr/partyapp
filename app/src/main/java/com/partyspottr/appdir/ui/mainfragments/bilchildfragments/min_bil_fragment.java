@@ -20,6 +20,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
@@ -76,17 +77,17 @@ public class min_bil_fragment extends Fragment {
         final ConstraintLayout registrate_car_layout = getActivity().findViewById(R.id.chauffeur_add_car);
         final Button registrate_car = getActivity().findViewById(R.id.registrate_car);
         final ConstraintLayout legg_til_tid = getActivity().findViewById(R.id.chauffeur_legg_til_tid);
-        final Button legg_til_tid_btn = getActivity().findViewById(R.id.legg_til_tid_btn);
-        final EditText time_to = getActivity().findViewById(R.id.time_to);
+        //final Button legg_til_tid_btn = getActivity().findViewById(R.id.legg_til_tid_btn);
+        //final EditText time_to = getActivity().findViewById(R.id.time_to);
 
-        time_to.setTypeface(MainActivity.typeface);
-        legg_til_tid_btn.setTypeface(MainActivity.typeface);
+        //time_to.setTypeface(MainActivity.typeface);
+        //legg_til_tid_btn.setTypeface(MainActivity.typeface);
         registrate.setTypeface(MainActivity.typeface);
         img_add.setTypeface(MainActivity.typeface);
         title.setTypeface(MainActivity.typeface);
 
         //noinspection AndroidLintClickableViewAccessibility
-        time_to.setOnTouchListener(new View.OnTouchListener() {
+        /*time_to.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 if(event.getAction() == MotionEvent.ACTION_UP) {
@@ -203,7 +204,7 @@ public class min_bil_fragment extends Fragment {
                     }
                 }
             });
-        }
+        }*/
     }
 
     private void setAfterRegistrated(ConstraintLayout registrate_car_layout, TextView title, ConstraintLayout current_car, TextView img_add, ConstraintLayout legg_til_tid, final Button legg_til_tid_btn,
@@ -214,19 +215,21 @@ public class min_bil_fragment extends Fragment {
         TextView bil = getActivity().findViewById(R.id.chauffeur_bil);
         TextView plassering = getActivity().findViewById(R.id.chauffeur_plassering);
 
-        final TextView legg_til_tid_title = getActivity().findViewById(R.id.legg_til_tid_title);
+        final TextView ny_tid_title = getActivity().findViewById(R.id.ny_tid_title);
         final TextView antall_passasjerer = getActivity().findViewById(R.id.antall_passasjerer);
-        final EditText maks_passasjerer = getActivity().findViewById(R.id.maks_passasjerer);
-        final TextView til_kl = getActivity().findViewById(R.id.chauffeur_til_kl);
+        final SeekBar maks_passasjerer = getActivity().findViewById(R.id.antall_passasjerer_bar);
+        final TextView timer = getActivity().findViewById(R.id.ny_tid_timer);
+        final TextView minutter = getActivity().findViewById(R.id.ny_tid_minutter);
         final ProgressBar time_progressbar = getActivity().findViewById(R.id.chauffeur_progressbar);
         final Button forny_tid = getActivity().findViewById(R.id.chauffeur_forny);
         final Button avslutt_tid = getActivity().findViewById(R.id.chauffeur_avslutt);
 
         avslutt_tid.setTypeface(MainActivity.typeface);
         forny_tid.setTypeface(MainActivity.typeface);
-        legg_til_tid_title.setTypeface(MainActivity.typeface);
+        ny_tid_title.setTypeface(MainActivity.typeface);
         antall_passasjerer.setTypeface(MainActivity.typeface);
-        til_kl.setTypeface(MainActivity.typeface);
+        timer.setTypeface(MainActivity.typeface);
+        minutter.setTypeface(MainActivity.typeface);
         navn.setTypeface(MainActivity.typeface);
         bil.setTypeface(MainActivity.typeface);
         plassering.setTypeface(MainActivity.typeface);
@@ -250,7 +253,7 @@ public class min_bil_fragment extends Fragment {
         legg_til_tid.setVisibility(View.VISIBLE);
 
         if(Bruker.get().getChauffeur().getChauffeur_time_from() == 0 && Bruker.get().getChauffeur().getChauffeur_time_to() == 0) {
-            legg_til_tid_title.setText("Legg til tid:");
+            ny_tid_title.setText("Start kjøreøkt");
             forny_tid.setVisibility(View.INVISIBLE);
             avslutt_tid.setVisibility(View.INVISIBLE);
             time_progressbar.setVisibility(View.INVISIBLE);
@@ -258,13 +261,23 @@ public class min_bil_fragment extends Fragment {
             legg_til_tid_btn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    GregorianCalendar from = new GregorianCalendar(), to;
-                    from.setTimeInMillis(System.currentTimeMillis());
+                    GregorianCalendar to = new GregorianCalendar(), now = new GregorianCalendar();
+                    now.setTimeInMillis(System.currentTimeMillis());
+                    to.set(Calendar.HOUR_OF_DAY, now.get(Calendar.HOUR_OF_DAY));
+                    to.set(Calendar.MINUTE, now.get(Calendar.MINUTE));
+
+                    GregorianCalendar temp = Utilities.getDateFromString(time_to.getText().toString(), "HH:mm");
+
+                    if(temp != null && temp.before(to)) {
+                        to = now;
+                        to.set(Calendar.DAY_OF_MONTH, now.get(Calendar.DAY_OF_MONTH));
+                        to.add(Calendar.DAY_OF_MONTH, 1);
+                        to.set(Calendar.HOUR_OF_DAY, temp.get(Calendar.HOUR_OF_DAY));
+                        to.set(Calendar.MINUTE, temp.get(Calendar.MINUTE));
+                    }
 
                     if(!Bruker.get().isPremium()) {
-                        to = Utilities.getDateFromString(time_to.getText().toString(), "HH:mm");
-
-                        if(to != null && to.after(from) && to.getTimeInMillis() - from.getTimeInMillis() <= 21600000) {
+                        if(to.after(now) && to.getTimeInMillis() - now.getTimeInMillis() <= 21600000) {
                             ChauffeurAddNewTime chauffeurAddNewTime = new ChauffeurAddNewTime(getActivity(), to.getTimeInMillis());
                             chauffeurAddNewTime.execute();
                         }
@@ -288,7 +301,8 @@ public class min_bil_fragment extends Fragment {
             legg_til_tid_btn.setVisibility(View.INVISIBLE);
             antall_passasjerer.setVisibility(View.INVISIBLE);
             maks_passasjerer.setVisibility(View.INVISIBLE);
-            til_kl.setVisibility(View.INVISIBLE);
+            timer.setVisibility(View.INVISIBLE);
+            minutter.setVisibility(View.INVISIBLE);
             time_to.setVisibility(View.INVISIBLE);
 
             final long time = Bruker.get().getChauffeur().getChauffeur_time_to() - Bruker.get().getChauffeur().getChauffeur_time_from();
@@ -311,8 +325,8 @@ public class min_bil_fragment extends Fragment {
                     GregorianCalendar timetoset = new GregorianCalendar();
                     timetoset.setTimeInMillis(millisUntilFinished);
 
-                    legg_til_tid_title.setText(String.format(Locale.ENGLISH, "Gjenstående tid som sjåfør: %02d t %02d min %02d sek", timetoset.get(Calendar.HOUR_OF_DAY), timetoset.get(Calendar.MINUTE),
-                            timetoset.get(Calendar.SECOND)));
+                    //ny_tid_title.setText(String.format(Locale.ENGLISH, "Gjenstående tid som sjåfør: %02d t %02d min %02d sek", timetoset.get(Calendar.HOUR_OF_DAY), timetoset.get(Calendar.MINUTE),
+                    //        timetoset.get(Calendar.SECOND)));
 
                     time_progressbar.setProgress((int) +(millisUntilFinished - time));
                 }
@@ -322,10 +336,11 @@ public class min_bil_fragment extends Fragment {
                     legg_til_tid_btn.setVisibility(View.VISIBLE);
                     antall_passasjerer.setVisibility(View.VISIBLE);
                     maks_passasjerer.setVisibility(View.VISIBLE);
-                    til_kl.setVisibility(View.VISIBLE);
+                    timer.setVisibility(View.VISIBLE);
+                    minutter.setVisibility(View.VISIBLE);
                     time_to.setVisibility(View.VISIBLE);
 
-                    legg_til_tid_title.setText("Legg til tid:");
+                    ny_tid_title.setText("Start kjøreøkt");
                     forny_tid.setVisibility(View.INVISIBLE);
                     avslutt_tid.setVisibility(View.INVISIBLE);
                     time_progressbar.setVisibility(View.INVISIBLE);

@@ -91,7 +91,7 @@ public class ChauffeurAddNewTime extends AsyncTask<Void, Void, Integer> {
                 e.printStackTrace();
             }
 
-            if(progressDialog.getOwnerActivity() != null) {
+            /*if(progressDialog.getOwnerActivity() != null) {
                 final Button legg_til_tid_btn = progressDialog.getOwnerActivity().findViewById(R.id.legg_til_tid_btn);
                 final TextView antall_passasjerer = progressDialog.getOwnerActivity().findViewById(R.id.antall_passasjerer);
                 final EditText maks_passasjerer = progressDialog.getOwnerActivity().findViewById(R.id.maks_passasjerer);
@@ -148,7 +148,7 @@ public class ChauffeurAddNewTime extends AsyncTask<Void, Void, Integer> {
                         time_progressbar.setVisibility(View.INVISIBLE);
                     }
                 }.start();
-            }
+            }*/
         } else {
             Bruker.get().getChauffeur().setChauffeur_time_from(0);
             Bruker.get().getChauffeur().setChauffeur_time_to(0);

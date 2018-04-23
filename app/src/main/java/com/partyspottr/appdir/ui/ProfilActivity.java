@@ -241,7 +241,7 @@ public class ProfilActivity extends AppCompatActivity {
         ConstraintLayout main_content = findViewById(R.id.main_content);
         Point size = new Point();
         getWindowManager().getDefaultDisplay().getSize(size);
-        main_content.setBackground(new BitmapDrawable(getResources(), Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.forsidebilde), size.x, size.y, true)));
+        main_content.setBackgroundColor(getResources().getColor(R.color.colorAlpha)); // new BitmapDrawable(getResources(), Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.forsidebilde), size.x, size.y, true))
 
         tittel.setTypeface(typeface);
 
@@ -623,7 +623,7 @@ public class ProfilActivity extends AppCompatActivity {
                             Calendar calendar;
                             calendar = Calendar.getInstance();
                             calendar.set(Calendar.MONTH, month);
-                            dato.setText(String.format(Locale.ENGLISH, "%02d. %s %d", dayOfMonth, calendar.getDisplayName(Calendar.MONTH, Calendar.SHORT,
+                            dato.setText(String.format(Locale.ENGLISH, "%02d %s %d", dayOfMonth, calendar.getDisplayName(Calendar.MONTH, Calendar.SHORT,
                                     ProfilActivity.this.getResources().getConfiguration().locale), year));
                         }
                     }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH));
@@ -672,7 +672,7 @@ public class ProfilActivity extends AppCompatActivity {
                             Calendar calendar;
                             calendar = Calendar.getInstance();
                             calendar.set(Calendar.MONTH, month);
-                            datotil.setText(String.format(Locale.ENGLISH, "%02d. %s %d", dayOfMonth, calendar.getDisplayName(Calendar.MONTH, Calendar.SHORT,
+                            datotil.setText(String.format(Locale.ENGLISH, "%02d %s %d", dayOfMonth, calendar.getDisplayName(Calendar.MONTH, Calendar.SHORT,
                                     ProfilActivity.this.getResources().getConfiguration().locale), year));
                         }
                     }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH));
@@ -755,8 +755,17 @@ public class ProfilActivity extends AppCompatActivity {
                 if(!datotil.getText().toString().isEmpty() && !timetil.getText().toString().isEmpty()) {
                     GregorianCalendar datefrom, dateto;
 
-                    dateto = Utilities.getDateFromString(String.format(Locale.ENGLISH, "%s %s", datotil.getText().toString(), timetil.getText().toString()), "dd. MMMM. yyyy HH:mm");
-                    datefrom = Utilities.getDateFromString(String.format(Locale.ENGLISH, "%s %s", dato.getText().toString(), time.getText().toString()), "dd. MMMM. yyyy HH:mm");
+                    if(dato.getText().toString().contains(".")) {
+                        datefrom = Utilities.getDateFromString(String.format(Locale.ENGLISH, "%s %s", dato.getText().toString(), time.getText().toString()), "dd MMM. yyyy HH:mm");
+                    } else {
+                        datefrom = Utilities.getDateFromString(String.format(Locale.ENGLISH, "%s %s", dato.getText().toString(), time.getText().toString()), "dd MMM yyyy HH:mm");
+                    }
+
+                    if(datotil.getText().toString().contains(".")) {
+                        dateto = Utilities.getDateFromString(String.format(Locale.ENGLISH, "%s %s", datotil.getText().toString(), timetil.getText().toString()), "dd MMM. yyyy HH:mm");
+                    } else {
+                        dateto = Utilities.getDateFromString(String.format(Locale.ENGLISH, "%s %s", datotil.getText().toString(), timetil.getText().toString()), "dd MMM yyyy HH:mm");
+                    }
 
                     if(dateto != null && datefrom != null && !dateto.before(datefrom)) {
 
@@ -773,7 +782,11 @@ public class ProfilActivity extends AppCompatActivity {
                 } else if(datotil.getText().toString().isEmpty() && timetil.getText().toString().isEmpty()) {
                     GregorianCalendar datefrom;
 
-                    datefrom = Utilities.getDateFromString(String.format(Locale.ENGLISH, "%s %s", dato.getText().toString(), time.getText().toString()), "dd. MMMM. yyyy HH:mm");
+                    if(dato.getText().toString().contains(".")) {
+                        datefrom = Utilities.getDateFromString(String.format(Locale.ENGLISH, "%s %s", dato.getText().toString(), time.getText().toString()), "dd MMM. yyyy HH:mm");
+                    } else {
+                        datefrom = Utilities.getDateFromString(String.format(Locale.ENGLISH, "%s %s", dato.getText().toString(), time.getText().toString()), "dd MMM yyyy HH:mm");
+                    }
 
                     if(datefrom != null) {
                         Event creating_event = new Event(0, titletext.getText().toString(), gate.getText().toString(), Bruker.get().getCountry(), Bruker.get().getBrukernavn(),

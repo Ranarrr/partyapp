@@ -260,7 +260,7 @@ public class Profile extends AppCompatActivity {
             if(event != null) {
                 TextView arrangementNavn = v.findViewById(R.id.eventText);
                 TextView stedText = v.findViewById(R.id.stedText);
-                TextView hostText = v.findViewById(R.id.hostText);
+                TextView hostText = v.findViewById(R.id.aldersgrenseText);
                 TextView datoText = v.findViewById(R.id.datoText);
                 //ImageView bildeIListe = v.findViewById(R.id.imageView2);
 

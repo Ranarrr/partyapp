@@ -46,7 +46,8 @@ public class AddEvent extends AsyncTask<Void, Void, Integer> {
         eventToUse = event;
         bitmap = bmp;
         try {
-            eventToAdd = new JSONObject(new Gson().toJson(event));
+            eventToAdd = new JSONObject();
+            eventToAdd.put("event", new Gson().toJson(event));
             eventToAdd.put("socketElem", Base64.encodeToString(BuildConfig.JSONParser_Socket.getBytes(), Base64.DEFAULT));
         } catch (JSONException e) {
             e.printStackTrace();

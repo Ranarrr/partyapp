@@ -19,8 +19,8 @@
                                   <option name="values">
                                     <map>
                                       <entry key="assetType" value="IMAGE" />
-                                      <entry key="imageAsset" value="C:\Users\Alexa\Downloads\sent.png" />
-                                      <entry key="outputName" value="sent" />
+                                      <entry key="imageAsset" value="C:\Users\Alexa\Downloads\red_car.png" />
+                                      <entry key="outputName" value="red_car" />
                                       <entry key="theme" value="CUSTOM" />
                                       <entry key="themeColor" value="cc0000" />
                                     </map>

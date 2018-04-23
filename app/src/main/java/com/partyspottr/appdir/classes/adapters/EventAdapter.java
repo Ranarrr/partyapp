@@ -80,13 +80,13 @@ public class EventAdapter extends BaseAdapter {
         if(convertView != null) {
             TextView arrangementNavn = convertView.findViewById(R.id.eventText);
             TextView stedText = convertView.findViewById(R.id.stedText);
-            TextView hostText = convertView.findViewById(R.id.hostText);
+            TextView aldersgrenseText = convertView.findViewById(R.id.aldersgrenseText);
             TextView datoText = convertView.findViewById(R.id.datoText);
             ImageView bildeIListe = convertView.findViewById(R.id.imageView2);
 
             arrangementNavn.setTypeface(typeface);
             stedText.setTypeface(typeface);
-            hostText.setTypeface(typeface);
+            aldersgrenseText.setTypeface(typeface);
             datoText.setTypeface(typeface);
 
             final Event event = eventList.get(position);
@@ -100,7 +100,7 @@ public class EventAdapter extends BaseAdapter {
             datefrom.setTimeInMillis(event.getDatefrom());
             datoText.setText(String.format(Locale.ENGLISH, "%d %s %d", datefrom.get(Calendar.DAY_OF_MONTH), datefrom.getDisplayName(Calendar.MONTH, Calendar.SHORT,
                     thisActivity.getResources().getConfiguration().locale).toLowerCase(), datefrom.get(Calendar.YEAR)));
-            hostText.setText(eventList.get(position).getHostStr());
+            aldersgrenseText.setText(String.format(Locale.ENGLISH, "%d+", eventList.get(position).getAgerestriction()));
             arrangementNavn.setText(eventList.get(position).getNameofevent());
 
             convertView.setOnClickListener(new View.OnClickListener() {
