@@ -46,6 +46,7 @@
             android:name=".ui.other_ui.EventDetails"
             android:windowSoftInputMode="adjustNothing" />
         <activity android:name=".ui.other_ui.SettingActivity" />
+
         <activity
             android:name=".ui.other_ui.Chat"
             android:windowFullscreen="false" />
@@ -55,6 +56,9 @@
             android:value="false" />
 
         <activity android:name=".ui.other_ui.Profile" />
+
+        <meta-data android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyB6Fo7mLIATG1VK4_o8W2aW-NJpse-bVd0" />
 
         <!--
       <meta-data android:name="com.facebook.sdk.ApplicationId"

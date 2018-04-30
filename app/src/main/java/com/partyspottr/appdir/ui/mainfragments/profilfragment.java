@@ -1,6 +1,7 @@
 package com.partyspottr.appdir.ui.mainfragments;
 
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -10,6 +11,7 @@ import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -19,6 +21,7 @@ import com.partyspottr.appdir.classes.Utilities;
 import com.partyspottr.appdir.classes.adapters.CountryCodes;
 import com.partyspottr.appdir.classes.networking.LogoutUser;
 import com.partyspottr.appdir.ui.MainActivity;
+import com.partyspottr.appdir.ui.other_ui.SettingActivity;
 
 import java.util.GregorianCalendar;
 import java.util.Locale;
@@ -43,14 +46,24 @@ public class profilfragment extends Fragment {
         TextView by = view.findViewById(R.id.profil_by);
         ImageView countryflag = view.findViewById(R.id.countryflag_profil);
         TextView oneliner = view.findViewById(R.id.profil_oneliner);
-        TextView title = view.findViewById(R.id.brukernavn_profil);
-        final TextView logout = view.findViewById(R.id.log_out_txt);
+        TextView title = getActivity().findViewById(R.id.title_toolbar);
+        Button instillinger = view.findViewById(R.id.profil_instillinger);
+        final Button logout = view.findViewById(R.id.log_out_btn);
+
+        title.setText(Bruker.get().getBrukernavn());
 
         fornavn_etternavn.setTypeface(MainActivity.typeface);
         by.setTypeface(MainActivity.typeface);
         oneliner.setTypeface(MainActivity.typeface);
         logout.setTypeface(MainActivity.typeface);
-        title.setTypeface(MainActivity.typeface);
+
+        instillinger.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getActivity(), SettingActivity.class);
+                getActivity().startActivity(intent);
+            }
+        });
 
         logout.setOnClickListener(new View.OnClickListener() {
             @Override

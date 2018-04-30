@@ -124,8 +124,8 @@ public class Chauffeur {
                     if(json.getInt("success") == 1) {
                         out.setM_brukernavn(brukernavn);
                         Bruker.get().setHascar(true);
-                        out.setChauffeur_time_from(Integer.valueOf(json.getString("timeDrivingFrom")));
-                        out.setChauffeur_time_to(Integer.valueOf(json.getString("timeDrivingTo")));
+                        out.setChauffeur_time_from(Long.valueOf(json.getString("timeDrivingFrom")));
+                        out.setChauffeur_time_to(Long.valueOf(json.getString("timeDrivingTo")));
                         List<Car> cars = new Gson().fromJson(json.getString("carlistElem"), listOfCarsType);
                         out.setListOfCars(cars);
                         Bruker.get().setCurrent_car(cars.get(0));

@@ -354,20 +354,6 @@ public class ProfilActivity extends AppCompatActivity {
     public void onProfilMenyClick(View v) {
         replaceFragment(2);
         ((TextView) findViewById(R.id.title_toolbar)).setText(Bruker.get().getBrukernavn());
-        ImageButton now_cog = findViewById(R.id.search_events);
-
-        if(now_cog == null)
-            return;
-
-        now_cog.setImageDrawable(getResources().getDrawable(R.drawable.cog));
-
-        now_cog.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(ProfilActivity.this, SettingActivity.class);
-                startActivity(intent);
-            }
-        });
 
         findViewById(R.id.add_event).setVisibility(View.INVISIBLE);
     }

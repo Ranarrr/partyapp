@@ -3,8 +3,10 @@ package com.partyspottr.appdir.ui.other_ui;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.constraint.ConstraintLayout;
 import android.support.constraint.ConstraintSet;
@@ -69,6 +71,7 @@ public class EventDetails extends AppCompatActivity {
         //final Bitmap bmp = BitmapFactory.decodeByteArray(event.getImagebyte(), 0, event.getImagebyte().length);
 
         final TextView tittel = findViewById(R.id.details_tittel);
+        ConstraintLayout event_sted_layout = findViewById(R.id.event_sted_layout);
         TextView sted = findViewById(R.id.details_sted);
         TextView poststed = findViewById(R.id.details_poststed);
         TextView datofra = findViewById(R.id.details_dato_fra);
@@ -110,6 +113,20 @@ public class EventDetails extends AppCompatActivity {
 
         if(event.getDescription() != null)
             beskrivelse.setText(event.getDescription());
+
+        event_sted_layout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String uri = "http://maps.google.com/maps?q=loc:" + event.getLatitude() + "," + event.getLongitude() + " (" + event.getNameofevent() + ")";
+                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
+                intent.setPackage("com.google.android.apps.maps");
+                if (intent.resolveActivity(getPackageManager()) != null) {
+                    EventDetails.this.startActivity(intent);
+                } else {
+                    Toast.makeText(EventDetails.this, "You do not have google maps installed.", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
 
         StringBuilder finaldatofra = new StringBuilder(), finaldatotil = new StringBuilder();
 

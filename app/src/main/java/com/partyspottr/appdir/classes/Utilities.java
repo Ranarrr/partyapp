@@ -33,6 +33,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
 import com.partyspottr.appdir.BuildConfig;
 import com.partyspottr.appdir.R;
@@ -96,6 +97,12 @@ public class Utilities {
         }
 
         return null;
+    }
+
+    public static void setUnChecked(ToggleButton... views) {
+        for (ToggleButton v : views) {
+            v.setChecked(false);
+        }
     }
 
     /**

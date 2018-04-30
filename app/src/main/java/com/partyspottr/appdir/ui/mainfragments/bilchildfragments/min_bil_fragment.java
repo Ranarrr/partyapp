@@ -1,7 +1,7 @@
 package com.partyspottr.appdir.ui.mainfragments.bilchildfragments;
 
-import android.app.TimePickerDialog;
 import android.content.DialogInterface;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.support.annotation.Nullable;
@@ -11,19 +11,17 @@ import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.util.Base64;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
-import android.widget.EditText;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
-import android.widget.SeekBar;
 import android.widget.TextView;
-import android.widget.TimePicker;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -57,6 +55,7 @@ import java.util.Locale;
  */
 
 public class min_bil_fragment extends Fragment {
+    int passasjerer, timer_tid, minutter_tid;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -69,70 +68,248 @@ public class min_bil_fragment extends Fragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        passasjerer = 0;
+        timer_tid = 0;
+        minutter_tid = -1;
+
+        final ToggleButton pas_1, pas_2, pas_3, pas_4, pas_5, pas_6, pas_7,
+        timer_1, timer_2, timer_3, timer_4, timer_5,
+        min_0, min_15, min_30, min_45;
+
+        pas_1 = view.findViewById(R.id.passasjer_1);
+        pas_2 = view.findViewById(R.id.passasjer_2);
+        pas_3 = view.findViewById(R.id.passasjer_3);
+        pas_4 = view.findViewById(R.id.passasjer_4);
+        pas_5 = view.findViewById(R.id.passasjer_5);
+        pas_6 = view.findViewById(R.id.passasjer_6);
+        pas_7 = view.findViewById(R.id.passasjer_7);
+
+        timer_1 = view.findViewById(R.id.timer_1);
+        timer_2 = view.findViewById(R.id.timer_2);
+        timer_3 = view.findViewById(R.id.timer_3);
+        timer_4 = view.findViewById(R.id.timer_4);
+        timer_5 = view.findViewById(R.id.timer_5);
+
+        min_0 = view.findViewById(R.id.minutter_0);
+        min_15 = view.findViewById(R.id.minutter_15);
+        min_30 = view.findViewById(R.id.minutter_30);
+        min_45 = view.findViewById(R.id.minutter_45);
+
+        pas_1.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if(isChecked) {
+                    Utilities.setUnChecked(pas_2, pas_3, pas_4, pas_5, pas_6, pas_7);
+                    passasjerer = 1;
+                } else {
+                    passasjerer = 0;
+                }
+            }
+        });
+
+        pas_2.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if(isChecked) {
+                    Utilities.setUnChecked(pas_1, pas_3, pas_4, pas_5, pas_6, pas_7);
+                    passasjerer = 2;
+                } else {
+                    passasjerer = 0;
+                }
+            }
+        });
+
+        pas_3.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if(isChecked) {
+                    Utilities.setUnChecked(pas_1, pas_2, pas_4, pas_5, pas_6, pas_7);
+                    passasjerer = 3;
+                } else {
+                    passasjerer = 0;
+                }
+            }
+        });
+
+        pas_4.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if(isChecked) {
+                    Utilities.setUnChecked(pas_1, pas_2, pas_3, pas_5, pas_6, pas_7);
+                    passasjerer = 4;
+                } else {
+                    passasjerer = 0;
+                }
+            }
+        });
+
+        pas_5.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if(isChecked) {
+                    Utilities.setUnChecked(pas_1, pas_2, pas_3, pas_4, pas_6, pas_7);
+                    passasjerer = 5;
+                } else {
+                    passasjerer = 0;
+                }
+            }
+        });
+
+        pas_6.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if(isChecked) {
+                    Utilities.setUnChecked(pas_1, pas_2, pas_3, pas_4, pas_5, pas_7);
+                    passasjerer = 6;
+                } else {
+                    passasjerer = 0;
+                }
+            }
+        });
+
+        pas_7.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if(isChecked) {
+                    Utilities.setUnChecked(pas_1, pas_2, pas_3, pas_4, pas_5, pas_6);
+                    passasjerer = 7;
+                } else {
+                    passasjerer = 0;
+                }
+            }
+        });
+
+        timer_1.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if(isChecked) {
+                    Utilities.setUnChecked(timer_2, timer_3, timer_4, timer_5);
+                    timer_tid = 1;
+                } else {
+                    timer_tid = 0;
+                }
+            }
+        });
+
+        timer_2.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if(isChecked) {
+                    Utilities.setUnChecked(timer_1, timer_3, timer_4, timer_5);
+                    timer_tid = 2;
+                } else {
+                    timer_tid = 0;
+                }
+            }
+        });
+
+        timer_3.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if(isChecked) {
+                    Utilities.setUnChecked(timer_1, timer_2, timer_4, timer_5);
+                    timer_tid = 3;
+                } else {
+                    timer_tid = 0;
+                }
+            }
+        });
+
+        timer_4.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if(isChecked) {
+                    Utilities.setUnChecked(timer_1, timer_2, timer_3, timer_5);
+                    timer_tid = 4;
+                } else {
+                    timer_tid = 0;
+                }
+            }
+        });
+
+        timer_5.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if(isChecked) {
+                    Utilities.setUnChecked(timer_1, timer_2, timer_3, timer_4);
+                    timer_tid = 5;
+                } else {
+                    timer_tid = 0;
+                }
+            }
+        });
+
+        min_0.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if(isChecked) {
+                    Utilities.setUnChecked(min_15, min_30, min_45);
+                    minutter_tid = 0;
+                } else {
+                    minutter_tid = -1;
+                }
+            }
+        });
+
+        min_15.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if(isChecked) {
+                    Utilities.setUnChecked(min_0, min_30, min_45);
+                    minutter_tid = 15;
+                } else {
+                    minutter_tid = -1;
+                }
+            }
+        });
+
+        min_30.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if(isChecked) {
+                    Utilities.setUnChecked(min_0, min_15, min_45);
+                    minutter_tid = 30;
+                } else {
+                    minutter_tid = -1;
+                }
+            }
+        });
+
+        min_45.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if(isChecked) {
+                    Utilities.setUnChecked(min_0, min_15, min_30);
+                    minutter_tid = 45;
+                } else {
+                    minutter_tid = -1;
+                }
+            }
+        });
+
         final TextView title = getActivity().findViewById(R.id.chauffeur_title);
         final ConstraintLayout current_car = getActivity().findViewById(R.id.chauffeur_current_car);
         ImageView car_img = getActivity().findViewById(R.id.car_img); // TODO : Fix car image
-        final TextView img_add = getActivity().findViewById(R.id.chauffeur_img_add);
         final Button registrate = getActivity().findViewById(R.id.chauffeur_registrate);
         final ConstraintLayout registrate_car_layout = getActivity().findViewById(R.id.chauffeur_add_car);
         final Button registrate_car = getActivity().findViewById(R.id.registrate_car);
         final ConstraintLayout legg_til_tid = getActivity().findViewById(R.id.chauffeur_legg_til_tid);
-        //final Button legg_til_tid_btn = getActivity().findViewById(R.id.legg_til_tid_btn);
-        //final EditText time_to = getActivity().findViewById(R.id.time_to);
+        final Button start_ny_tid = getActivity().findViewById(R.id.chauffeur_start);
+        TextView ny_tid_title = view.findViewById(R.id.ny_tid_title);
 
-        //time_to.setTypeface(MainActivity.typeface);
-        //legg_til_tid_btn.setTypeface(MainActivity.typeface);
         registrate.setTypeface(MainActivity.typeface);
-        img_add.setTypeface(MainActivity.typeface);
         title.setTypeface(MainActivity.typeface);
 
-        //noinspection AndroidLintClickableViewAccessibility
-        /*time_to.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                if(event.getAction() == MotionEvent.ACTION_UP) {
-                    Calendar nowtime = Calendar.getInstance();
-
-                    TimePickerDialog timePickerDialog = new TimePickerDialog(getActivity(), new TimePickerDialog.OnTimeSetListener() {
-                        @Override
-                        public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-                            GregorianCalendar to, from = new GregorianCalendar();
-                            from.setTimeInMillis(System.currentTimeMillis());
-
-                            to = from;
-
-                            if(hourOfDay < from.get(Calendar.HOUR_OF_DAY)) {
-                                to.add(Calendar.DAY_OF_MONTH, 1);
-                            }
-
-                            if(to.before(from)) {
-                                Toast.makeText(getActivity(), "Please select a time atleast 30 minutes after the time you start driving.", Toast.LENGTH_LONG).show();
-                                time_to.setText(String.format(Locale.ENGLISH, "%02d:%02d", from.get(Calendar.HOUR_OF_DAY), from.get(Calendar.MINUTE)));
-                            } else if(to.getTimeInMillis() - from.getTimeInMillis() > 21600000) {
-                                Toast.makeText(getActivity(), "You can not have more than 6 hours registrated as driver.", Toast.LENGTH_LONG).show();
-                                if (from.get(Calendar.HOUR_OF_DAY) + 6 >= 24) {
-                                        time_to.setText(String.format(Locale.ENGLISH, "%02d:%02d", (from.get(Calendar.HOUR_OF_DAY) + 6) - 24, from.get(Calendar.MINUTE)));
-                                }
-                            } else {
-                                time_to.setText(String.format(Locale.ENGLISH, "%02d:%02d", hourOfDay, minute));
-                            }
-                        }
-                    }, nowtime.get(Calendar.HOUR_OF_DAY), nowtime.get(Calendar.MINUTE), true);
-                    timePickerDialog.setButton(TimePickerDialog.BUTTON_POSITIVE, getActivity().getResources().getString(R.string.angi), timePickerDialog);
-                    timePickerDialog.setButton(TimePickerDialog.BUTTON_NEGATIVE, getActivity().getResources().getString(R.string.avbryt), timePickerDialog);
-                    timePickerDialog.show();
-
-                    return true;
-                }
-
-                return false;
-            }
-        });
-
         if(Bruker.get().isHascar()) {
-            setAfterRegistrated(registrate_car_layout, title, current_car, img_add, legg_til_tid, legg_til_tid_btn, time_to);
+            registrate.setVisibility(View.GONE);
+            setAfterRegistrated(registrate_car_layout, title, current_car, legg_til_tid, start_ny_tid);
         } else {
             title.setText("Registrer bil"); // TODO : Fix translation
+
+            legg_til_tid.setVisibility(View.GONE);
+            current_car.setVisibility(View.GONE);
+
+            ny_tid_title.setVisibility(View.GONE);
 
             registrate.setVisibility(View.VISIBLE);
 
@@ -146,7 +323,7 @@ public class min_bil_fragment extends Fragment {
                     farge.setTypeface(MainActivity.typeface);
 
                     if(!Bruker.get().isPremium()) {
-                        registrate.setVisibility(View.INVISIBLE);
+                        registrate.setVisibility(View.GONE);
 
                         registrate_car_layout.setVisibility(View.VISIBLE);
 
@@ -170,7 +347,7 @@ public class min_bil_fragment extends Fragment {
                                                     Bruker.get().getChauffeur().setM_age(Utilities.calcAge(new GregorianCalendar(Bruker.get().getYear(), Bruker.get().getMonth(), Bruker.get().getDay_of_month())));
                                                     Bruker.get().setCurrent_car(Bruker.get().getChauffeur().getListOfCars().get(0));
                                                     Bruker.get().getChauffeur().LagreChauffeur();
-                                                    setAfterRegistrated(registrate_car_layout, title, current_car, img_add, legg_til_tid, legg_til_tid_btn, time_to);
+                                                    setAfterRegistrated(registrate_car_layout, title, current_car, legg_til_tid, start_ny_tid);
                                                 } else {
                                                     Toast.makeText(getActivity(), "Failed to registrate car!", Toast.LENGTH_SHORT).show();
                                                 }
@@ -204,11 +381,10 @@ public class min_bil_fragment extends Fragment {
                     }
                 }
             });
-        }*/
+        }
     }
 
-    private void setAfterRegistrated(ConstraintLayout registrate_car_layout, TextView title, ConstraintLayout current_car, TextView img_add, ConstraintLayout legg_til_tid, final Button legg_til_tid_btn,
-                                     final EditText time_to) {
+    private void setAfterRegistrated(ConstraintLayout registrate_car_layout, TextView title, ConstraintLayout current_car, ConstraintLayout legg_til_tid, final Button legg_til_tid_btn) {
         final Chauffeur brukerChauffeur = Bruker.get().getChauffeur();
 
         TextView navn = getActivity().findViewById(R.id.chauffeur_navn);
@@ -217,12 +393,12 @@ public class min_bil_fragment extends Fragment {
 
         final TextView ny_tid_title = getActivity().findViewById(R.id.ny_tid_title);
         final TextView antall_passasjerer = getActivity().findViewById(R.id.antall_passasjerer);
-        final SeekBar maks_passasjerer = getActivity().findViewById(R.id.antall_passasjerer_bar);
         final TextView timer = getActivity().findViewById(R.id.ny_tid_timer);
         final TextView minutter = getActivity().findViewById(R.id.ny_tid_minutter);
-        final ProgressBar time_progressbar = getActivity().findViewById(R.id.chauffeur_progressbar);
+        final TextView time_progress = getActivity().findViewById(R.id.time_progress);
         final Button forny_tid = getActivity().findViewById(R.id.chauffeur_forny);
         final Button avslutt_tid = getActivity().findViewById(R.id.chauffeur_avslutt);
+        final ConstraintLayout timer_layout = getActivity().findViewById(R.id.chauffeur_timer_layout);
 
         avslutt_tid.setTypeface(MainActivity.typeface);
         forny_tid.setTypeface(MainActivity.typeface);
@@ -236,52 +412,41 @@ public class min_bil_fragment extends Fragment {
 
         navn.setText(String.format(Locale.ENGLISH, "%s %s (%d)", Bruker.get().getFornavn(), Bruker.get().getEtternavn(), brukerChauffeur.getM_age()));
         bil.setText(String.format(Locale.ENGLISH, "%s %s", Bruker.get().getCurrent_car().getFarge(), Bruker.get().getCurrent_car().getMerke()));
-        plassering.setText(String.format(Locale.ENGLISH, "i %s", Bruker.get().getTown()));
+        plassering.setText(String.format(Locale.ENGLISH, "%s", Bruker.get().getTown()));
 
-        registrate_car_layout.setVisibility(View.INVISIBLE);
+        registrate_car_layout.setVisibility(View.GONE);
 
         title.setText("Min bil"); // TODO : Fix translation
 
         current_car.setVisibility(View.VISIBLE);
 
-        if(Bruker.get().getCurrent_car().isHasImg()) {
-            img_add.setText("Endre bilde"); // TODO : Fix translation
-        } else {
-            img_add.setText("Legg til bilde");
-        }
-
         legg_til_tid.setVisibility(View.VISIBLE);
 
         if(Bruker.get().getChauffeur().getChauffeur_time_from() == 0 && Bruker.get().getChauffeur().getChauffeur_time_to() == 0) {
             ny_tid_title.setText("Start kjøreøkt");
-            forny_tid.setVisibility(View.INVISIBLE);
-            avslutt_tid.setVisibility(View.INVISIBLE);
-            time_progressbar.setVisibility(View.INVISIBLE);
+            forny_tid.setVisibility(View.GONE);
+            avslutt_tid.setVisibility(View.GONE);
+            time_progress.setVisibility(View.GONE);
+            timer_layout.setVisibility(View.GONE);
 
             legg_til_tid_btn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    GregorianCalendar to = new GregorianCalendar(), now = new GregorianCalendar();
-                    now.setTimeInMillis(System.currentTimeMillis());
-                    to.set(Calendar.HOUR_OF_DAY, now.get(Calendar.HOUR_OF_DAY));
-                    to.set(Calendar.MINUTE, now.get(Calendar.MINUTE));
+                    if(passasjerer == 0 || timer_tid == 0 || minutter_tid == -1)
+                        return;
 
-                    GregorianCalendar temp = Utilities.getDateFromString(time_to.getText().toString(), "HH:mm");
+                    GregorianCalendar to = new GregorianCalendar();
+                    to.setTimeInMillis(System.currentTimeMillis());
 
-                    if(temp != null && temp.before(to)) {
-                        to = now;
-                        to.set(Calendar.DAY_OF_MONTH, now.get(Calendar.DAY_OF_MONTH));
-                        to.add(Calendar.DAY_OF_MONTH, 1);
-                        to.set(Calendar.HOUR_OF_DAY, temp.get(Calendar.HOUR_OF_DAY));
-                        to.set(Calendar.MINUTE, temp.get(Calendar.MINUTE));
-                    }
+                    to.add(Calendar.HOUR_OF_DAY, timer_tid);
 
-                    if(!Bruker.get().isPremium()) {
-                        if(to.after(now) && to.getTimeInMillis() - now.getTimeInMillis() <= 21600000) {
-                            ChauffeurAddNewTime chauffeurAddNewTime = new ChauffeurAddNewTime(getActivity(), to.getTimeInMillis());
-                            chauffeurAddNewTime.execute();
-                        }
-                    } else {
+                    if(minutter_tid > 0)
+                        to.add(Calendar.MINUTE, minutter_tid);
+
+                    ChauffeurAddNewTime chauffeurAddNewTime = new ChauffeurAddNewTime(getActivity(), to.getTimeInMillis());
+                    chauffeurAddNewTime.execute();
+
+                    /*
                         new AlertDialog.Builder(getActivity())
                                 .setTitle("Premium")
                                 .setMessage("To use this feature you need to have premium.\nWould you like to purchase premium? (Pressing yes will not prompt you with a purchase, but with information.)")
@@ -294,30 +459,25 @@ public class min_bil_fragment extends Fragment {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {}})
                                 .show();
-                    }
+                     */
                 }
             });
         } else if(Bruker.get().getChauffeur().getChauffeur_time_from() != 0 && Bruker.get().getChauffeur().getChauffeur_time_to() != 0) {
-            legg_til_tid_btn.setVisibility(View.INVISIBLE);
-            antall_passasjerer.setVisibility(View.INVISIBLE);
-            maks_passasjerer.setVisibility(View.INVISIBLE);
-            timer.setVisibility(View.INVISIBLE);
-            minutter.setVisibility(View.INVISIBLE);
-            time_to.setVisibility(View.INVISIBLE);
+            legg_til_tid.setVisibility(View.GONE);
+            timer_layout.setVisibility(View.VISIBLE);
 
-            final long time = Bruker.get().getChauffeur().getChauffeur_time_to() - Bruker.get().getChauffeur().getChauffeur_time_from();
-            if(time >= Integer.MAX_VALUE) {
-                time_progressbar.setMax((int) time / 1000);
-            } else {
-                time_progressbar.setMax((int) time);
-            }
+            avslutt_tid.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                }
+            });
 
             final long current = Bruker.get().getChauffeur().getChauffeur_time_to() - new Date().getTime();
-            if(current >= Integer.MAX_VALUE) {
-                time_progressbar.setProgress((int) current / 1000);
-            } else {
-                time_progressbar.setProgress((int) current);
-            }
+
+            ny_tid_title.setText("Din økt");
+
+            time_progress.setTextColor(getResources().getColor(R.color.greentint));
 
             new CountDownTimer(current, 1000) {
                 @Override
@@ -325,25 +485,25 @@ public class min_bil_fragment extends Fragment {
                     GregorianCalendar timetoset = new GregorianCalendar();
                     timetoset.setTimeInMillis(millisUntilFinished);
 
-                    //ny_tid_title.setText(String.format(Locale.ENGLISH, "Gjenstående tid som sjåfør: %02d t %02d min %02d sek", timetoset.get(Calendar.HOUR_OF_DAY), timetoset.get(Calendar.MINUTE),
-                    //        timetoset.get(Calendar.SECOND)));
+                    if(millisUntilFinished < 1800000) {
+                        time_progress.setTextColor(getResources().getColor(R.color.colorPrimary));
+                    }
 
-                    time_progressbar.setProgress((int) +(millisUntilFinished - time));
+                    time_progress.setText(String.format(Locale.ENGLISH, "%d:%02d:%02d", timetoset.get(Calendar.HOUR_OF_DAY), timetoset.get(Calendar.MINUTE),
+                            timetoset.get(Calendar.SECOND)));
                 }
 
                 @Override
                 public void onFinish() {
                     legg_til_tid_btn.setVisibility(View.VISIBLE);
                     antall_passasjerer.setVisibility(View.VISIBLE);
-                    maks_passasjerer.setVisibility(View.VISIBLE);
                     timer.setVisibility(View.VISIBLE);
                     minutter.setVisibility(View.VISIBLE);
-                    time_to.setVisibility(View.VISIBLE);
 
                     ny_tid_title.setText("Start kjøreøkt");
-                    forny_tid.setVisibility(View.INVISIBLE);
-                    avslutt_tid.setVisibility(View.INVISIBLE);
-                    time_progressbar.setVisibility(View.INVISIBLE);
+                    forny_tid.setVisibility(View.GONE);
+                    avslutt_tid.setVisibility(View.GONE);
+                    time_progress.setVisibility(View.GONE);
                 }
             }.start();
         }
