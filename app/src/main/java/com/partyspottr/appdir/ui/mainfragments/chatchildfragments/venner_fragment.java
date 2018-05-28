@@ -14,8 +14,6 @@ import com.partyspottr.appdir.classes.Bruker;
 import com.partyspottr.appdir.classes.Utilities;
 import com.partyspottr.appdir.classes.adapters.FriendListAdapter;
 
-import junit.runner.BaseTestRunner;
-
 /**
  * Created by Ranarrr on 15-Apr-18.
  *

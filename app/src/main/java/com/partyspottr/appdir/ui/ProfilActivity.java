@@ -7,12 +7,9 @@ import android.app.TimePickerDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Paint;
 import android.graphics.Point;
-import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.CountDownTimer;
@@ -46,12 +43,12 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
-import com.crashlytics.android.Crashlytics;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
 import com.partyspottr.appdir.R;
 import com.partyspottr.appdir.classes.Bruker;
 import com.partyspottr.appdir.classes.ChatPreview;
@@ -71,7 +68,6 @@ import com.partyspottr.appdir.ui.mainfragments.eventchildfragments.alle_eventer_
 import com.partyspottr.appdir.ui.mainfragments.eventchildfragments.mine_eventer_fragment;
 import com.partyspottr.appdir.ui.mainfragments.eventfragment;
 import com.partyspottr.appdir.ui.mainfragments.profilfragment;
-import com.partyspottr.appdir.ui.other_ui.SettingActivity;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -83,8 +79,6 @@ import java.util.Collections;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Locale;
-
-import io.fabric.sdk.android.Fabric;
 
 import static com.partyspottr.appdir.ui.MainActivity.typeface;
 
@@ -98,8 +92,11 @@ public class ProfilActivity extends AppCompatActivity {
     public static List<String> childfragmentsinstack;
     public static List<String> childfragmentsinstackChat;
 
+    boolean bool;
+
     public static ValueEventListener valueEventListener;
     public static DatabaseReference ref;
+    public static FirebaseStorage storage;
 
     private ImageChange imageChange = new ImageChange();
 
@@ -186,17 +183,19 @@ public class ProfilActivity extends AppCompatActivity {
 
         ctd.start();
 
+        storage = FirebaseStorage.getInstance();
+
         ref = FirebaseDatabase.getInstance().getReference().child("messagepreviews");
 
         valueEventListener = ref.addValueEventListener(new ValueEventListener() {
             @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 List<ChatPreview> list = new ArrayList<>();
 
-                if(dataSnapshot.getChildren() == null)
-                    return;
-
                 for(DataSnapshot child : dataSnapshot.getChildren()) {
+                    if(child.getKey() == null)
+                        continue;
+
                     if(child.getKey().contains(Bruker.get().getBrukernavn())) {
                         list.add(child.getValue(ChatPreview.class));
                     }
@@ -212,7 +211,7 @@ public class ProfilActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onCancelled(DatabaseError databaseError) {
+            public void onCancelled(@NonNull DatabaseError databaseError) {
                 if(databaseError.getCode() == DatabaseError.NETWORK_ERROR)
                     Toast.makeText(ProfilActivity.this, "Could not find chats.", Toast.LENGTH_SHORT).show();
             }
@@ -460,6 +459,8 @@ public class ProfilActivity extends AppCompatActivity {
 
         dialog.setOwnerActivity(this);
 
+        bool = false;
+
         dialog.requestWindowFeature(1);
 
         dialog.setCancelable(true);
@@ -467,7 +468,7 @@ public class ProfilActivity extends AppCompatActivity {
 
         dialog.setContentView(R.layout.legg_til_event);
 
-        Button button = dialog.findViewById(R.id.create_event_btn1);
+        final Button button = dialog.findViewById(R.id.create_event_btn1);
         final TextView til_label = dialog.findViewById(R.id.textView12);
         final EditText dato = dialog.findViewById(R.id.datofratext);
         final EditText time = dialog.findViewById(R.id.timefratext);
@@ -500,9 +501,10 @@ public class ProfilActivity extends AppCompatActivity {
                 textchangedHandler.postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        GetLocationInfo getLocationInfo = new GetLocationInfo(dialog, gate.getText().toString(), Integer.valueOf(s.toString().isEmpty() ? "0" : s.toString()), new Event(""),
-                                null, false);
-                        getLocationInfo.execute();
+                        if(postnr.getText().toString().length() > 3 && gate.getText().toString().length() > 4) {
+                            GetLocationInfo getLocationInfo = new GetLocationInfo(dialog, gate.getText().toString(), Integer.valueOf(s.toString()), new Event(""),null, false);
+                            getLocationInfo.execute();
+                        }
                     }
                 }, 200);
             }
@@ -521,9 +523,10 @@ public class ProfilActivity extends AppCompatActivity {
                 textchangedHandler.postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        GetLocationInfo getLocationInfo = new GetLocationInfo(dialog, s.toString(),
-                                Integer.valueOf(postnr.getText().toString().isEmpty() ? "0" : postnr.getText().toString()), new Event(""), null, false);
-                        getLocationInfo.execute();
+                        if(postnr.getText().toString().length() > 3 && gate.getText().toString().length() > 4) {
+                            GetLocationInfo getLocationInfo = new GetLocationInfo(dialog, s.toString(), Integer.valueOf(postnr.getText().toString()), new Event(""), null, false);
+                            getLocationInfo.execute();
+                        }
                     }
                 }, 200);
             }
@@ -697,8 +700,8 @@ public class ProfilActivity extends AppCompatActivity {
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                CheckBox vis_gjesteliste = dialog.findViewById(R.id.vis_gjesteliste);
-                TextView by = dialog.findViewById(R.id.by_textview);
+                final CheckBox vis_gjesteliste = dialog.findViewById(R.id.vis_gjesteliste);
+                final TextView by = dialog.findViewById(R.id.by_textview);
 
                 if(titletext.length() <= 3) {
                     Toast.makeText(ProfilActivity.this, "Please choose a title longer than 3 characters.", Toast.LENGTH_SHORT).show();
@@ -738,7 +741,26 @@ public class ProfilActivity extends AppCompatActivity {
                     return;
                 }
 
-                if(!datotil.getText().toString().isEmpty() && !timetil.getText().toString().isEmpty()) {
+                if(imageChange.getImage() == null) {
+                    new AlertDialog.Builder(ProfilActivity.this)
+                            .setTitle("Image")
+                            .setMessage("Are you sure you do not want to add an image?")
+                            .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface somedialog, int which) {
+                                    bool = true;
+                                    button.callOnClick();
+                                }
+                            })
+                            .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    return;
+                                }})
+                            .show();
+                }
+
+                if(!datotil.getText().toString().isEmpty() && !timetil.getText().toString().isEmpty() && bool) {
                     GregorianCalendar datefrom, dateto;
 
                     if(dato.getText().toString().contains(".")) {
@@ -755,7 +777,7 @@ public class ProfilActivity extends AppCompatActivity {
 
                     if(dateto != null && datefrom != null && !dateto.before(datefrom)) {
 
-                        Event creating_event = new Event(0, titletext.getText().toString(), gate.getText().toString(), Bruker.get().getCountry(), Bruker.get().getBrukernavn(),
+                        Event creating_event = new Event(0, titletext.getText().toString(), gate.getText().toString(), "", Bruker.get().getBrukernavn(),
                                 alle_deltakere.isChecked(),0.0, 0.0, datefrom.getTimeInMillis(), dateto.getTimeInMillis(), Integer.valueOf(aldersgrense.getText().toString()),
                                 new ArrayList<>(Collections.singletonList(Participant.convertBrukerParticipant(Bruker.get(), EventStilling.VERT))), Integer.valueOf(maks_deltakere.getText().toString()),
                                 postnr.getText().toString(), by.getText().toString(), beskrivelse.getText().toString(), vis_gjesteliste.isChecked(), vis_adresse.isChecked(), new ArrayList<Requester>(),
@@ -764,6 +786,7 @@ public class ProfilActivity extends AppCompatActivity {
                         GetLocationInfo getLocationInfo = new GetLocationInfo(dialog, gate.getText().toString(), Integer.valueOf(postnr.getText().toString()), creating_event,
                                 imageChange.getImage(), true);
                         getLocationInfo.execute();
+                        imageChange = new ImageChange();
                     }
                 } else if(datotil.getText().toString().isEmpty() && timetil.getText().toString().isEmpty()) {
                     GregorianCalendar datefrom;
@@ -775,7 +798,7 @@ public class ProfilActivity extends AppCompatActivity {
                     }
 
                     if(datefrom != null) {
-                        Event creating_event = new Event(0, titletext.getText().toString(), gate.getText().toString(), Bruker.get().getCountry(), Bruker.get().getBrukernavn(),
+                        Event creating_event = new Event(0, titletext.getText().toString(), gate.getText().toString(), "", Bruker.get().getBrukernavn(),
                                 alle_deltakere.isChecked(),0.0, 0.0, datefrom.getTimeInMillis(), 0, Integer.valueOf(aldersgrense.getText().toString()),
                                 new ArrayList<>(Collections.singletonList(Participant.convertBrukerParticipant(Bruker.get(), EventStilling.VERT))), Integer.valueOf(maks_deltakere.getText().toString()),
                                 postnr.getText().toString(), by.getText().toString(), beskrivelse.getText().toString(), vis_gjesteliste.isChecked(), vis_adresse.isChecked(), new ArrayList<Requester>(),
@@ -784,6 +807,7 @@ public class ProfilActivity extends AppCompatActivity {
                         GetLocationInfo getLocationInfo = new GetLocationInfo(dialog, gate.getText().toString(), Integer.valueOf(postnr.getText().toString()), creating_event,
                                 imageChange.getImage(), true);
                         getLocationInfo.execute();
+                        imageChange = new ImageChange();
                     }
                 }
             }
@@ -819,7 +843,8 @@ public class ProfilActivity extends AppCompatActivity {
 
             imageChange.setUri(image);
             String str = Utilities.getPathFromUri(this, image);
-            imageChange.setImage(new File(str));
+            if(str != null)
+                imageChange.setImage(new File(str));
         }
     }
 }

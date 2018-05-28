@@ -2,8 +2,6 @@ package com.partyspottr.appdir.classes.networking;
 
 import android.content.Context;
 
-import com.partyspottr.appdir.classes.Bruker;
-
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONObject;
@@ -31,7 +29,7 @@ public class GoogleAPIRequest {
         StringBuilder url = new StringBuilder("https://maps.googleapis.com/maps/api/geocode/json?");
         URL urll;
 
-        url.append(String.format(Locale.ENGLISH, "address=%s&components=postal_code:%d|country:%s&key=%s", address, postal_code,Bruker.get().getCountry(), "AIzaSyAwrHRK0OTkTj_o0bhAbAUDvqdGv9LwrxQ"));
+        url.append(String.format(Locale.ENGLISH, "address=%s&components=postal_code:%d|key=%s", address, postal_code, "AIzaSyAwrHRK0OTkTj_o0bhAbAUDvqdGv9LwrxQ"));
 
         try {
             urll = new URL(url.toString());

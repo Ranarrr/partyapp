@@ -2,7 +2,6 @@ package com.partyspottr.appdir.classes;
 
 import android.Manifest;
 import android.app.Activity;
-import android.app.Service;
 import android.content.ContentUris;
 import android.content.Context;
 import android.content.pm.PackageManager;
@@ -23,12 +22,8 @@ import android.provider.MediaStore;
 import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
 import android.text.Editable;
-import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.View;
-import android.view.ViewGroup;
-import android.view.inputmethod.InputMethod;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
@@ -54,8 +49,6 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Locale;
-
-import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 
 /**
  * Created by Ranarrr on 02-Feb-18.
@@ -105,6 +98,35 @@ public class Utilities {
         }
     }
 
+    public static Location getLatLng(Activity activity) {
+        if(ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED ||
+                ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            Toast.makeText(activity, "Please allow Partyspottr to find your location.", Toast.LENGTH_LONG).show(); // TODO : Translation
+            System.exit(0);
+        }
+
+        LocationManager locationManager = (LocationManager) activity.getSystemService(Context.LOCATION_SERVICE);
+        if (locationManager != null) {
+            Criteria criteria = new Criteria();
+            String bestprovider = locationManager.getBestProvider(criteria, false);
+
+            Location location = locationManager.getLastKnownLocation(bestprovider);
+
+            if (location == null) {
+                location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+            }
+
+            if(location == null) {
+                Toast.makeText(activity, "Please try again later..", Toast.LENGTH_LONG).show(); // TODO : Translation
+                return null;
+            } else
+                return location;
+        } else {
+            Toast.makeText(activity, "Please try again later..", Toast.LENGTH_LONG).show(); // TODO : Translation
+            return null;
+        }
+    }
+
     /**
      * This method is used for gettting the latest position of the user currently logged in.
      *
@@ -129,18 +151,20 @@ public class Utilities {
                 location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
             }
 
-            try {
-                for(Address address : geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1)) {
-                    if(address != null) {
-                        Bruker.get().setCountry(address.getCountryName());
-                        Bruker.get().setTown(address.getLocality());
-                        Bruker.get().LagreBruker();
-                        UpdateUser updateUser = new UpdateUser();
-                        updateUser.execute();
+            if(location != null) {
+                try {
+                    for(Address address : geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1)) {
+                        if(address != null) {
+                            Bruker.get().setCountry(address.getCountryName());
+                            Bruker.get().setTown(address.getLocality());
+                            Bruker.get().LagreBruker();
+                            UpdateUser updateUser = new UpdateUser();
+                            updateUser.execute();
+                        }
                     }
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
-            } catch (IOException e) {
-                e.printStackTrace();
             }
         }
     }

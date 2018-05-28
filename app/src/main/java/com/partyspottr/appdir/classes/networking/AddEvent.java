@@ -3,14 +3,8 @@ package com.partyspottr.appdir.classes.networking;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.os.AsyncTask;
-import android.util.Base64;
 import android.widget.Toast;
 
-import com.google.gson.Gson;
-import com.loopj.android.http.AsyncHttpClient;
-import com.loopj.android.http.AsyncHttpResponseHandler;
-import com.loopj.android.http.RequestParams;
-import com.partyspottr.appdir.BuildConfig;
 import com.partyspottr.appdir.R;
 import com.partyspottr.appdir.classes.Bruker;
 import com.partyspottr.appdir.classes.Event;
@@ -21,11 +15,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
-
-import cz.msebera.android.httpclient.Header;
 
 /**
  * Created by Ranarrr on 13-Feb-18.
@@ -34,7 +25,6 @@ import cz.msebera.android.httpclient.Header;
  */
 
 public class AddEvent extends AsyncTask<Void, Void, Integer> {
-    private JSONObject eventToAdd;
     private Event eventToUse;
     private ProgressDialog progressDialog;
     private File bitmap;
@@ -44,27 +34,17 @@ public class AddEvent extends AsyncTask<Void, Void, Integer> {
         progressDialog = pD;
         dialog = dilog;
         eventToUse = event;
+        eventToUse.setHasimage(bmp != null);
         bitmap = bmp;
-        try {
-            eventToAdd = new JSONObject();
-            eventToAdd.put("event", new Gson().toJson(event));
-            eventToAdd.put("socketElem", Base64.encodeToString(BuildConfig.JSONParser_Socket.getBytes(), Base64.DEFAULT));
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    protected void onPreExecute() {
-        super.onPreExecute();
     }
 
     @Override
     protected Integer doInBackground(Void... voids) {
         try {
             List<NameValuePair> params = new ArrayList<>();
-            params.add(new BasicNameValuePair("add_event", eventToAdd.toString()));
+            params.add(new BasicNameValuePair("add_event", eventToUse.EventToJSON()));
             JSONObject json = new JSONParser().get_jsonobject("POST", params, null);
+
             if(json != null) {
                 if(json.getInt("success") == 1) {
                     return 1;
@@ -81,7 +61,6 @@ public class AddEvent extends AsyncTask<Void, Void, Integer> {
 
     @Override
     protected void onPostExecute(Integer integer) {
-        progressDialog.hide();
         if(integer == 1) {
             Bruker.get().addToMyEvents(eventToUse);
             if(bitmap != null) {
@@ -89,6 +68,7 @@ public class AddEvent extends AsyncTask<Void, Void, Integer> {
                 compressImage.execute();
             } else {
                 Toast.makeText(progressDialog.getContext(), progressDialog.getContext().getResources().getString(R.string.event_lagt_til), Toast.LENGTH_SHORT).show();
+                progressDialog.hide();
             }
 
             if(dialog != null) {
@@ -96,8 +76,10 @@ public class AddEvent extends AsyncTask<Void, Void, Integer> {
             }
 
         } else if(integer == 0) {
+            progressDialog.hide();
             Toast.makeText(progressDialog.getContext(), progressDialog.getContext().getResources().getString(R.string.tilkoblingsfeil), Toast.LENGTH_SHORT).show();
         } else if(integer == -1) {
+            progressDialog.hide();
             Toast.makeText(progressDialog.getContext(), progressDialog.getContext().getResources().getString(R.string.legge_til_event_mislyktes), Toast.LENGTH_SHORT).show();
         }
     }

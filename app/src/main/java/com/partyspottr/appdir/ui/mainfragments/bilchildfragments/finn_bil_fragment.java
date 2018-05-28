@@ -10,10 +10,9 @@ import android.view.ViewGroup;
 import android.widget.ListView;
 
 import com.partyspottr.appdir.R;
-import com.partyspottr.appdir.classes.Chauffeur;
+import com.partyspottr.appdir.classes.Bruker;
 import com.partyspottr.appdir.classes.adapters.ChauffeurAdapter;
-
-import java.util.ArrayList;
+import com.partyspottr.appdir.classes.networking.GetAllChauffeurs;
 
 /**
  * Created by Ranarrr on 30-Jan-18.
@@ -40,10 +39,16 @@ public class finn_bil_fragment extends Fragment {
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-
+                GetAllChauffeurs getAllChauffeurs = new GetAllChauffeurs(getActivity());
+                getAllChauffeurs.execute();
             }
         });
 
-        lv_chauffeurs.setAdapter(new ChauffeurAdapter(getActivity(), new ArrayList<Chauffeur>(), lv_chauffeurs));
+        if(Bruker.get().getListchauffeurs() != null && Bruker.get().getListchauffeurs().size() > 0)
+            lv_chauffeurs.setAdapter(new ChauffeurAdapter(getActivity(), Bruker.get().getListchauffeurs()));
+        else {
+            GetAllChauffeurs getAllChauffeurs = new GetAllChauffeurs(getActivity());
+            getAllChauffeurs.execute();
+        }
     }
 }

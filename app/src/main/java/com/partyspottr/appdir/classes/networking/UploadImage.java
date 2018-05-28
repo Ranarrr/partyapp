@@ -1,29 +1,20 @@
 package com.partyspottr.appdir.classes.networking;
 
 import android.app.ProgressDialog;
+import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Build;
-import android.os.Environment;
+import android.support.annotation.NonNull;
 import android.widget.Toast;
 
-import com.loopj.android.http.AsyncHttpClient;
-import com.loopj.android.http.AsyncHttpResponseHandler;
-import com.loopj.android.http.RequestParams;
-import com.partyspottr.appdir.BuildConfig;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.storage.StorageMetadata;
+import com.google.firebase.storage.UploadTask;
 import com.partyspottr.appdir.R;
 import com.partyspottr.appdir.classes.Event;
-
-import org.apache.http.NameValuePair;
-import org.apache.http.message.BasicNameValuePair;
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.partyspottr.appdir.ui.ProfilActivity;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.util.ArrayList;
-import java.util.List;
-
-import cz.msebera.android.httpclient.Header;
 
 /**
  * Created by Ranarrr on 26-Feb-18.
@@ -31,45 +22,39 @@ import cz.msebera.android.httpclient.Header;
  * @author Ranarrr
  */
 
-public class UploadImage extends AsyncTask<Void, Void, Boolean> {
-
+public class UploadImage extends AsyncTask<Void, Void, Void> {
     private File bitmap;
     private Event eventPriv;
     private ProgressDialog progressDialog;
 
-    public UploadImage(ProgressDialog pD, Event event, File bmp) {
+    UploadImage(ProgressDialog pD, Event event, File bmp) {
         progressDialog = pD;
         eventPriv = event;
         bitmap = bmp;
     }
 
     @Override
-    protected void onPreExecute() {
-        super.onPreExecute();
-    }
+    protected Void doInBackground(Void... voids) {
+        StorageMetadata metadata = new StorageMetadata.Builder()
+                .setContentType("image/jpg")
+                .build();
 
-    @Override
-    protected Boolean doInBackground(Void... voids) {
-        try {
-            List<NameValuePair> params = new ArrayList<>();
-            params.add(new BasicNameValuePair("eventId", Long.toString(eventPriv.getEventId())));
-            JSONObject json = new JSONParser().get_jsonobject("IMG", params, bitmap);
-            if(json != null) {
-                return json.getInt("success") == 1;
+        UploadTask uploadTask = ProfilActivity.storage.getReference().child(eventPriv.getHostStr() + "_" + eventPriv.getNameofevent()).putFile(Uri.fromFile(bitmap), metadata);
+
+        uploadTask.addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Toast.makeText(progressDialog.getContext(), "Failed to upload image.", Toast.LENGTH_SHORT).show();
+                progressDialog.hide();
             }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                Toast.makeText(progressDialog.getContext(), progressDialog.getContext().getResources().getString(R.string.event_lagt_til), Toast.LENGTH_SHORT).show();
+                progressDialog.hide();
+            }
+        });
 
-        return false;
-    }
-
-    @Override
-    protected void onPostExecute(Boolean bool) {
-        if(bool) {
-            Toast.makeText(progressDialog.getContext(), progressDialog.getContext().getResources().getString(R.string.event_lagt_til), Toast.LENGTH_SHORT).show();
-        } else {
-            Toast.makeText(progressDialog.getContext(), "Failed to upload image.", Toast.LENGTH_SHORT).show();
-        }
+        return null;
     }
 }

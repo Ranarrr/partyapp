@@ -4,10 +4,12 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
 import android.support.constraint.ConstraintSet;
 import android.support.v7.app.AppCompatActivity;
@@ -25,6 +27,9 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.storage.StorageReference;
 import com.partyspottr.appdir.R;
 import com.partyspottr.appdir.classes.Bruker;
 import com.partyspottr.appdir.classes.Event;
@@ -35,6 +40,7 @@ import com.partyspottr.appdir.classes.adapters.RequestAdapter;
 import com.partyspottr.appdir.classes.networking.AddEventRequest;
 import com.partyspottr.appdir.classes.networking.AddParticipant;
 import com.partyspottr.appdir.classes.networking.RemoveEventRequest;
+import com.partyspottr.appdir.ui.ProfilActivity;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -103,9 +109,23 @@ public class EventDetails extends AppCompatActivity {
         vis_gjesteliste.setTypeface(typeface);
         antall_deltakere.setTypeface(typeface);
 
-        ImageView bilde = findViewById(R.id.imageView);
+        final ImageView bilde = findViewById(R.id.imageView);
 
-        //bilde.setImageBitmap(bmp);
+        if(event.isHasimage()) {
+            StorageReference picRef = ProfilActivity.storage.getReference().child(event.getHostStr() + "_" + event.getNameofevent());
+
+            picRef.getBytes(1024 * 1024).addOnSuccessListener(new OnSuccessListener<byte[]>() {
+                @Override
+                public void onSuccess(byte[] bytes) {
+                    bilde.setImageBitmap(BitmapFactory.decodeByteArray(bytes, 0, bytes.length));
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    bilde.setImageDrawable(getResources().getDrawable(R.drawable.error_loading_image));
+                }
+            });
+        }
 
         tittel.setText(event.getNameofevent());
         sted.setText(String.format(Locale.ENGLISH, "%s", event.getAddress()));

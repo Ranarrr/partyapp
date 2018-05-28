@@ -4,7 +4,7 @@ import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.DialogInterface;
-import android.util.Base64;
+import android.location.Location;
 import android.util.DisplayMetrics;
 import android.view.Gravity;
 import android.view.View;
@@ -14,15 +14,9 @@ import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
-import com.partyspottr.appdir.BuildConfig;
 import com.partyspottr.appdir.R;
 import com.partyspottr.appdir.classes.Bruker;
 import com.partyspottr.appdir.classes.ChatPreview;
@@ -39,18 +33,15 @@ public class ChauffeurAdapter extends BaseAdapter {
     private List<Chauffeur> chauffeurList;
     private Activity thisActivity;
 
-    public ChauffeurAdapter(Activity activity, List<Chauffeur> list, ListView thisListView) {
+    public ChauffeurAdapter(Activity activity, List<Chauffeur> list) {
         thisActivity = activity;
 
         if(list.size() == 0) {
             chauffeurList = new ArrayList<>();
             chauffeurList.add(new Chauffeur(0.0, "£££", 0, 0));
         } else {
-            View footer = thisActivity.getLayoutInflater().inflate(R.layout.chatmessage_footer, thisListView, false);
-            TextView text = footer.findViewById(R.id.text_footer);
-            text.setText("Sjåfører i nærheten:");
-            thisListView.addFooterView(footer);
             chauffeurList = list;
+            chauffeurList.add(0, new Chauffeur(0.0, "$$$", 0, 0));
         }
     }
 
@@ -73,14 +64,18 @@ public class ChauffeurAdapter extends BaseAdapter {
     public View getView(int position, View convertView, final ViewGroup parent) {
         final Chauffeur chauffeur = chauffeurList.get(position);
 
-        if(chauffeur.getM_rating() == 0.0 && chauffeur.getM_age() == 0 && chauffeur.getM_capacity() == 0) {
+        if(chauffeur.getM_rating() == 0.0 && chauffeur.getM_age() == 0 && chauffeur.getM_capacity() == 0 && chauffeur.getM_brukernavn().equals("$$$")) {
+            View footer = thisActivity.getLayoutInflater().inflate(R.layout.chatmessage_footer, parent, false);
+            TextView text = footer.findViewById(R.id.text_footer);
+            text.setText("Sjåfører i nærheten:");
+            return footer;
+        }
+
+        if(chauffeur.getM_rating() == 0.0 && chauffeur.getM_age() == 0 && chauffeur.getM_capacity() == 0 && chauffeur.getM_brukernavn().equals("£££")) {
             View v = thisActivity.getLayoutInflater().inflate(R.layout.chatmessage_footer, parent, false);
             ((TextView) v.findViewById(R.id.text_footer)).setText("Finner ingen sjåfører.");
             return v;
         }
-
-        final Bruker bruker = new Bruker();
-        Bruker.getBruker(thisActivity, chauffeur.getM_brukernavn(), bruker);
 
         if(convertView == null) {
             convertView = thisActivity.getLayoutInflater().inflate(R.layout.chauffeur, parent, false);
@@ -89,7 +84,6 @@ public class ChauffeurAdapter extends BaseAdapter {
                     TextView sted = convertView.findViewById(R.id.chauffeur_sted);
                     TextView maks = convertView.findViewById(R.id.chauffeur_max);
                     TextView navn = convertView.findViewById(R.id.chauffeur_navn);
-                    LinearLayout layout_rating = convertView.findViewById(R.id.chauffeur_rating_ll);
                     ImageButton send_msg = convertView.findViewById(R.id.chauffeur_msg);
 
                     sted.setTypeface(MainActivity.typeface);
@@ -140,7 +134,7 @@ public class ChauffeurAdapter extends BaseAdapter {
 
                                     List<Chatter> list = new ArrayList<>();
                                     list.add(new Chatter(Bruker.get().getBrukernavn(), Bruker.get().getFornavn(), Bruker.get().getEtternavn()));
-                                    list.add(new Chatter(chauffeur.getM_brukernavn(), bruker.getFornavn(), bruker.getEtternavn()));
+                                    list.add(new Chatter(chauffeur.getM_brukernavn(), chauffeur.getFornavn(), chauffeur.getEtternavn()));
                                     if(Bruker.get().startChat(new ChatPreview(message.getText().toString(), "", false, list), chauffeur.getM_brukernavn(), message.getText().toString())) {
                                         Toast.makeText(thisActivity, "Started a chat with " + chauffeur.getM_brukernavn(), Toast.LENGTH_SHORT).show();
                                     }
@@ -151,10 +145,19 @@ public class ChauffeurAdapter extends BaseAdapter {
                         }
                     });
 
-                    navn.setText(String.format(Locale.ENGLISH, "%s %s (%d)", bruker.getFornavn(), bruker.getEtternavn(), chauffeur.getM_age()));
+                    navn.setText(String.format(Locale.ENGLISH, "%s %s (%d)", chauffeur.getFornavn(), chauffeur.getEtternavn(), chauffeur.getM_age()));
 
-                    maks.setText(String.format(Locale.ENGLISH, "Max %d passasjerer.", chauffeur.getM_capacity()));
+                    maks.setText(String.format(Locale.ENGLISH, "%d", chauffeur.getM_capacity()));
 
+                    Location loc1 = Utilities.getLatLng(thisActivity);
+
+                    if(loc1 == null)
+                        sted.setText("");
+                    else {
+                        float result[] = {0};
+                        Location.distanceBetween(chauffeur.getLatitude(), chauffeur.getLongitude(), loc1.getLatitude(), loc1.getLongitude(), result);
+                        sted.setText(String.format(Locale.ENGLISH, "%.1f km", result[0] == 0.0f ? result[0] : result[0] / 1000.f));
+                    }
                 }
             }
 

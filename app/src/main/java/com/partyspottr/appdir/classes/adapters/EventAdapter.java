@@ -3,6 +3,8 @@ package com.partyspottr.appdir.classes.adapters;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.BitmapFactory;
+import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,8 +12,12 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.storage.StorageReference;
 import com.partyspottr.appdir.R;
 import com.partyspottr.appdir.classes.Event;
+import com.partyspottr.appdir.ui.ProfilActivity;
 import com.partyspottr.appdir.ui.other_ui.EventDetails;
 
 import java.util.ArrayList;
@@ -29,7 +35,6 @@ import static com.partyspottr.appdir.ui.MainActivity.typeface;
  */
 
 public class EventAdapter extends BaseAdapter {
-
     private Activity thisActivity;
     private List<Event> eventList;
 
@@ -82,7 +87,7 @@ public class EventAdapter extends BaseAdapter {
             TextView stedText = convertView.findViewById(R.id.stedText);
             TextView aldersgrenseText = convertView.findViewById(R.id.aldersgrenseText);
             TextView datoText = convertView.findViewById(R.id.datoText);
-            ImageView bildeIListe = convertView.findViewById(R.id.imageView2);
+            final ImageView bildeIListe = convertView.findViewById(R.id.imageView2);
 
             arrangementNavn.setTypeface(typeface);
             stedText.setTypeface(typeface);
@@ -91,9 +96,21 @@ public class EventAdapter extends BaseAdapter {
 
             final Event event = eventList.get(position);
 
-            //final Bitmap bmp = BitmapFactory.decodeByteArray(event.get, 0, event.getImagebyte().length);
+            if(event.isHasimage()) {
+                StorageReference picRef = ProfilActivity.storage.getReference().child(event.getHostStr() + "_" + event.getNameofevent());
 
-            //bildeIListe.setImageBitmap(bmp);
+                picRef.getBytes(1024 * 1024).addOnSuccessListener(new OnSuccessListener<byte[]>() {
+                    @Override
+                    public void onSuccess(byte[] bytes) {
+                        bildeIListe.setImageBitmap(BitmapFactory.decodeByteArray(bytes, 0, bytes.length));
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        bildeIListe.setImageDrawable(thisActivity.getResources().getDrawable(R.drawable.error_loading_image));
+                    }
+                });
+            }
 
             stedText.setText(eventList.get(position).getCountry());
             GregorianCalendar datefrom = new GregorianCalendar();

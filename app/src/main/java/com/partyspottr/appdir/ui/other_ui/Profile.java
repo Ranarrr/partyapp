@@ -39,10 +39,10 @@ import com.partyspottr.appdir.R;
 import com.partyspottr.appdir.classes.Bruker;
 import com.partyspottr.appdir.classes.ChatPreview;
 import com.partyspottr.appdir.classes.Chatter;
-import com.partyspottr.appdir.classes.customviews.CustomViewPager;
 import com.partyspottr.appdir.classes.Event;
 import com.partyspottr.appdir.classes.Utilities;
 import com.partyspottr.appdir.classes.adapters.CountryCodes;
+import com.partyspottr.appdir.classes.customviews.CustomViewPager;
 import com.partyspottr.appdir.ui.MainActivity;
 
 import java.util.ArrayList;
@@ -297,7 +297,7 @@ public class Profile extends AppCompatActivity {
 
         @Override
         public boolean isViewFromObject(View view, Object object) {
-            return (view == (View) object);
+            return (view == object);
         }
     }
 }

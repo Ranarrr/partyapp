@@ -3,7 +3,6 @@ package com.partyspottr.appdir.ui.mainfragments.eventchildfragments;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.view.ViewPager;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,7 +11,6 @@ import android.widget.ListView;
 
 import com.partyspottr.appdir.R;
 import com.partyspottr.appdir.classes.Bruker;
-import com.partyspottr.appdir.classes.Utilities;
 import com.partyspottr.appdir.classes.adapters.EventAdapter;
 import com.partyspottr.appdir.classes.networking.GetAllEvents;
 

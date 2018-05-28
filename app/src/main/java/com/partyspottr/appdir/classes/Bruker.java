@@ -22,7 +22,6 @@ import org.json.JSONObject;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -57,6 +56,7 @@ public class Bruker {
     private List<ChatPreview> chatMessageList;
     private boolean hascar;
     private Car current_car;
+    private List<Chauffeur> listchauffeurs;
 
     private static final String idElem = "id";
     private static final String brukernavnElem = "brukernavnElem";
@@ -114,6 +114,7 @@ public class Bruker {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString(brukernavnElem, brukernavn);
         editor.putString(passordElem, passord);
+
         editor.putBoolean(harakseptertElem, harakseptert);
         editor.putString(fornavnElem, fornavn);
         editor.putString(etternavnElem, etternavn);
@@ -173,15 +174,39 @@ public class Bruker {
             requests = new Gson().fromJson(sharedPreferences.getString(requestlistElem, ""), listRequestsType);
     }
 
-    public void ParseEvents(JSONArray events) {
-        if(events.length() == 0) {
-            listOfEvents = new ArrayList<>();
-            listOfMyEvents = new ArrayList<>();
-            return;
-        }
+    public void ParseChauffeurs(JSONArray chauffeurs) {
+        listchauffeurs = new ArrayList<>();
 
+        if(chauffeurs.length() == 0)
+            return;
+
+        try {
+            for(int i = 0; i < chauffeurs.length(); i++) {
+                JSONObject chauffeur = new JSONObject(chauffeurs.getString(i));
+
+                List<Car> cars = new Gson().fromJson(chauffeur.getString("carlistElem"), Chauffeur.listOfCarsType);
+
+                Chauffeur ret = new Chauffeur(chauffeur.getDouble("rating"), chauffeur.getString("brukernavnElem"), chauffeur.getString("fornavn"), chauffeur.getString("etternavn"),
+                        chauffeur.getInt("age"), chauffeur.getInt("capacity"), chauffeur.getLong("timeDrivingFrom"), chauffeur.getLong("timeDrivingTo"), cars, chauffeur.getDouble("longitude"),
+                        chauffeur.getDouble("latitude"));
+
+                if(ret.getChauffeur_time_to() < System.currentTimeMillis())
+                    continue;
+
+                if(!ret.getM_brukernavn().isEmpty())
+                    listchauffeurs.add(ret);
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void ParseEvents(JSONArray events) {
         listOfEvents = new ArrayList<>();
         listOfMyEvents = new ArrayList<>();
+
+        if(events.length() == 0)
+            return;
 
         try {
             for(int i = 0; i < events.length(); i++) {
@@ -593,5 +618,13 @@ public class Bruker {
 
     public void setChauffeur(Chauffeur chauffeur) {
         this.chauffeur = chauffeur;
+    }
+
+    public List<Chauffeur> getListchauffeurs() {
+        return listchauffeurs;
+    }
+
+    public void setListchauffeurs(List<Chauffeur> listchauffeurs) {
+        this.listchauffeurs = listchauffeurs;
     }
 }

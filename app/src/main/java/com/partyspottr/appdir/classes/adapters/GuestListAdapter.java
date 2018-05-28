@@ -1,25 +1,16 @@
 package com.partyspottr.appdir.classes.adapters;
 
-import android.animation.ObjectAnimator;
 import android.app.Activity;
-import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
-import android.util.Base64;
-import android.util.DisplayMetrics;
 import android.view.ContextThemeWrapper;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.view.animation.AlphaAnimation;
 import android.widget.BaseAdapter;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -27,29 +18,16 @@ import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
-import com.partyspottr.appdir.BuildConfig;
 import com.partyspottr.appdir.R;
 import com.partyspottr.appdir.classes.Bruker;
-import com.partyspottr.appdir.classes.ChatPreview;
-import com.partyspottr.appdir.classes.Chatter;
 import com.partyspottr.appdir.classes.Participant;
-import com.partyspottr.appdir.classes.Utilities;
 import com.partyspottr.appdir.classes.networking.AddFriendRequest;
 import com.partyspottr.appdir.classes.networking.AddParticipant;
 import com.partyspottr.appdir.classes.networking.RemoveParticipant;
 import com.partyspottr.appdir.enums.EventStilling;
-import com.partyspottr.appdir.ui.MainActivity;
 import com.partyspottr.appdir.ui.other_ui.Profile;
 
-import java.util.ArrayList;
-import java.util.GregorianCalendar;
 import java.util.List;
-import java.util.Locale;
 
 import static com.partyspottr.appdir.ui.MainActivity.typeface;
 

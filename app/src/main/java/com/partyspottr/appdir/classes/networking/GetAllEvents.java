@@ -11,6 +11,7 @@ import android.widget.Toast;
 import com.partyspottr.appdir.BuildConfig;
 import com.partyspottr.appdir.R;
 import com.partyspottr.appdir.classes.Bruker;
+import com.partyspottr.appdir.classes.Event;
 import com.partyspottr.appdir.classes.adapters.EventAdapter;
 
 import org.apache.http.NameValuePair;
@@ -49,7 +50,8 @@ public class GetAllEvents extends AsyncTask<Void, Void, Integer> {
                 } else {
                     error_msg = json.getJSONObject(json.length() - 1).getString("error_msg");
                     json.remove(json.length() - 1);
-                    Bruker.get().ParseEvents(json);
+                    Bruker.get().setListOfEvents(new ArrayList<Event>());
+                    Bruker.get().setListOfMyEvents(new ArrayList<Event>());
                     return -1;
                 }
             }

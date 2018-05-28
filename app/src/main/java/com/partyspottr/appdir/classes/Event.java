@@ -1,12 +1,15 @@
 package com.partyspottr.appdir.classes;
 
+import android.util.Base64;
+
+import com.google.gson.Gson;
+import com.partyspottr.appdir.BuildConfig;
 import com.partyspottr.appdir.enums.EventStilling;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.GregorianCalendar;
 import java.util.List;
 
 /**
@@ -36,6 +39,57 @@ public class Event {
     private boolean showguestlist;
     private boolean showaddress;
     private boolean hasimage;
+
+    private static final String nameofeventElem = "nameofevent";
+    private static final String addressElem = "address";
+    private static final String townElem = "town";
+    private static final String countryElem = "country";
+    private static final String privateEventElem = "privateEvent";
+    private static final String longitudeElem = "longitude";
+    private static final String latitudeElem = "latitude";
+    private static final String datefromElem = "datefrom";
+    private static final String datetoElem = "dateto";
+    private static final String agerestrictionElem = "agerestriction";
+    private static final String hostStrElem = "hostStr";
+    private static final String participantsElem = "participants";
+    private static final String requestsElem = "requests";
+    private static final String maxparticipantsElem = "maxparticipants";
+    private static final String postalcodeElem = "postalcode";
+    private static final String descriptionElem = "description";
+    private static final String showguestlistElem = "showguestlist";
+    private static final String showaddressElem = "showaddress";
+    private static final String hasimageElem = "hasimage";
+
+    public String EventToJSON() {
+        try {
+            JSONObject ret = new JSONObject();
+            ret.put(nameofeventElem, nameofevent);
+            ret.put(addressElem, address);
+            ret.put(townElem, town);
+            ret.put(countryElem, country);
+            ret.put(privateEventElem, privateEvent);
+            ret.put(longitudeElem, longitude);
+            ret.put(latitudeElem, latitude);
+            ret.put(datefromElem, datefrom);
+            ret.put(datetoElem, dateto);
+            ret.put(agerestrictionElem, agerestriction);
+            ret.put(hostStrElem, hostStr);
+            ret.put(participantsElem, new Gson().toJson(participants));
+            ret.put(requestsElem, requests);
+            ret.put(maxparticipantsElem, maxparticipants);
+            ret.put(postalcodeElem, postalcode);
+            ret.put(descriptionElem, description);
+            ret.put(showguestlistElem, showguestlist);
+            ret.put(showaddressElem, showaddress);
+            ret.put(hasimageElem, hasimage);
+            ret.put("socketElem", Base64.encodeToString(BuildConfig.JSONParser_Socket.getBytes(), Base64.DEFAULT));
+            return ret.toString();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        return "";
+    }
 
     public Event(String name) {
         this(0, name, "", "", "", false, 0.0, 0.0, 0, 0, 0, new ArrayList<Participant>(), 0,
@@ -78,6 +132,7 @@ public class Event {
 
             String str = jsonObject.getJSONArray("results").getJSONObject(0).getString("formatted_address");
             this.address = str.split(",")[0];
+            this.country = str.split(", ")[2];
 
             for(int i = 0; i < jsonObject.getJSONArray("results").getJSONObject(0).getJSONArray("address_components").length(); i++) {
                 JSONObject temp = jsonObject.getJSONArray("results").getJSONObject(0).getJSONArray("address_components").getJSONObject(i);

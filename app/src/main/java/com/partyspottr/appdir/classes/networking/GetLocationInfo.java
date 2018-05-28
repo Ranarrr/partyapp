@@ -21,7 +21,6 @@ import java.io.File;
  */
 
 public class GetLocationInfo extends AsyncTask<Void, Void, Integer> {
-
     private String addressToUse;
     private int PostalCode;
     private File bitmap;

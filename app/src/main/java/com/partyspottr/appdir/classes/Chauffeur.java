@@ -29,15 +29,22 @@ import java.util.List;
 public class Chauffeur {
     private double m_rating;
     private String m_brukernavn;
+    private String m_fornavn;
+    private String m_etternavn;
     private int m_age;
     private int m_capacity;
     private long chauffeur_time_from;
     private long chauffeur_time_to;
     private List<Car> listOfCars;
+    private double m_longitude;
+    private double m_latitude;
 
     private static final String carlistElem = "carlistElem";
     private static final String time_fromElem = "timeDrivingFrom";
     private static final String time_toElem = "timeDrivingTo";
+    private static final String fornavnElem = "fornavnElem";
+    private static final String etternavnElem = "etternavnElem";
+    private static final String longitudeElem = "longitude";
     private static final String rating = "rating";
     private static final String capacity = "capacity";
     private static final String age = "age";
@@ -58,6 +65,20 @@ public class Chauffeur {
         m_brukernavn = brukernavn;
         m_age = age;
         m_capacity = capacity;
+    }
+
+    public Chauffeur(double rating, String bruker, String fornavn, String etternavn, int age, int capacity, long timefrom, long timeto, List<Car> cars, double longitude, double latitude) {
+        m_rating = rating;
+        m_brukernavn = bruker;
+        m_fornavn = fornavn;
+        m_etternavn = etternavn;
+        m_age = age;
+        m_capacity = capacity;
+        chauffeur_time_from = timefrom;
+        chauffeur_time_to = timeto;
+        listOfCars = cars;
+        m_longitude = longitude;
+        m_latitude = latitude;
     }
 
     public void addCar(Car car) {
@@ -90,6 +111,8 @@ public class Chauffeur {
         chauffeur_time_from = m_sharedPreferences.getLong(time_fromElem, 0);
         chauffeur_time_to = m_sharedPreferences.getLong(time_toElem, 0);
         m_rating = m_sharedPreferences.getFloat(rating, 0.0f);
+        m_fornavn = m_sharedPreferences.getString(fornavnElem, "");
+        m_etternavn = m_sharedPreferences.getString(etternavnElem, "");
         m_capacity = m_sharedPreferences.getInt(capacity, 0);
         m_age = m_sharedPreferences.getInt(age, 0);
         m_brukernavn = Bruker.get().getBrukernavn();
@@ -109,6 +132,8 @@ public class Chauffeur {
         editor.putLong(time_toElem, chauffeur_time_to);
         editor.putString(carlistElem, new Gson().toJson(listOfCars));
         editor.putFloat(rating, (float) m_rating);
+        editor.putString(fornavnElem, m_fornavn);
+        editor.putString(etternavnElem, m_etternavn);
         editor.putInt(age, m_age);
         editor.putInt(capacity, m_capacity);
         editor.apply();
@@ -208,5 +233,37 @@ public class Chauffeur {
 
     public void setListOfCars(List<Car> listOfCars) {
         this.listOfCars = listOfCars;
+    }
+
+    public String getFornavn() {
+        return m_fornavn;
+    }
+
+    public void setFornavn(String fornavn) {
+        this.m_fornavn = fornavn;
+    }
+
+    public String getEtternavn() {
+        return m_etternavn;
+    }
+
+    public void setEtternavn(String etternavn) {
+        this.m_etternavn = etternavn;
+    }
+
+    public double getLongitude() {
+        return m_longitude;
+    }
+
+    public void setLongitude(double longitude) {
+        this.m_longitude = longitude;
+    }
+
+    public double getLatitude() {
+        return m_latitude;
+    }
+
+    public void setLatitude(double latitude) {
+        this.m_latitude = latitude;
     }
 }

@@ -1,7 +1,7 @@
 package com.partyspottr.appdir.ui.mainfragments.bilchildfragments;
 
 import android.content.DialogInterface;
-import android.graphics.Color;
+import android.location.Location;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.support.annotation.Nullable;
@@ -18,7 +18,6 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
@@ -37,6 +36,7 @@ import com.partyspottr.appdir.classes.Chauffeur;
 import com.partyspottr.appdir.classes.Utilities;
 import com.partyspottr.appdir.classes.adapters.CarBrands;
 import com.partyspottr.appdir.classes.networking.ChauffeurAddNewTime;
+import com.partyspottr.appdir.classes.networking.ChauffeurRemoveTime;
 import com.partyspottr.appdir.ui.MainActivity;
 
 import org.json.JSONException;
@@ -55,7 +55,8 @@ import java.util.Locale;
  */
 
 public class min_bil_fragment extends Fragment {
-    int passasjerer, timer_tid, minutter_tid;
+    public static int passasjerer, timer_tid, minutter_tid;
+    public static CountDownTimer countDownTimer;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -296,18 +297,22 @@ public class min_bil_fragment extends Fragment {
         final ConstraintLayout legg_til_tid = getActivity().findViewById(R.id.chauffeur_legg_til_tid);
         final Button start_ny_tid = getActivity().findViewById(R.id.chauffeur_start);
         TextView ny_tid_title = view.findViewById(R.id.ny_tid_title);
+        final ConstraintLayout timer_layout = getActivity().findViewById(R.id.chauffeur_timer_layout);
 
         registrate.setTypeface(MainActivity.typeface);
         title.setTypeface(MainActivity.typeface);
 
         if(Bruker.get().isHascar()) {
             registrate.setVisibility(View.GONE);
-            setAfterRegistrated(registrate_car_layout, title, current_car, legg_til_tid, start_ny_tid);
+            registrate_car_layout.setVisibility(View.GONE);
+            current_car.setVisibility(View.VISIBLE);
+            setAfterRegistrated(title, legg_til_tid, start_ny_tid, timer_layout, registrate_car_layout, current_car);
         } else {
             title.setText("Registrer bil"); // TODO : Fix translation
 
             legg_til_tid.setVisibility(View.GONE);
             current_car.setVisibility(View.GONE);
+            timer_layout.setVisibility(View.GONE);
 
             ny_tid_title.setVisibility(View.GONE);
 
@@ -333,21 +338,30 @@ public class min_bil_fragment extends Fragment {
                             @Override
                             public void onClick(View v) {
                                 if(farge.getEditText() != null && merke.getText().toString().length() > 2 && farge.getEditText().getText().toString().length() > 2 && CarBrands.doesListContain(merke.getText().toString())) {
+                                    Location loc = Utilities.getLatLng(getActivity());
                                     StringRequest stringRequest = new StringRequest(Utilities.getGETMethodArgStr("create_chauffeur", "socketElem",
-                                            Base64.encodeToString(BuildConfig.JSONParser_Socket.getBytes(), Base64.DEFAULT), "brukernavnElem", Bruker.get().getBrukernavn(), "carlistElem", new Gson().toJson(Collections.singletonList(new Car(merke.getText().toString(), farge.getEditText().getText().toString(), false))).replace("\\", ""), "timeDrivingFrom", "0", "timeDrivingTo", "0", "rating", "0", "capacity", "0", "age",
-                                            String.valueOf(Utilities.calcAge(new GregorianCalendar(Bruker.get().getYear(), Bruker.get().getMonth(), Bruker.get().getDay_of_month())))), new Response.Listener<String>() {
+                                            Base64.encodeToString(BuildConfig.JSONParser_Socket.getBytes(), Base64.DEFAULT), "brukernavnElem", Bruker.get().getBrukernavn(), "carlistElem",
+                                            new Gson().toJson(Collections.singletonList(new Car(merke.getText().toString(), farge.getEditText().getText().toString(), false))),
+                                            "timeDrivingFrom", "0", "timeDrivingTo", "0", "rating", "0", "capacity", "0", "age",
+                                            String.valueOf(Utilities.calcAge(new GregorianCalendar(Bruker.get().getYear(), Bruker.get().getMonth(), Bruker.get().getDay_of_month()))),
+                                            "fornavn", Bruker.get().getFornavn(), "etternavn", Bruker.get().getEtternavn(), "longitude", loc == null ? "0" : String.valueOf(loc.getLongitude()), "latitude",
+                                            loc == null ? "0" : String.valueOf(loc.getLatitude())), new Response.Listener<String>() {
                                         @Override
                                         public void onResponse(String response) {
                                             try {
                                                 JSONObject respons = new JSONObject(response);
                                                 if (respons.getInt("success") == 1) {
                                                     Bruker.get().setHascar(true);
+                                                    Bruker.get().getChauffeur().setFornavn(Bruker.get().getFornavn());
+                                                    Bruker.get().getChauffeur().setEtternavn(Bruker.get().getEtternavn());
+                                                    Bruker.get().getChauffeur().setChauffeur_time_to(0);
+                                                    Bruker.get().getChauffeur().setChauffeur_time_from(0);
                                                     Bruker.get().getChauffeur().addCar(new Car(merke.getText().toString(), farge.getEditText().getText().toString(), false));
                                                     Bruker.get().getChauffeur().setM_brukernavn(Bruker.get().getBrukernavn());
                                                     Bruker.get().getChauffeur().setM_age(Utilities.calcAge(new GregorianCalendar(Bruker.get().getYear(), Bruker.get().getMonth(), Bruker.get().getDay_of_month())));
                                                     Bruker.get().setCurrent_car(Bruker.get().getChauffeur().getListOfCars().get(0));
                                                     Bruker.get().getChauffeur().LagreChauffeur();
-                                                    setAfterRegistrated(registrate_car_layout, title, current_car, legg_til_tid, start_ny_tid);
+                                                    setAfterRegistrated(title, legg_til_tid, start_ny_tid, timer_layout, registrate_car_layout, current_car);
                                                 } else {
                                                     Toast.makeText(getActivity(), "Failed to registrate car!", Toast.LENGTH_SHORT).show();
                                                 }
@@ -384,7 +398,8 @@ public class min_bil_fragment extends Fragment {
         }
     }
 
-    private void setAfterRegistrated(ConstraintLayout registrate_car_layout, TextView title, ConstraintLayout current_car, ConstraintLayout legg_til_tid, final Button legg_til_tid_btn) {
+    private void setAfterRegistrated(TextView title, final ConstraintLayout legg_til_tid, final Button legg_til_tid_btn, final ConstraintLayout timer_layout, ConstraintLayout registrate_car_layout,
+                                     ConstraintLayout current_car) {
         final Chauffeur brukerChauffeur = Bruker.get().getChauffeur();
 
         TextView navn = getActivity().findViewById(R.id.chauffeur_navn);
@@ -398,7 +413,6 @@ public class min_bil_fragment extends Fragment {
         final TextView time_progress = getActivity().findViewById(R.id.time_progress);
         final Button forny_tid = getActivity().findViewById(R.id.chauffeur_forny);
         final Button avslutt_tid = getActivity().findViewById(R.id.chauffeur_avslutt);
-        final ConstraintLayout timer_layout = getActivity().findViewById(R.id.chauffeur_timer_layout);
 
         avslutt_tid.setTypeface(MainActivity.typeface);
         forny_tid.setTypeface(MainActivity.typeface);
@@ -410,23 +424,20 @@ public class min_bil_fragment extends Fragment {
         bil.setTypeface(MainActivity.typeface);
         plassering.setTypeface(MainActivity.typeface);
 
+        registrate_car_layout.setVisibility(View.GONE);
+        current_car.setVisibility(View.VISIBLE);
+        ny_tid_title.setVisibility(View.VISIBLE);
+
         navn.setText(String.format(Locale.ENGLISH, "%s %s (%d)", Bruker.get().getFornavn(), Bruker.get().getEtternavn(), brukerChauffeur.getM_age()));
         bil.setText(String.format(Locale.ENGLISH, "%s %s", Bruker.get().getCurrent_car().getFarge(), Bruker.get().getCurrent_car().getMerke()));
         plassering.setText(String.format(Locale.ENGLISH, "%s", Bruker.get().getTown()));
 
-        registrate_car_layout.setVisibility(View.GONE);
-
         title.setText("Min bil"); // TODO : Fix translation
-
-        current_car.setVisibility(View.VISIBLE);
 
         legg_til_tid.setVisibility(View.VISIBLE);
 
-        if(Bruker.get().getChauffeur().getChauffeur_time_from() == 0 && Bruker.get().getChauffeur().getChauffeur_time_to() == 0) {
+        if(Bruker.get().getChauffeur().getChauffeur_time_from() == 0 && Bruker.get().getChauffeur().getChauffeur_time_to() == 0 || Bruker.get().getChauffeur().getChauffeur_time_to() < System.currentTimeMillis()) {
             ny_tid_title.setText("Start kjøreøkt");
-            forny_tid.setVisibility(View.GONE);
-            avslutt_tid.setVisibility(View.GONE);
-            time_progress.setVisibility(View.GONE);
             timer_layout.setVisibility(View.GONE);
 
             legg_til_tid_btn.setOnClickListener(new View.OnClickListener() {
@@ -443,7 +454,7 @@ public class min_bil_fragment extends Fragment {
                     if(minutter_tid > 0)
                         to.add(Calendar.MINUTE, minutter_tid);
 
-                    ChauffeurAddNewTime chauffeurAddNewTime = new ChauffeurAddNewTime(getActivity(), to.getTimeInMillis());
+                    ChauffeurAddNewTime chauffeurAddNewTime = new ChauffeurAddNewTime(getActivity(), to.getTimeInMillis(), passasjerer);
                     chauffeurAddNewTime.execute();
 
                     /*
@@ -464,12 +475,14 @@ public class min_bil_fragment extends Fragment {
             });
         } else if(Bruker.get().getChauffeur().getChauffeur_time_from() != 0 && Bruker.get().getChauffeur().getChauffeur_time_to() != 0) {
             legg_til_tid.setVisibility(View.GONE);
+
             timer_layout.setVisibility(View.VISIBLE);
 
             avslutt_tid.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-
+                    ChauffeurRemoveTime chauffeurRemoveTime = new ChauffeurRemoveTime(getActivity());
+                    chauffeurRemoveTime.execute();
                 }
             });
 
@@ -477,17 +490,20 @@ public class min_bil_fragment extends Fragment {
 
             ny_tid_title.setText("Din økt");
 
-            time_progress.setTextColor(getResources().getColor(R.color.greentint));
+            if(current > 1800000)
+                time_progress.setTextColor(getResources().getColor(R.color.greentint));
+            else
+                time_progress.setTextColor(getResources().getColor(R.color.colorPrimary));
 
-            new CountDownTimer(current, 1000) {
+            countDownTimer = new CountDownTimer(current, 1000) {
                 @Override
                 public void onTick(long millisUntilFinished) {
                     GregorianCalendar timetoset = new GregorianCalendar();
                     timetoset.setTimeInMillis(millisUntilFinished);
 
-                    if(millisUntilFinished < 1800000) {
-                        time_progress.setTextColor(getResources().getColor(R.color.colorPrimary));
-                    }
+                    if(millisUntilFinished < 1800000)
+                        if(getActivity() != null)
+                            time_progress.setTextColor(getActivity().getResources().getColor(R.color.colorPrimary));
 
                     time_progress.setText(String.format(Locale.ENGLISH, "%d:%02d:%02d", timetoset.get(Calendar.HOUR_OF_DAY), timetoset.get(Calendar.MINUTE),
                             timetoset.get(Calendar.SECOND)));
@@ -495,17 +511,18 @@ public class min_bil_fragment extends Fragment {
 
                 @Override
                 public void onFinish() {
-                    legg_til_tid_btn.setVisibility(View.VISIBLE);
-                    antall_passasjerer.setVisibility(View.VISIBLE);
-                    timer.setVisibility(View.VISIBLE);
-                    minutter.setVisibility(View.VISIBLE);
+                    Bruker.get().getChauffeur().setChauffeur_time_to(0);
+                    Bruker.get().getChauffeur().setChauffeur_time_from(0);
+                    Bruker.get().getChauffeur().setM_capacity(0);
+                    Bruker.get().getChauffeur().LagreChauffeur();
 
                     ny_tid_title.setText("Start kjøreøkt");
-                    forny_tid.setVisibility(View.GONE);
-                    avslutt_tid.setVisibility(View.GONE);
-                    time_progress.setVisibility(View.GONE);
+                    legg_til_tid.setVisibility(View.VISIBLE);
+                    timer_layout.setVisibility(View.GONE);
                 }
-            }.start();
+            };
+
+            countDownTimer.start();
         }
     }
 }

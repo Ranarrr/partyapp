@@ -83,7 +83,6 @@ public class profilfragment extends Fragment {
                             }
                         })
                         .show();
-
             }
         });
 
@@ -92,7 +91,12 @@ public class profilfragment extends Fragment {
         if(Bruker.get().getTown() == null || Bruker.get().getTown().isEmpty()) {
             by.setText(Bruker.get().getCountry());
         } else {
-            by.setText(String.format(Locale.ENGLISH, "%s, %s", Bruker.get().getCountry(), Bruker.get().getTown()));
+            String str = String.format(Locale.ENGLISH, "%s, %s", Bruker.get().getCountry(), Bruker.get().getTown());
+            if(str.length() > 25) {
+                by.setText(String.format(Locale.ENGLISH, "%s\n%s", Bruker.get().getCountry(), Bruker.get().getTown()));
+            } else {
+                by.setText(str);
+            }
         }
 
         fornavn_etternavn.setText(String.format(Locale.ENGLISH, "%s %s, %d", Bruker.get().getFornavn(), Bruker.get().getEtternavn(), Utilities.calcAge(new GregorianCalendar(Bruker.get().getYear(),

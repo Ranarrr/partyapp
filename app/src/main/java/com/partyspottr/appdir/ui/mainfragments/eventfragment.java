@@ -9,30 +9,18 @@ import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.AppCompatButton;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.ListView;
-import android.widget.Toast;
 
 import com.partyspottr.appdir.R;
-import com.partyspottr.appdir.classes.Bruker;
-import com.partyspottr.appdir.classes.Event;
 import com.partyspottr.appdir.classes.Utilities;
-import com.partyspottr.appdir.classes.adapters.EventAdapter;
 import com.partyspottr.appdir.ui.ProfilActivity;
 import com.partyspottr.appdir.ui.mainfragments.eventchildfragments.alle_eventer_fragment;
 import com.partyspottr.appdir.ui.mainfragments.eventchildfragments.mine_eventer_fragment;
 import com.partyspottr.appdir.ui.mainfragments.eventchildfragments.mitt_arkiv_fragment;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 import static com.partyspottr.appdir.ui.MainActivity.typeface;
 
 /**
