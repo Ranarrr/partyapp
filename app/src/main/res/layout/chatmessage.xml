@@ -3,16 +3,14 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/colorPrimary">
 
     <ScrollView
         android:id="@+id/scroll_chat"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginBottom="@dimen/_10sdp"
-        android:layout_marginEnd="@dimen/_10sdp"
-        android:layout_marginStart="@dimen/_10sdp"
-        android:layout_marginTop="@dimen/_10sdp"
+        android:background="@drawable/border_btn"
         app:layout_constraintBottom_toTopOf="@+id/write_msg"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
@@ -31,7 +29,7 @@
         android:id="@+id/toolbar6"
         android:layout_width="0dp"
         android:layout_height="@dimen/_40sdp"
-        android:background="?attr/colorPrimary"
+        android:background="@drawable/border_bottom_fat"
         android:minHeight="?attr/actionBarSize"
         android:theme="?attr/actionBarTheme"
         app:layout_constraintEnd_toEndOf="parent"
@@ -70,6 +68,9 @@
         android:inputType="text|textCapSentences|textMultiLine"
         android:paddingEnd="@dimen/_10sdp"
         android:paddingStart="@dimen/_10sdp"
+        android:textColor="@color/white"
+        android:textColorHint="@color/white"
+        android:theme="@style/MyEditTextTheme"
         android:textSize="@dimen/_15ssp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/chat_send"
@@ -86,6 +87,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toEndOf="@+id/write_msg"
-        app:srcCompat="@drawable/sent" />
+        app:srcCompat="@drawable/send" />
 
 </android.support.constraint.ConstraintLayout>

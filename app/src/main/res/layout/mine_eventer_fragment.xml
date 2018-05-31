@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/colorPrimary"
     tools:context="com.partyspottr.appdir.ui.mainfragments.eventchildfragments.mine_eventer_fragment">
 
     <!-- TODO: Update blank fragment layout -->
@@ -17,7 +18,7 @@
         android:divider="@color/transparent"
         android:dividerHeight="@dimen/_20sdp"
         android:scrollbarSize="@dimen/_2sdp"
-        android:scrollbarThumbVertical="@color/lightred"
+        android:scrollbarThumbVertical="@color/white"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

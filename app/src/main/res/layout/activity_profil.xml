@@ -5,6 +5,7 @@
     android:id="@+id/relativelayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/colorPrimary"
     tools:context="com.partyspottr.appdir.ui.ProfilActivity">
 
     <android.support.constraint.ConstraintLayout
@@ -15,6 +16,7 @@
         android:layout_alignParentEnd="true"
         android:layout_alignParentStart="true"
         android:layout_below="@+id/toolbar_profil"
+        android:background="@color/lightgrey"
         app:layout_constraintTop_toTopOf="parent"
         tools:layout_editor_absoluteX="8dp">
 
@@ -26,7 +28,7 @@
         android:layout_height="@dimen/_42sdp"
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
-        android:background="@android:color/holo_red_dark"
+        android:background="@drawable/border_bottom_fat"
         android:theme="?attr/actionBarTheme"
         app:titleTextColor="@color/white">
 
@@ -38,19 +40,19 @@
             android:contentDescription="@null"
             android:text="@string/arrangementer"
             android:textColor="@color/white"
-            android:textSize="@dimen/_18ssp" />
+            android:textSize="@dimen/_17ssp" />
 
         <ImageButton
             android:id="@+id/search_events"
-            android:layout_width="@dimen/_50sdp"
+            android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_gravity="center_vertical|end"
             android:background="@android:color/transparent"
             android:contentDescription="@null"
             android:paddingEnd="@dimen/_10sdp"
-            android:scaleType="fitXY"
-            android:scaleX="0.55"
-            android:scaleY="0.55"
+            android:paddingStart="@dimen/_15sdp"
+            android:scaleType="centerInside"
+            android:scaleX="-1"
             app:srcCompat="@drawable/search"
             tools:layout_editor_absoluteX="336dp"
             tools:layout_editor_absoluteY="16dp" />
@@ -63,7 +65,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_alignParentStart="true"
-        android:background="@drawable/border_top"
+        android:background="@color/white"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
@@ -71,109 +73,97 @@
         <ImageButton
             android:id="@+id/imageButton4"
             android:layout_width="0dp"
-            android:layout_height="0dp"
+            android:layout_height="wrap_content"
             android:layout_marginBottom="@dimen/_5sdp"
             android:layout_marginTop="@dimen/_5sdp"
             android:background="@android:color/transparent"
             android:contentDescription="@null"
             android:onClick="onProfilMenyClick"
-            android:scaleX="0.9"
-            android:scaleY="0.7"
+            android:scaleType="fitCenter"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toEndOf="@+id/imageButton9"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.0"
-            app:srcCompat="@drawable/profilmeny" />
+            app:srcCompat="@drawable/menymann" />
 
         <ImageButton
             android:id="@+id/imageButton2"
             android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_marginBottom="@dimen/_5sdp"
-            android:layout_marginTop="@dimen/_5sdp"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="2dp"
             android:background="@android:color/transparent"
             android:contentDescription="@null"
             android:onClick="onBilMenyClick"
-            android:scaleY="1.1"
+            android:scaleType="fitCenter"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/imageButton3"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toEndOf="@+id/imageButton"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.0"
-            app:srcCompat="@drawable/bilmeny" />
+            app:srcCompat="@drawable/menycar" />
 
         <ImageButton
             android:id="@+id/imageButton3"
             android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_marginBottom="@dimen/_5sdp"
-            android:layout_marginTop="@dimen/_5sdp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="1dp"
             android:background="@android:color/transparent"
             android:contentDescription="@null"
             android:onClick="onChatMenyClick"
-            android:scaleX="0.8"
-            android:scaleY="0.7"
+            android:scaleType="fitCenter"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/imageButton9"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toEndOf="@+id/imageButton2"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.0"
-            app:srcCompat="@drawable/chatmeny" />
+            app:layout_constraintVertical_bias="0.51"
+            app:srcCompat="@drawable/menymessages" />
 
         <ImageButton
             android:id="@+id/imageButton"
             android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_marginBottom="@dimen/_5sdp"
-            android:layout_marginTop="@dimen/_5sdp"
+            android:layout_height="wrap_content"
             android:background="@android:color/transparent"
             android:contentDescription="@null"
             android:onClick="onKalenderMenyClick"
-            android:scaleX="0.8"
-            android:scaleY="0.7"
+            android:scaleType="fitCenter"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/imageButton2"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.0"
-            app:srcCompat="@drawable/calendarmeny" />
+            app:srcCompat="@drawable/menyhome" />
 
         <ImageButton
             android:id="@+id/imageButton9"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/_5sdp"
-            android:layout_marginTop="@dimen/_5sdp"
+            android:layout_marginBottom="@dimen/_10sdp"
+            android:layout_marginTop="@dimen/_10sdp"
             android:background="@android:color/transparent"
-            android:scaleX="0.8"
-            android:scaleY="0.8"
+            android:scaleType="fitCenter"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/imageButton4"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toEndOf="@+id/imageButton3"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.0"
-            app:srcCompat="@drawable/notification" />
+            app:srcCompat="@drawable/menynotification" />
     </android.support.constraint.ConstraintLayout>
 
     <ImageButton
         android:id="@+id/add_event"
-        android:layout_width="@dimen/_70sdp"
-        android:layout_height="match_parent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_alignBottom="@+id/toolbar_profil"
-        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
         android:background="@color/transparent"
         android:contentDescription="@null"
         android:onClick="onLeggTilEventClick"
-        android:scaleType="fitStart"
-        android:scaleX="0.65"
-        android:scaleY="0.65"
-        app:srcCompat="@drawable/add_white" />
+        android:paddingEnd="@dimen/_10sdp"
+        android:paddingStart="@dimen/_15sdp"
+        android:scaleType="fitCenter"
+        app:srcCompat="@drawable/add" />
 
 
 </RelativeLayout>

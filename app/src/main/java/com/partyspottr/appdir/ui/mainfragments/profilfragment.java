@@ -1,30 +1,44 @@
 package com.partyspottr.appdir.ui.mainfragments;
 
+import android.Manifest;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.partyspottr.appdir.R;
 import com.partyspottr.appdir.classes.Bruker;
+import com.partyspottr.appdir.classes.ImageChange;
 import com.partyspottr.appdir.classes.Utilities;
 import com.partyspottr.appdir.classes.adapters.CountryCodes;
 import com.partyspottr.appdir.classes.networking.LogoutUser;
 import com.partyspottr.appdir.ui.MainActivity;
 import com.partyspottr.appdir.ui.other_ui.SettingActivity;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.io.File;
+import java.io.IOException;
 import java.util.GregorianCalendar;
 import java.util.Locale;
+
+import static android.app.Activity.RESULT_OK;
 
 /**
  * Created by Ranarrr on 26-Feb-18.
@@ -33,6 +47,7 @@ import java.util.Locale;
  */
 
 public class profilfragment extends Fragment {
+    private ImageChange imageChange = new ImageChange();
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -49,6 +64,33 @@ public class profilfragment extends Fragment {
         TextView title = getActivity().findViewById(R.id.title_toolbar);
         Button instillinger = view.findViewById(R.id.profil_instillinger);
         final Button logout = view.findViewById(R.id.log_out_btn);
+        final ImageButton profilbilde = view.findViewById(R.id.profilbilde);
+
+        profilbilde.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                    Intent intent = new Intent();
+                    intent.setType("image/*");
+                    intent.setAction(Intent.ACTION_GET_CONTENT);
+                    startActivityForResult(Intent.createChooser(intent, "Select Picture"), 1003);
+                } else {
+                    ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, Utilities.READ_EXTERNAL_STORAGE_CODE);
+                }
+            }
+        });
+
+        imageChange.addChangeListener(new PropertyChangeListener() {
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+                try {
+                    profilbilde.setImageBitmap(Bitmap.createScaledBitmap(MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), imageChange.getUri()),
+                            (int) getResources().getDimension(R.dimen._150sdp), (int) getResources().getDimension(R.dimen._75sdp), true));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
 
         title.setText(Bruker.get().getBrukernavn());
 
@@ -122,6 +164,20 @@ public class profilfragment extends Fragment {
             } else {
                 countryflag.setImageResource(R.drawable.dominican_republic);
             }
+        }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if(requestCode == Utilities.SELECT_PROFILE_IMAGE_CODE && resultCode == RESULT_OK && data.getData() != null) {
+            Uri image = data.getData();
+
+            imageChange.setUri(image);
+            String str = Utilities.getPathFromUri(getContext(), image);
+            if(str != null)
+                imageChange.setImage(new File(str));
         }
     }
 }

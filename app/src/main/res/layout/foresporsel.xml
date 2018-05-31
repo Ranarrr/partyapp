@@ -5,6 +5,7 @@
     android:id="@+id/linearLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/colorPrimary"
     android:orientation="horizontal">
 
     <TextView
@@ -15,6 +16,7 @@
         android:layout_marginStart="@dimen/_12sdp"
         android:layout_marginTop="8dp"
         android:text="Brukernavn, 18"
+        android:textColor="@color/white"
         android:textSize="@dimen/_14ssp"
         app:layout_constraintBottom_toTopOf="@+id/request_flag"
         app:layout_constraintStart_toEndOf="@+id/imageButton8"
@@ -36,6 +38,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/_8sdp"
         android:text="Stavanger"
+        android:textColor="@color/white"
         android:textSize="@dimen/_12ssp"
         app:layout_constraintBottom_toBottomOf="@+id/request_flag"
         app:layout_constraintStart_toEndOf="@+id/request_flag"
@@ -70,7 +73,7 @@
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toEndOf="@+id/request_accept"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/delete" />
+        app:srcCompat="@drawable/reject" />
 
     <ImageButton
         android:id="@+id/imageButton8"

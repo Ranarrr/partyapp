@@ -32,6 +32,7 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
@@ -468,6 +469,16 @@ public class ProfilActivity extends AppCompatActivity {
 
         dialog.setContentView(R.layout.legg_til_event);
 
+        // (That new View is just there to have something inside the dialog that can grow big enough to cover the whole screen.)
+
+        WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
+        if(dialog.getWindow() != null) {
+            lp.copyFrom(dialog.getWindow().getAttributes());
+            lp.width = WindowManager.LayoutParams.MATCH_PARENT;
+            lp.height = WindowManager.LayoutParams.MATCH_PARENT;
+            lp.softInputMode = WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN;
+        }
+
         final Button button = dialog.findViewById(R.id.create_event_btn1);
         final TextView til_label = dialog.findViewById(R.id.textView12);
         final EditText dato = dialog.findViewById(R.id.datofratext);
@@ -551,11 +562,10 @@ public class ProfilActivity extends AppCompatActivity {
                     Intent intent = new Intent();
                     intent.setType("image/*");
                     intent.setAction(Intent.ACTION_GET_CONTENT);
-                    startActivityForResult(Intent.createChooser(intent, "Select Picture"), 1003);
+                    startActivityForResult(Intent.createChooser(intent, "Select Picture"), Utilities.SELECT_IMAGE_CODE);
                 } else {
                     ActivityCompat.requestPermissions(ProfilActivity.this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, Utilities.READ_EXTERNAL_STORAGE_CODE);
                 }
-
             }
         });
 
@@ -814,6 +824,10 @@ public class ProfilActivity extends AppCompatActivity {
         });
 
         dialog.show();
+
+        if(dialog.getWindow() != null) {
+            dialog.getWindow().setAttributes(lp);
+        }
     }
 
     @Override

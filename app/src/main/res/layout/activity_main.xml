@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -10,42 +11,13 @@
         android:id="@+id/mainImage"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:background="@color/lightgrey"
         android:contentDescription="@null"
         android:focusableInTouchMode="true"
         android:scaleType="fitXY"
         android:tint="@color/colorAlpha"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <Button
-        android:id="@+id/RegistrerBtn"
-        android:layout_width="@dimen/_145sdp"
-        android:layout_height="@dimen/_32sdp"
-        android:background="@color/transparent"
-        android:onClick="onClickRegistrerBtn"
-        android:text="@string/registrer_deg"
-        android:textColor="@android:color/white"
-        android:textSize="@dimen/_12ssp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/LoginBtn" />
-
-    <Button
-        android:id="@+id/LoginBtn"
-        style="@style/Widget.AppCompat.Button.Borderless"
-        android:layout_width="@dimen/_175sdp"
-        android:layout_height="@dimen/_56sdp"
-        android:layout_marginTop="@dimen/_290sdp"
-        android:background="@drawable/rounded_btn_rect"
-        android:onClick="onClickLogin"
-        android:text="@string/logg_inn"
-        android:textColor="@android:color/background_light"
-        android:textSize="@dimen/_17ssp"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -60,49 +32,94 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/mainImage"
-        app:srcCompat="@drawable/partyspottr" />
+        app:srcCompat="@drawable/partyspottr_white" />
 
-    <ImageView
-        android:id="@+id/groupImage"
+    <LinearLayout
+        android:id="@+id/groupLayout"
         android:layout_width="@dimen/_210sdp"
-        android:layout_height="@dimen/_105sdp"
+        android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/_150sdp"
-        android:background="@drawable/rounded_alphasite_rect"
         android:contentDescription="@null"
+        android:orientation="vertical"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent">
 
-    <EditText
-        android:id="@+id/brukernavnLoginText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/_8sdp"
-        android:ems="10"
-        android:hint="@string/brukernavn"
-        android:inputType="text"
-        android:textColor="@android:color/black"
-        android:textSize="@dimen/_14ssp"
-        app:layout_constraintEnd_toStartOf="@+id/mainImage"
-        app:layout_constraintHorizontal_bias="0.499"
-        app:layout_constraintStart_toEndOf="@+id/mainImage"
-        app:layout_constraintTop_toTopOf="@+id/groupImage" />
+        <EditText
+            android:id="@+id/brukernavnLoginText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/_8sdp"
+            android:ems="10"
+            android:hint="@string/brukernavn"
+            android:inputType="text"
+            android:paddingEnd="@dimen/_5sdp"
+            android:paddingStart="@dimen/_5sdp"
+            android:textColor="@color/white"
+            android:textColorHighlight="@color/white"
+            android:textColorHint="@color/white"
+            android:textColorLink="@color/white"
+            android:textSize="@dimen/_14ssp"
+            android:theme="@style/MyEditTextTheme"
+            app:layout_constraintEnd_toStartOf="@+id/mainImage"
+            app:layout_constraintHorizontal_bias="0.499"
+            app:layout_constraintStart_toEndOf="@+id/mainImage"
+            app:layout_constraintTop_toTopOf="@+id/groupLayout" />
 
-    <EditText
-        android:id="@+id/passordLoginText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/_8sdp"
-        android:layout_marginTop="@dimen/_7sdp"
-        android:ems="10"
-        android:hint="@string/passord"
-        android:inputType="textPassword"
-        android:textColor="@android:color/black"
-        android:textSize="@dimen/_14ssp"
-        app:layout_constraintBottom_toBottomOf="@+id/groupImage"
-        app:layout_constraintEnd_toStartOf="@+id/mainImage"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/mainImage"
-        app:layout_constraintTop_toBottomOf="@+id/brukernavnLoginText" />
+        <EditText
+            android:id="@+id/passordLoginText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/_8sdp"
+            android:layout_marginTop="@dimen/_7sdp"
+            android:ems="10"
+            android:hint="@string/passord"
+            android:inputType="textPassword"
+            android:paddingEnd="@dimen/_5sdp"
+            android:paddingStart="@dimen/_5sdp"
+            android:textColor="@android:color/white"
+            android:textColorHint="@color/white"
+            android:textSize="@dimen/_14ssp"
+            android:theme="@style/MyEditTextTheme"
+            app:layout_constraintBottom_toBottomOf="@+id/groupLayout"
+            app:layout_constraintEnd_toStartOf="@+id/mainImage"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/mainImage"
+            app:layout_constraintTop_toBottomOf="@+id/brukernavnLoginText" />
+
+        <Button
+            android:id="@+id/LoginBtn"
+            style="@style/Widget.AppCompat.Button.Borderless"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/_56sdp"
+            android:layout_marginEnd="@dimen/_15sdp"
+            android:layout_marginStart="@dimen/_15sdp"
+            android:layout_marginTop="@dimen/_10sdp"
+            android:background="@drawable/border_rounded"
+            android:onClick="onClickLogin"
+            android:text="@string/logg_inn"
+            android:textColor="@color/white"
+            android:textSize="@dimen/_17ssp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <Button
+            android:id="@+id/RegistrerBtn"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/_32sdp"
+            android:layout_marginTop="@dimen/_10sdp"
+            android:background="@color/transparent"
+            android:onClick="onClickRegistrerBtn"
+            android:text="@string/registrer_deg"
+            android:textColor="@android:color/white"
+            android:textSize="@dimen/_12ssp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/LoginBtn" />
+
+    </LinearLayout>
 
 </android.support.constraint.ConstraintLayout>

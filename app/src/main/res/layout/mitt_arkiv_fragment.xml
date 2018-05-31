@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/colorPrimary"
     tools:context="com.partyspottr.appdir.ui.mainfragments.eventchildfragments.mitt_arkiv_fragment">
 
     <!-- TODO: Update blank fragment layout -->
@@ -12,6 +13,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/_90sdp"
         android:text="dette er arkivet mitt"
+        android:textColor="@color/white"
         android:textSize="@dimen/_14ssp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"

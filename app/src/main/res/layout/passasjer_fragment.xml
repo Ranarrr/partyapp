@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/colorPrimary"
     tools:context="com.partyspottr.appdir.ui.mainfragments.bilchildfragments.finn_bil_fragment">
 
     <!-- TODO: Update blank fragment layout -->
@@ -23,7 +24,9 @@
         <ListView
             android:id="@+id/lv_chauffeurs"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent"
+            android:scrollbarSize="@dimen/_2sdp"
+            android:scrollbarThumbVertical="@color/white" />
 
     </android.support.v4.widget.SwipeRefreshLayout>
 

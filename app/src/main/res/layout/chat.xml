@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/white"
+    android:background="@color/colorPrimary"
     android:orientation="horizontal">
 
     <ImageView
@@ -27,7 +28,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/_5sdp"
             android:text="fornavn etternavn"
-            android:textColor="@android:color/black"
+            android:textColor="@color/white"
             android:textSize="@dimen/_13ssp" />
 
         <TextView
@@ -36,6 +37,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/_5sdp"
             android:text="message"
+            android:textColor="@color/white"
             android:textSize="@dimen/_10sdp" />
 
     </LinearLayout>
@@ -53,7 +55,8 @@
             android:layout_centerVertical="true"
             android:paddingEnd="@dimen/_15sdp"
             android:paddingStart="@dimen/_15sdp"
-            android:text="clock" />
+            android:text="clock"
+            android:textColor="@color/white" />
     </RelativeLayout>
 
 </LinearLayout>

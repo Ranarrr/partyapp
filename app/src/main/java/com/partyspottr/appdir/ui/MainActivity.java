@@ -1,9 +1,6 @@
 package com.partyspottr.appdir.ui;
 
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Point;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.CountDownTimer;
@@ -13,7 +10,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.partyspottr.appdir.R;
@@ -43,10 +39,10 @@ public class MainActivity extends AppCompatActivity {
 
         ctd.start();
 
-        ImageView mainImage = findViewById(R.id.mainImage);
+        /*ImageView mainImage = findViewById(R.id.mainImage);
         Point size = new Point();
         getWindowManager().getDefaultDisplay().getSize(size);
-        mainImage.setImageBitmap(Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.forsidebilde), size.x, size.y, true));
+        mainImage.setImageBitmap(Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.forsidebilde), size.x, size.y, true));*/
 
         Button loginbtn = findViewById(R.id.LoginBtn);
         EditText username = findViewById(R.id.brukernavnLoginText);

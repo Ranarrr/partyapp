@@ -7,7 +7,8 @@
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:background="@color/colorPrimary">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -22,7 +23,7 @@
                     android:id="@+id/toolbar2"
                     android:layout_width="match_parent"
                     android:layout_height="@dimen/_42sdp"
-                    android:background="?attr/colorPrimary"
+                    android:background="@drawable/border_bottom_fat"
                     android:minHeight="?attr/actionBarSize"
                     android:theme="?attr/actionBarTheme"
                     app:layout_constraintEnd_toEndOf="parent"
@@ -44,7 +45,6 @@
                 </android.support.v7.widget.Toolbar>
 
 
-
             </android.support.constraint.ConstraintLayout>
 
             <FrameLayout
@@ -63,8 +63,6 @@
                     android:contentDescription="@null"
                     android:onClick="onClickAddImage"
                     android:scaleType="fitXY"
-                    android:scaleX="0.2"
-                    android:scaleY="0.25"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintHorizontal_bias="0.5"
                     app:layout_constraintStart_toStartOf="parent"
@@ -88,12 +86,16 @@
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="@dimen/_5sdp"
                     android:layout_marginStart="@dimen/_3sdp"
+                    android:focusable="auto"
                     android:gravity="center"
                     android:hint="Tittel"
                     android:inputType="text"
                     android:maxLines="1"
                     android:paddingStart="@dimen/_10sdp"
+                    android:textColor="@color/white"
+                    android:textColorHint="@color/colorAlpha"
                     android:textSize="@dimen/_14ssp"
+                    android:theme="@style/MyEditTextTheme"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent" />
 
@@ -110,6 +112,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="@dimen/_8sdp"
                     android:text="Til"
+                    android:textColor="@color/white"
                     android:textSize="@dimen/_12ssp"
                     android:visibility="invisible"
                     app:layout_constraintBaseline_toBaselineOf="@+id/datotiltext"
@@ -124,6 +127,9 @@
                     android:editable="false"
                     android:hint="Dato"
                     android:paddingStart="@dimen/_10sdp"
+                    android:textColor="@color/white"
+                    android:textColorHint="@color/colorAlpha"
+                    android:theme="@style/MyEditTextTheme"
                     android:visibility="invisible"
                     app:layout_constraintEnd_toStartOf="@+id/timetiltext"
                     app:layout_constraintStart_toEndOf="@+id/textView12"
@@ -138,6 +144,9 @@
                     android:hint="Kl"
                     android:inputType="time"
                     android:paddingStart="@dimen/_10sdp"
+                    android:textColor="@color/white"
+                    android:textColorHint="@color/colorAlpha"
+                    android:theme="@style/MyEditTextTheme"
                     android:visibility="invisible"
                     app:layout_constraintBaseline_toBaselineOf="@+id/datotiltext"
                     app:layout_constraintEnd_toEndOf="parent"
@@ -149,7 +158,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="@dimen/_10sdp"
-                    android:text="Dato"
+                    android:text="Tidspunkt"
                     android:textColor="@color/colorAccent"
                     android:textSize="@dimen/_14ssp"
                     android:textStyle="normal|bold"
@@ -161,22 +170,30 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="@dimen/_8sdp"
-                    android:editable="false"
+                    android:cursorVisible="false"
                     android:hint="Dato"
+                    android:inputType="none"
                     android:paddingStart="@dimen/_10sdp"
+                    android:textColor="@color/white"
+                    android:textColorHint="@color/colorAlpha"
+                    android:theme="@style/MyEditTextTheme"
                     app:layout_constraintEnd_toStartOf="@+id/timefratext"
                     app:layout_constraintStart_toEndOf="@+id/textView11"
                     app:layout_constraintTop_toBottomOf="@+id/textView10" />
 
                 <EditText
                     android:id="@+id/timefratext"
-                    android:layout_width="@dimen/_100sdp"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="@dimen/_5sdp"
-                    android:ems="10"
+                    android:cursorVisible="false"
+                    android:ems="5"
                     android:hint="Kl"
-                    android:inputType="time"
+                    android:inputType="none"
                     android:paddingStart="@dimen/_10sdp"
+                    android:textColor="@color/white"
+                    android:textColorHint="@color/colorAlpha"
+                    android:theme="@style/MyEditTextTheme"
                     app:layout_constraintBaseline_toBaselineOf="@+id/datofratext"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintHorizontal_bias="0.5"
@@ -188,6 +205,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="@dimen/_8sdp"
                     android:text="Fra"
+                    android:textColor="@color/white"
                     android:textSize="@dimen/_12ssp"
                     app:layout_constraintBaseline_toBaselineOf="@+id/datofratext"
                     app:layout_constraintStart_toStartOf="parent" />
@@ -198,6 +216,7 @@
                     android:layout_height="@dimen/_30sdp"
                     android:clickable="true"
                     android:text="+  Legg til sluttidspunkt"
+                    android:textColor="@color/white"
                     android:textSize="@dimen/_12ssp"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="@+id/datofratext" />
@@ -231,6 +250,8 @@
                     android:inputType="text|textPostalAddress"
                     android:maxLines="1"
                     android:paddingStart="@dimen/_10sdp"
+                    android:textColor="@color/white"
+                    android:textColorHint="@color/colorAlpha"
                     android:textSize="@dimen/_14ssp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
@@ -244,6 +265,8 @@
                     android:inputType="number"
                     android:maxLines="1"
                     android:paddingStart="@dimen/_10sdp"
+                    android:textColor="@color/white"
+                    android:textColorHint="@color/colorAlpha"
                     android:textSize="@dimen/_14ssp"
                     app:layout_constraintStart_toStartOf="@+id/create_gate"
                     app:layout_constraintTop_toBottomOf="@+id/create_gate" />
@@ -265,7 +288,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="By"
-                    android:textSize="@dimen/_16ssp"
+                    android:textColor="@color/white"
+                    android:textSize="@dimen/_15ssp"
                     app:layout_constraintBaseline_toBaselineOf="@+id/create_postnr"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintHorizontal_bias="0.05"
@@ -303,6 +327,8 @@
                     android:paddingEnd="@dimen/_10sdp"
                     android:paddingStart="@dimen/_10sdp"
                     android:paddingTop="@dimen/_10sdp"
+                    android:textColor="@color/white"
+                    android:textColorHint="@color/colorAlpha"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/textView16" />
@@ -321,19 +347,25 @@
                     android:layout_marginStart="@dimen/_15sdp"
                     android:layout_marginTop="@dimen/_8sdp"
                     android:text="Maks deltakere:"
+                    android:textColor="@color/white"
                     android:textSize="@dimen/_12ssp"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <EditText
                     android:id="@+id/maks_deltakere"
-                    android:layout_width="@dimen/_50sdp"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="@dimen/_8sdp"
                     android:digits="1234567890"
+                    android:ems="6"
+                    android:theme="@style/MyEditTextTheme"
                     android:gravity="center"
-                    android:inputType="number"
-                    android:maxLength="2"
+                    android:imeOptions="actionNext"
+                    android:inputType="none|numberSigned"
+                    android:maxLength="6"
+                    android:textColor="@color/white"
+                    android:textColorHint="@color/white"
                     app:layout_constraintBaseline_toBaselineOf="@+id/textView20"
                     app:layout_constraintStart_toEndOf="@+id/textView20" />
 
@@ -344,18 +376,24 @@
                     android:layout_marginStart="@dimen/_15sdp"
                     android:layout_marginTop="@dimen/_15sdp"
                     android:text="Aldersgrense:"
+                    android:textColor="@color/white"
                     android:textSize="@dimen/_12ssp"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/textView20" />
 
                 <EditText
                     android:id="@+id/aldersgrense"
-                    android:layout_width="@dimen/_50sdp"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:digits="1234567890"
+                    android:ems="6"
                     android:gravity="center"
+                    android:theme="@style/MyEditTextTheme"
+                    android:imeOptions="actionNext"
                     android:inputType="number"
-                    android:maxLength="2"
+                    android:maxLength="6"
+                    android:textColor="@color/white"
+                    android:textColorHint="@color/white"
                     app:layout_constraintBaseline_toBaselineOf="@+id/textView14"
                     app:layout_constraintStart_toStartOf="@+id/maks_deltakere" />
             </android.support.constraint.ConstraintLayout>
@@ -372,6 +410,7 @@
                     android:layout_marginStart="16dp"
                     android:layout_marginTop="8dp"
                     android:text="Alle deltakere må godkjennes av vert"
+                    android:textColor="@color/white"
                     android:textSize="@dimen/_10ssp"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/vis_gjesteliste" />
@@ -381,15 +420,14 @@
                     android:layout_width="@dimen/_120sdp"
                     android:layout_height="@dimen/_35sdp"
                     android:layout_marginBottom="@dimen/_8sdp"
-                    android:layout_marginTop="@dimen/_10sdp"
-                    android:background="@drawable/rounded_btn_rect"
+                    android:layout_marginTop="@dimen/_25sdp"
+                    android:background="@drawable/border_rounded"
                     android:text="@string/ferdig"
                     android:textColor="@color/white"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/textView15"
-                    app:layout_constraintVertical_bias="1.0" />
+                    app:layout_constraintTop_toBottomOf="@+id/alle_deltakere_må" />
 
                 <CheckBox
                     android:id="@+id/vis_adresse"
@@ -409,21 +447,10 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
                     android:text="Vis gjesteliste"
+                    android:textColor="@color/white"
                     android:textSize="@dimen/_10ssp"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
-
-                <TextView
-                    android:id="@+id/textView15"
-                    android:layout_width="wrap_content"
-                    android:layout_height="59dp"
-                    android:layout_marginTop="@dimen/_25sdp"
-                    android:gravity="center"
-                    android:text="Ved å trykke ferdig samtykker du til ASDIJAIDSJADI"
-                    android:textSize="@dimen/_12ssp"
-                    app:layout_constraintEnd_toEndOf="@+id/create_event_btn1"
-                    app:layout_constraintStart_toStartOf="@+id/create_event_btn1"
-                    app:layout_constraintTop_toBottomOf="@+id/vis_adresse" />
 
             </android.support.constraint.ConstraintLayout>
 

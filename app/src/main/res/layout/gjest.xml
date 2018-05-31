@@ -2,7 +2,8 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="wrap_content"
+    android:background="@color/colorPrimary">
 
     <ImageView
         android:id="@+id/gjest_profilbilde"
@@ -24,6 +25,7 @@
         android:layout_marginTop="@dimen/_5sdp"
         android:layout_toEndOf="@+id/gjest_profilbilde"
         android:text="Brukernavn, alder"
+        android:textColor="@color/white"
         android:textSize="@dimen/_14ssp" />
 
     <ImageView
@@ -44,6 +46,7 @@
         android:layout_marginStart="@dimen/_8sdp"
         android:layout_toEndOf="@+id/countryflag_IV"
         android:text="Byen eller land"
+        android:textColor="@color/white"
         android:textSize="@dimen/_13ssp" />
 
     <ImageButton
@@ -57,6 +60,6 @@
         android:background="@color/transparent"
         android:scaleType="centerInside"
         android:scaleY="0.8"
-        app:srcCompat="@drawable/three_dots" />
+        app:srcCompat="@drawable/options" />
 
 </RelativeLayout>

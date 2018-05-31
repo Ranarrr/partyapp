@@ -17,7 +17,7 @@
         android:paddingStart="@dimen/_15sdp"
         android:paddingTop="@dimen/_5sdp"
         android:text="msg"
-        android:textColor="@android:color/white"
+        android:textColor="@color/colorPrimary"
         android:textSize="@dimen/_12ssp"
         app:layout_constraintEnd_toStartOf="@+id/msgitem_time"
         app:layout_constraintHorizontal_bias="1.0"

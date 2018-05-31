@@ -65,7 +65,7 @@ public class ChauffeurAddNewTime extends AsyncTask<Void, Void, Integer> {
         try {
             List<NameValuePair> params = new ArrayList<>();
             params.add(new BasicNameValuePair("add_new_time", info.toString()));
-            JSONObject json = new JSONParser().get_jsonobject("POST", params, null);
+            JSONObject json = new JSONParser().get_jsonobject(params);
             if(json != null) {
                 if(json.getInt("success") == 1) {
                     return 1;
@@ -118,7 +118,7 @@ public class ChauffeurAddNewTime extends AsyncTask<Void, Void, Integer> {
                             if(millisUntilFinished < 1800000)
                                 time_progress.setTextColor(progressDialog.getContext().getResources().getColor(R.color.colorPrimary));
 
-                            time_progress.setText(String.format(Locale.ENGLISH, "%d:%02d:%02d", timetoset.get(Calendar.HOUR_OF_DAY), timetoset.get(Calendar.MINUTE),
+                            time_progress.setText(String.format(Locale.ENGLISH, "%d:%02d:%02d", timetoset.get(Calendar.HOUR_OF_DAY) - 1, timetoset.get(Calendar.MINUTE),
                                     timetoset.get(Calendar.SECOND)));
                         }
 

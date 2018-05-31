@@ -17,7 +17,7 @@ public class UpdateUser extends AsyncTask<Void, Void, Void> {
     protected Void doInBackground(Void... voids) {
         List<NameValuePair> params = new ArrayList<>();
         params.add(new BasicNameValuePair("update_user", Bruker.get().BrukerToJSON()));
-        new JSONParser().get_jsonobject("POST", params, null);
+        new JSONParser().get_jsonobject(params);
 
         return null;
     }

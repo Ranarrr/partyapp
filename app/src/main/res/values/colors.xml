@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#cc0000</color>
-    <color name="colorPrimaryDark">#303F9F</color>
-    <color name="colorAccent">#cc0000</color>
+    <color name="colorPrimary">#090909</color>
+    <color name="colorPrimaryDark">#090909</color>
     <color name="colorAlpha">#61aaaaaa</color>
     <color name="colorAlphaSite">#bbffffff</color>
     <color name="white">#ffffff</color>
     <color name="redtint">#FF0000</color>
+    <color name="colorAccent">#FFFFFF</color>
     <color name="greentint">#00b400</color>
     <color name="linkcolor">#ff2929</color>
     <color name="lightred">#ff8080</color>
-    <color name="lightgrey">#686868</color>
+    <color name="lightgrey">#090909</color>
     <color name="lightlightgrey">#ededed</color>
     <color name="transparent">#00ffffff</color>
-    <color name="darkalpha">#b4000000</color>
+    <color name="darkalpha">#b4090909</color>
     <color name="verylightgrey">#d2d2d2</color>
 </resources>

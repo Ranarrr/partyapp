@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/white">
+    android:background="@drawable/border_top">
 
     <EditText
         android:id="@+id/send_new_msg_text"
@@ -13,8 +13,11 @@
         android:layout_marginEnd="@dimen/_20sdp"
         android:layout_marginStart="@dimen/_20sdp"
         android:layout_marginTop="@dimen/_20sdp"
+        android:theme="@style/MyEditTextTheme"
         android:inputType="text|textCapSentences|textMultiLine"
         android:padding="@dimen/_10sdp"
+        android:textColor="@color/white"
+        android:textColorHint="@color/colorAlpha"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
@@ -26,6 +29,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:text="Start a new chat with a message:"
+        android:textColor="@color/white"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
@@ -35,8 +39,11 @@
         android:id="@+id/send_new_msg_btn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="@dimen/_8sdp"
+        android:background="@drawable/border_rounded"
+        android:padding="@dimen/_10sdp"
         android:text="Send message"
+        android:textColor="@color/white"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.501"
         app:layout_constraintStart_toStartOf="parent"

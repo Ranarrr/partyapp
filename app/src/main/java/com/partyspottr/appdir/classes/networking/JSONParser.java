@@ -1,8 +1,5 @@
 package com.partyspottr.appdir.classes.networking;
 
-import android.support.annotation.Nullable;
-import android.util.Base64;
-
 import com.google.common.io.ByteStreams;
 import com.partyspottr.appdir.BuildConfig;
 
@@ -14,8 +11,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
@@ -27,9 +22,9 @@ import java.util.List;
  */
 
 class JSONParser {
-    JSONArray get_jsonarray(String method, List<NameValuePair> list, @Nullable File bmp) {
+    JSONArray get_jsonarray(List<NameValuePair> list) {
         try {
-            return new JSONArray(makeHTTPReq(method, list, bmp));
+            return new JSONArray(makeHTTPReq(list));
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -37,9 +32,9 @@ class JSONParser {
         return null;
     }
 
-    JSONObject get_jsonobject(String method, List<NameValuePair> list, @Nullable File bmp) {
+    JSONObject get_jsonobject(List<NameValuePair> list) {
         try {
-            return new JSONObject(makeHTTPReq(method, list, bmp));
+            return new JSONObject(makeHTTPReq(list));
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -47,32 +42,17 @@ class JSONParser {
         return null;
     }
 
-    private String makeHTTPReq(String method, List<NameValuePair> list, @Nullable File bmp) {
+    private String makeHTTPReq(List<NameValuePair> list) {
         InputStream is = null;
         StringBuilder result = new StringBuilder();
 
-        if (method.equals("POST")) {
-            try {
-                DefaultHttpClient defaultHttpClient = new DefaultHttpClient();
-                HttpPost httpPost = new HttpPost(BuildConfig.DBMS_URL);
-                httpPost.setEntity(new UrlEncodedFormEntity(list));
-                is = defaultHttpClient.execute(httpPost).getEntity().getContent();
-            } catch (IOException e3) {
-                e3.printStackTrace();
-            }
-        } else if (method.equals("IMG")) {
-            try {
-                DefaultHttpClient defaultHttpClient = new DefaultHttpClient();
-                HttpPost httpPost = new HttpPost(BuildConfig.DBMS_URL);
-                MultipartEntity multipartEntity = new MultipartEntity();
-                multipartEntity.addPart("image_upload", "something", new FileInputStream(bmp));
-                multipartEntity.addPart("socketElem", Base64.encodeToString(BuildConfig.JSONParser_Socket.getBytes(), Base64.DEFAULT));
-                multipartEntity.addPart("eventId", "34");
-                httpPost.setEntity(multipartEntity);
-                is = defaultHttpClient.execute(httpPost).getEntity().getContent();
-            } catch (IOException e3) {
-                e3.printStackTrace();
-            }
+        try {
+            DefaultHttpClient defaultHttpClient = new DefaultHttpClient();
+            HttpPost httpPost = new HttpPost(BuildConfig.DBMS_URL);
+            httpPost.setEntity(new UrlEncodedFormEntity(list));
+            is = defaultHttpClient.execute(httpPost).getEntity().getContent();
+        } catch (IOException e3) {
+            e3.printStackTrace();
         }
 
         try {

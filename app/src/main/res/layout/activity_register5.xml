@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/colorPrimary"
     tools:context="com.partyspottr.appdir.ui.registerui.Register5Activity">
 
     <Button
@@ -12,7 +13,7 @@
         android:layout_width="@dimen/_135sdp"
         android:layout_height="@dimen/_45sdp"
         android:layout_marginTop="@dimen/_345sdp"
-        android:background="@drawable/rounded_btn_rect"
+        android:background="@drawable/border_rounded"
         android:text="@string/ferdig"
         android:textColor="@android:color/background_light"
         android:textSize="@dimen/_12ssp"
@@ -21,7 +22,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <SeekBar
+    <android.support.v7.widget.AppCompatSeekBar
         android:id="@+id/seekBar"
         style="@style/Widget.AppCompat.SeekBar.Discrete"
         android:layout_width="@dimen/_270sdp"
@@ -32,13 +33,14 @@
         android:progress="5"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/toolbar" />
+        app:layout_constraintTop_toBottomOf="@+id/toolbar"
+        app:tickMarkTint="@android:color/white"/>
 
     <android.support.v7.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="0dp"
-        android:layout_height="47dp"
-        android:background="?attr/colorPrimary"
+        android:layout_height="@dimen/_40sdp"
+        android:background="@drawable/border_bottom_fat"
         android:minHeight="?attr/actionBarSize"
         android:theme="?attr/actionBarTheme"
         app:layout_constraintEnd_toEndOf="parent"

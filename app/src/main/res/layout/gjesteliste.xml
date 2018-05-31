@@ -3,7 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/colorPrimary">
 
     <LinearLayout
         android:id="@+id/more_options_ll"
@@ -40,7 +41,7 @@
         android:id="@+id/toolbar3"
         android:layout_width="0dp"
         android:layout_height="@dimen/_42sdp"
-        android:background="?attr/colorPrimary"
+        android:background="@drawable/border_bottom_fat"
         android:minHeight="?attr/actionBarSize"
         android:theme="?attr/actionBarTheme"
         app:layout_constraintEnd_toEndOf="parent"
@@ -61,15 +62,14 @@
 
         <ImageButton
             android:id="@+id/gjesteliste_search_btn"
-            android:layout_width="@dimen/_50sdp"
+            android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_gravity="center_vertical|end"
             android:background="@android:color/transparent"
             android:contentDescription="@null"
             android:paddingEnd="@dimen/_10sdp"
-            android:scaleType="fitXY"
-            android:scaleX="0.55"
-            android:scaleY="0.55"
+            android:paddingStart="@dimen/_15sdp"
+            android:scaleX="-1"
             app:srcCompat="@drawable/search"
             tools:layout_editor_absoluteX="336dp"
             tools:layout_editor_absoluteY="16dp" />
@@ -81,7 +81,7 @@
         android:layout_width="@dimen/_250sdp"
         android:layout_height="@dimen/_380sdp"
         android:layout_marginTop="@dimen/_10sdp"
-        android:divider="@color/lightred"
+        android:divider="@color/white"
         android:dividerHeight="1dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

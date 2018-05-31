@@ -180,11 +180,12 @@ public class EventDetails extends AppCompatActivity {
                 GregorianCalendar dateto = new GregorianCalendar();
                 dateto.setTimeInMillis(event.getDateto());
                 if(dateto.get(Calendar.YEAR) == datefrom.get(Calendar.YEAR)) {
-                    if(dateto.get(Calendar.DAY_OF_MONTH) == datefrom.get(Calendar.DAY_OF_MONTH)) {
+                    if(dateto.get(Calendar.DAY_OF_MONTH) == datefrom.get(Calendar.DAY_OF_MONTH)) { // TODO: ADD CHECKING MONTH
                         if(datefrom.get(Calendar.YEAR) == Calendar.getInstance().get(Calendar.YEAR)) {
-                            finaldatofra.append(String.format(Locale.ENGLISH, "Fra %02d %s kl: %02d:%02d - %02d:%02d", datefrom.get(Calendar.DAY_OF_MONTH),
-                                    datefrom.getDisplayName(Calendar.MONTH, Calendar.SHORT, getResources().getConfiguration().locale).toLowerCase(), datefrom.get(Calendar.HOUR_OF_DAY),
-                                    datefrom.get(Calendar.MINUTE), dateto.get(Calendar.HOUR_OF_DAY), dateto.get(Calendar.MINUTE)));
+                            finaldatofra.append(String.format(Locale.ENGLISH, "Fra %s %02d %s kl: %02d:%02d - %02d:%02d", datefrom.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG,
+                                    getResources().getConfiguration().locale), datefrom.get(Calendar.DAY_OF_MONTH), datefrom.getDisplayName(Calendar.MONTH, Calendar.SHORT,
+                                    getResources().getConfiguration().locale).toLowerCase(), datefrom.get(Calendar.HOUR_OF_DAY), datefrom.get(Calendar.MINUTE), dateto.get(Calendar.HOUR_OF_DAY),
+                                    dateto.get(Calendar.MINUTE)));
 
                             Spannable spannable = new SpannableString(finaldatofra.toString());
 

@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/colorPrimary"
     tools:context="com.partyspottr.appdir.ui.registerui.Register3Activity">
 
     <Button
@@ -12,7 +13,7 @@
         android:layout_width="@dimen/_135sdp"
         android:layout_height="@dimen/_45sdp"
         android:layout_marginTop="@dimen/_270sdp"
-        android:background="@drawable/rounded_btn_rect"
+        android:background="@drawable/border_rounded"
         android:onClick="onClickFortsettBtn"
         android:text="@string/fortsett"
         android:textColor="@android:color/background_light"
@@ -31,6 +32,9 @@
         android:ems="10"
         android:hint="@string/brukernavn"
         android:inputType="textPersonName"
+        android:textColor="@color/white"
+        android:theme="@style/MyEditTextTheme"
+        android:textColorHint="@color/white"
         android:textSize="@dimen/_12ssp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
@@ -44,6 +48,7 @@
         android:layout_marginTop="@dimen/_15sdp"
         android:text="@string/velg_brukernavn"
         android:textAlignment="center"
+        android:textColor="@color/white"
         android:textSize="@dimen/_18ssp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
@@ -51,7 +56,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/seekBar" />
 
-    <SeekBar
+    <android.support.v7.widget.AppCompatSeekBar
         android:id="@+id/seekBar"
         style="@style/Widget.AppCompat.SeekBar.Discrete"
         android:layout_width="@dimen/_270sdp"
@@ -62,13 +67,14 @@
         android:progress="3"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/toolbar" />
+        app:layout_constraintTop_toBottomOf="@+id/toolbar"
+        app:tickMarkTint="@android:color/white" />
 
     <android.support.v7.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="0dp"
-        android:layout_height="47dp"
-        android:background="?attr/colorPrimary"
+        android:layout_height="@dimen/_40sdp"
+        android:background="@drawable/border_bottom_fat"
         android:minHeight="?attr/actionBarSize"
         android:theme="?attr/actionBarTheme"
         app:layout_constraintEnd_toEndOf="parent"
@@ -95,6 +101,7 @@
         android:layout_marginTop="@dimen/_25sdp"
         android:text="@string/velg_passord"
         android:textAlignment="center"
+        android:textColor="@color/white"
         android:textSize="@dimen/_18ssp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
@@ -104,12 +111,15 @@
     <EditText
         android:id="@+id/passordText"
         android:layout_width="@dimen/_250sdp"
+        android:theme="@style/MyEditTextTheme"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/_12sdp"
         android:digits="ABCDEFGHIJKLMNOPQRSTUVWZYXabcdefghijklmnopqrstuvywxz0123456789"
         android:ems="10"
         android:hint="@string/passord"
         android:inputType="textPassword"
+        android:textColor="@color/white"
+        android:textColorHint="@color/white"
         android:textSize="@dimen/_12ssp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"

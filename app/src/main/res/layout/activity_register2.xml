@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/colorPrimary"
     tools:context="com.partyspottr.appdir.ui.registerui.Register2Activity">
 
     <TextView
@@ -13,6 +14,7 @@
         android:layout_marginTop="@dimen/_25sdp"
         android:text="@string/epostadressen_din"
         android:textAlignment="center"
+        android:textColor="@color/white"
         android:textSize="@dimen/_18ssp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
@@ -25,7 +27,7 @@
         android:layout_width="@dimen/_135sdp"
         android:layout_height="@dimen/_45sdp"
         android:layout_marginTop="@dimen/_270sdp"
-        android:background="@drawable/rounded_btn_rect"
+        android:background="@drawable/border_rounded"
         android:onClick="onClickFortsettBtn"
         android:text="@string/fortsett"
         android:textColor="@android:color/background_light"
@@ -39,9 +41,12 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/_15sdp"
+        android:theme="@style/MyEditTextTheme"
         android:ems="10"
         android:hint="@string/mobilnr"
         android:inputType="phone|number"
+        android:textColor="@color/white"
+        android:textColorHint="@color/white"
         android:textSize="@dimen/_12ssp"
         app:layout_constraintEnd_toEndOf="@+id/textView7"
         app:layout_constraintStart_toEndOf="@+id/spinnerPrefix"
@@ -54,13 +59,16 @@
         android:layout_marginTop="@dimen/_12sdp"
         android:ems="10"
         android:hint="@string/e_postadresse"
+        android:theme="@style/MyEditTextTheme"
         android:inputType="textEmailAddress"
+        android:textColor="@color/white"
+        android:textColorHint="@color/white"
         android:textSize="@dimen/_12ssp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView6" />
 
-    <SeekBar
+    <android.support.v7.widget.AppCompatSeekBar
         android:id="@+id/seekBar"
         style="@style/Widget.AppCompat.SeekBar.Discrete"
         android:layout_width="@dimen/_270sdp"
@@ -72,7 +80,8 @@
         android:thumbOffset="@dimen/_10sdp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/toolbar" />
+        app:layout_constraintTop_toBottomOf="@+id/toolbar"
+        app:tickMarkTint="@android:color/white" />
 
     <TextView
         android:id="@+id/textView7"
@@ -81,6 +90,7 @@
         android:layout_marginTop="@dimen/_15sdp"
         android:text="@string/mobilnummeret_ditt"
         android:textAlignment="center"
+        android:textColor="@color/white"
         android:textSize="@dimen/_18ssp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
@@ -92,7 +102,7 @@
         android:id="@+id/toolbar"
         android:layout_width="0dp"
         android:layout_height="@dimen/_40sdp"
-        android:background="?attr/colorPrimary"
+        android:background="@drawable/border_bottom_fat"
         android:minHeight="?attr/actionBarSize"
         android:theme="?attr/actionBarTheme"
         app:layout_constraintEnd_toEndOf="parent"

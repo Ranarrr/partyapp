@@ -8,9 +8,10 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@color/colorPrimary"
         android:orientation="vertical">
 
-    <!-- TODO: Update blank fragment layout -->
+        <!-- TODO: Update blank fragment layout -->
         <TextView
             android:id="@+id/chauffeur_title"
             android:layout_width="wrap_content"
@@ -18,6 +19,7 @@
             android:layout_gravity="center_horizontal"
             android:layout_marginTop="@dimen/_10sdp"
             android:text="Min bil"
+            android:textColor="@color/white"
             android:textSize="@dimen/_14ssp"
             android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
@@ -32,9 +34,9 @@
             android:layout_marginEnd="@dimen/_15sdp"
             android:layout_marginStart="@dimen/_15sdp"
             android:layout_marginTop="@dimen/_5sdp"
-            android:background="@drawable/rounded_alpha_rect"
+            android:background="@drawable/border_rounded"
             android:padding="@dimen/_10sdp"
-            android:visibility="invisible"
+            android:visibility="visible"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent"
@@ -49,7 +51,6 @@
                 android:layout_marginTop="@dimen/_8sdp"
                 android:background="@android:color/holo_red_dark"
                 android:contentDescription="@null"
-                android:src="@drawable/bilmeny"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@+id/chauffeur_navn"
                 app:layout_constraintHorizontal_bias="0.0"
@@ -63,6 +64,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/_25sdp"
                 android:text="Thomas Rekvik (19)"
+                android:textColor="@color/white"
                 android:textSize="@dimen/_11ssp"
                 app:layout_constraintBottom_toTopOf="@+id/chauffeur_bil"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -76,6 +78,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Grønn Ford Mustang"
+                android:textColor="@color/white"
                 android:textSize="@dimen/_11ssp"
                 app:layout_constraintBottom_toTopOf="@+id/chauffeur_plassering"
                 app:layout_constraintStart_toStartOf="@+id/chauffeur_navn"
@@ -86,6 +89,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="i Stavanger"
+                android:textColor="@color/white"
                 android:textSize="@dimen/_11ssp"
                 app:layout_constraintBottom_toTopOf="@+id/imageButton7"
                 app:layout_constraintStart_toStartOf="@+id/chauffeur_navn"
@@ -111,8 +115,12 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:layout_marginTop="@dimen/_8sdp"
+            android:background="@drawable/border_rounded"
+            android:padding="@dimen/_10sdp"
             android:text="Sett opp din bil"
-            android:visibility="invisible"
+            android:textColor="@color/white"
+            android:textSize="@dimen/_13ssp"
+            android:visibility="visible"
             app:layout_constraintEnd_toStartOf="@+id/chauffeur_current_car"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toEndOf="@+id/chauffeur_current_car"
@@ -126,6 +134,7 @@
             android:layout_marginTop="@dimen/_15sdp"
             android:gravity="center_horizontal"
             android:text="Ny kjøreøkt"
+            android:textColor="@color/white"
             android:textSize="@dimen/_14ssp"
             android:textStyle="bold"
             app:layout_constraintEnd_toStartOf="@+id/chauffeur_add_car"
@@ -141,172 +150,13 @@
             android:layout_marginEnd="@dimen/_15sdp"
             android:layout_marginStart="@dimen/_15sdp"
             android:layout_marginTop="@dimen/_5sdp"
-            android:background="@drawable/rounded_alpha_rect"
             android:paddingEnd="@dimen/_5sdp"
             android:paddingStart="@dimen/_5sdp"
-            android:visibility="invisible"
+            android:visibility="visible"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/ny_tid_title">
-
-            <ToggleButton
-                android:id="@+id/timer_1"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/_5sdp"
-                android:text="1"
-                android:textOff="1"
-                android:textOn="1"
-                android:textSize="@dimen/_12ssp"
-                app:layout_constraintEnd_toStartOf="@+id/timer_2"
-                app:layout_constraintHorizontal_bias="0.5"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/ny_tid_timer" />
-
-            <ToggleButton
-                android:id="@+id/passasjer_7"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:text="7"
-                android:textOff="7"
-                android:textOn="7"
-                android:textSize="@dimen/_12ssp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.5"
-                app:layout_constraintStart_toEndOf="@+id/passasjer_6"
-                app:layout_constraintTop_toTopOf="@+id/passasjer_1" />
-
-            <ToggleButton
-                android:id="@+id/passasjer_2"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:text="2"
-                android:textOff="2"
-                android:textOn="2"
-                android:textSize="@dimen/_12ssp"
-                app:layout_constraintEnd_toStartOf="@+id/passasjer_3"
-                app:layout_constraintHorizontal_bias="0.5"
-                app:layout_constraintStart_toEndOf="@+id/passasjer_1"
-                app:layout_constraintTop_toTopOf="@+id/passasjer_1" />
-
-            <ToggleButton
-                android:id="@+id/passasjer_3"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:text="3"
-                android:textOff="3"
-                android:textOn="3"
-                android:textSize="@dimen/_12ssp"
-                app:layout_constraintEnd_toStartOf="@+id/passasjer_4"
-                app:layout_constraintHorizontal_bias="0.5"
-                app:layout_constraintStart_toEndOf="@+id/passasjer_2"
-                app:layout_constraintTop_toTopOf="@+id/passasjer_1" />
-
-            <ToggleButton
-                android:id="@+id/passasjer_4"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:text="4"
-                android:textOff="4"
-                android:textOn="4"
-                android:textSize="@dimen/_12ssp"
-                app:layout_constraintEnd_toStartOf="@+id/passasjer_5"
-                app:layout_constraintHorizontal_bias="0.5"
-                app:layout_constraintStart_toEndOf="@+id/passasjer_3"
-                app:layout_constraintTop_toTopOf="@+id/passasjer_1" />
-
-            <ToggleButton
-                android:id="@+id/passasjer_5"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:text="5"
-                android:textOff="5"
-                android:textOn="5"
-                android:textSize="@dimen/_12ssp"
-                app:layout_constraintEnd_toStartOf="@+id/passasjer_6"
-                app:layout_constraintHorizontal_bias="0.5"
-                app:layout_constraintStart_toEndOf="@+id/passasjer_4"
-                app:layout_constraintTop_toTopOf="@+id/passasjer_1" />
-
-            <ToggleButton
-                android:id="@+id/passasjer_6"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:text="6"
-                android:textOff="6"
-                android:textOn="6"
-                android:textSize="@dimen/_12ssp"
-                app:layout_constraintEnd_toStartOf="@+id/passasjer_7"
-                app:layout_constraintHorizontal_bias="0.5"
-                app:layout_constraintStart_toEndOf="@+id/passasjer_5"
-                app:layout_constraintTop_toTopOf="@+id/passasjer_1" />
-
-            <ToggleButton
-                android:id="@+id/passasjer_1"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/_5sdp"
-                android:text="1"
-                android:textOff="1"
-                android:textOn="1"
-                android:textSize="@dimen/_12ssp"
-                app:layout_constraintEnd_toStartOf="@+id/passasjer_2"
-                app:layout_constraintHorizontal_bias="0.5"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/antall_passasjerer" />
-
-            <ToggleButton
-                android:id="@+id/timer_5"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:text="5"
-                android:textOff="5"
-                android:textOn="5"
-                android:textSize="@dimen/_12ssp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.5"
-                app:layout_constraintStart_toEndOf="@+id/timer_4"
-                app:layout_constraintTop_toTopOf="@+id/timer_1" />
-
-            <ToggleButton
-                android:id="@+id/timer_4"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:text="4"
-                android:textOff="4"
-                android:textOn="4"
-                android:textSize="@dimen/_12ssp"
-                app:layout_constraintEnd_toStartOf="@+id/timer_5"
-                app:layout_constraintHorizontal_bias="0.5"
-                app:layout_constraintStart_toEndOf="@+id/timer_3"
-                app:layout_constraintTop_toTopOf="@+id/timer_1" />
-
-            <ToggleButton
-                android:id="@+id/timer_3"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:text="3"
-                android:textOff="3"
-                android:textOn="3"
-                android:textSize="@dimen/_12ssp"
-                app:layout_constraintEnd_toStartOf="@+id/timer_4"
-                app:layout_constraintHorizontal_bias="0.5"
-                app:layout_constraintStart_toEndOf="@+id/timer_2"
-                app:layout_constraintTop_toTopOf="@+id/timer_1" />
-
-            <ToggleButton
-                android:id="@+id/timer_2"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:text="2"
-                android:textOff="2"
-                android:textOn="2"
-                android:textSize="@dimen/_12ssp"
-                app:layout_constraintEnd_toStartOf="@+id/timer_3"
-                app:layout_constraintHorizontal_bias="0.5"
-                app:layout_constraintStart_toEndOf="@+id/timer_1"
-                app:layout_constraintTop_toTopOf="@+id/timer_1" />
 
             <TextView
                 android:id="@+id/antall_passasjerer"
@@ -314,6 +164,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/_15sdp"
                 android:text="Passasjerer"
+                android:textColor="@color/white"
                 android:textSize="@dimen/_11ssp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_chainStyle="packed"
@@ -324,91 +175,79 @@
                 android:id="@+id/ny_tid_minutter"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/_15sdp"
                 android:text="Minutter"
+                android:textColor="@color/white"
                 android:textSize="@dimen/_11ssp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.5"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/timer_3" />
+                app:layout_constraintStart_toEndOf="@+id/ny_tid_timer"
+                app:layout_constraintTop_toTopOf="@+id/ny_tid_timer" />
 
             <TextView
                 android:id="@+id/ny_tid_timer"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/_20sdp"
+                android:layout_marginTop="@dimen/_10sdp"
                 android:text="Timer"
+                android:textColor="@color/white"
                 android:textSize="@dimen/_11ssp"
-                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/ny_tid_minutter"
                 app:layout_constraintHorizontal_bias="0.5"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/passasjer_4" />
+                app:layout_constraintTop_toBottomOf="@+id/autoCompleteTextView" />
 
             <Button
                 android:id="@+id/chauffeur_start"
-                android:layout_width="@dimen/_130sdp"
-                android:layout_height="@dimen/_40sdp"
-                android:layout_marginBottom="@dimen/_10sdp"
-                android:layout_marginTop="@dimen/_20sdp"
-                android:background="@drawable/rounded_btn_green"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/_10sdp"
+                android:background="@drawable/border_rounded"
+                android:padding="@dimen/_10sdp"
                 android:text="Start kjøreøkt"
+                android:textColor="@color/white"
                 android:textSize="@dimen/_13ssp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.5"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/minutter_30" />
+                app:layout_constraintTop_toBottomOf="@+id/autoCompleteTextView3" />
 
-            <ToggleButton
-                android:id="@+id/minutter_0"
+            <AutoCompleteTextView
+                android:id="@+id/autoCompleteTextView"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/_5sdp"
+                android:gravity="center"
                 android:text="0"
-                android:textOff="0"
-                android:textOn="0"
-                android:textSize="@dimen/_12ssp"
-                app:layout_constraintEnd_toStartOf="@+id/minutter_15"
+                android:textColor="@color/white"
+                android:textColorHint="@color/white"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.5"
                 app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/antall_passasjerer" />
+
+            <AutoCompleteTextView
+                android:id="@+id/autoCompleteTextView2"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="0"
+                android:textColor="@color/white"
+                android:textColorHint="@color/white"
+                app:layout_constraintEnd_toEndOf="@+id/ny_tid_timer"
+                app:layout_constraintStart_toStartOf="@+id/ny_tid_timer"
+                app:layout_constraintTop_toBottomOf="@+id/ny_tid_timer" />
+
+            <AutoCompleteTextView
+                android:id="@+id/autoCompleteTextView3"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="0"
+                android:textColor="@color/white"
+                android:textColorHint="@color/white"
+                app:layout_constraintEnd_toEndOf="@+id/ny_tid_minutter"
+                app:layout_constraintStart_toStartOf="@+id/ny_tid_minutter"
                 app:layout_constraintTop_toBottomOf="@+id/ny_tid_minutter" />
-
-            <ToggleButton
-                android:id="@+id/minutter_45"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:text="45"
-                android:textOff="45"
-                android:textOn="45"
-                android:textSize="@dimen/_12ssp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/minutter_30"
-                app:layout_constraintTop_toTopOf="@+id/minutter_0" />
-
-            <ToggleButton
-                android:id="@+id/minutter_30"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:text="30"
-                android:textOff="30"
-                android:textOn="30"
-                android:textSize="@dimen/_12ssp"
-                app:layout_constraintEnd_toStartOf="@+id/minutter_45"
-                app:layout_constraintHorizontal_bias="0.5"
-                app:layout_constraintStart_toEndOf="@+id/minutter_15"
-                app:layout_constraintTop_toTopOf="@+id/minutter_0" />
-
-            <ToggleButton
-                android:id="@+id/minutter_15"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:text="15"
-                android:textOff="15"
-                android:textOn="15"
-                android:textSize="@dimen/_12ssp"
-                app:layout_constraintEnd_toStartOf="@+id/minutter_30"
-                app:layout_constraintHorizontal_bias="0.5"
-                app:layout_constraintStart_toEndOf="@+id/minutter_0"
-                app:layout_constraintTop_toTopOf="@+id/minutter_0" />
 
         </android.support.constraint.ConstraintLayout>
 
@@ -420,8 +259,7 @@
             android:layout_marginEnd="@dimen/_15sdp"
             android:layout_marginStart="@dimen/_15sdp"
             android:layout_marginTop="@dimen/_8sdp"
-            android:background="@drawable/rounded_alpha_rect"
-            android:visibility="invisible"
+            android:visibility="visible"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -432,38 +270,42 @@
                 android:id="@+id/car_merke"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:theme="@style/MyEditTextTheme"
                 android:layout_marginTop="@dimen/_10sdp"
                 android:hint="Merke"
                 android:paddingStart="@dimen/_10sdp"
+                android:textColor="@color/white"
+                android:textColorHint="@color/white"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.5"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
-            <android.support.design.widget.TextInputLayout
+            <AutoCompleteTextView
                 android:id="@+id/car_farge"
                 android:layout_width="0dp"
+                android:theme="@style/MyEditTextTheme"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/_10sdp"
+                android:paddingStart="@dimen/_10sdp"
+                android:text="Farge"
+                android:textColor="@color/white"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.5"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/car_merke">
-
-                <android.support.design.widget.TextInputEditText
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="Farge"
-                    android:paddingStart="@dimen/_10sdp" />
-            </android.support.design.widget.TextInputLayout>
+                app:layout_constraintTop_toBottomOf="@+id/car_merke" />
 
             <Button
                 android:id="@+id/registrate_car"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="@dimen/_8sdp"
-                android:layout_marginTop="@dimen/_30sdp"
+                android:layout_marginTop="@dimen/_15sdp"
+                android:background="@drawable/border_rounded"
+                android:padding="@dimen/_10sdp"
                 android:text="Legg til bil"
+                android:textColor="@color/white"
+                android:textSize="@dimen/_13ssp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -479,8 +321,7 @@
             android:layout_marginEnd="@dimen/_15sdp"
             android:layout_marginStart="@dimen/_15sdp"
             android:layout_marginTop="@dimen/_8sdp"
-            android:background="@drawable/rounded_alpha_rect"
-            android:visibility="invisible">
+            android:visibility="visible">
 
             <TextView
                 android:id="@+id/time_progress"
@@ -490,6 +331,7 @@
                 android:layout_marginStart="@dimen/_8sdp"
                 android:layout_marginTop="@dimen/_8sdp"
                 android:text="TextView"
+                android:textColor="@color/white"
                 android:textSize="@dimen/_50ssp"
                 android:textStyle="bold"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -501,7 +343,11 @@
                 android:id="@+id/chauffeur_avslutt"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:background="@drawable/border_rounded"
+                android:padding="@dimen/_10sdp"
                 android:text="Avslutt tid"
+                android:textColor="@color/white"
+                android:textSize="@dimen/_13ssp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.5"
                 app:layout_constraintStart_toEndOf="@+id/chauffeur_forny"
@@ -513,7 +359,11 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="@dimen/_8sdp"
                 android:layout_marginTop="@dimen/_8sdp"
+                android:background="@drawable/border_rounded"
+                android:padding="@dimen/_10sdp"
                 android:text="Forny tid"
+                android:textColor="@color/white"
+                android:textSize="@dimen/_13ssp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@+id/chauffeur_avslutt"
                 app:layout_constraintStart_toStartOf="parent"

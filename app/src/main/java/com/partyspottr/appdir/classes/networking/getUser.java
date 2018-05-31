@@ -50,7 +50,7 @@ public class getUser extends AsyncTask<Void, Void, Integer> {
         try{
             List<NameValuePair> params = new ArrayList<>();
             params.add(new BasicNameValuePair("get_user", info.toString()));
-            JSONObject json = new JSONParser().get_jsonobject("POST", params, null);
+            JSONObject json = new JSONParser().get_jsonobject(params);
             if(json != null) {
                 if(json.getInt("success") == 1) {
                     Bruker.get().JSONToBruker(json, true);

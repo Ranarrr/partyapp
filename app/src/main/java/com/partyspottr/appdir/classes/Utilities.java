@@ -61,6 +61,7 @@ public class Utilities {
     public static final int LOCATION_REQUEST_CODE = 1000;
     public static final int READ_EXTERNAL_STORAGE_CODE = 1001;
     public static final int SELECT_IMAGE_CODE = 1003;
+    public static final int SELECT_PROFILE_IMAGE_CODE = 1004;
 
     public static boolean hasNetwork(Context c) {
         if(Settings.Global.getInt(c.getContentResolver(), "airplane_mode_on", 0) != 0)

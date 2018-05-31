@@ -58,7 +58,7 @@ public class CheckEmail extends AsyncTask<Void, Void, Integer> {
         try {
             List<NameValuePair> params = new ArrayList<>();
             params.add(new BasicNameValuePair("check_email", info.toString()));
-            JSONObject json = new JSONParser().get_jsonobject("POST", params, null);
+            JSONObject json = new JSONParser().get_jsonobject(params);
             if(json != null) {
                 if(json.getInt("taken") == 1) {
                     return -1;

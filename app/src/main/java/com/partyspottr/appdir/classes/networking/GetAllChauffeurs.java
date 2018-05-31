@@ -44,7 +44,7 @@ public class GetAllChauffeurs extends AsyncTask<Void, Void, Integer> {
         try {
             List<NameValuePair> params = new ArrayList<>();
             params.add(new BasicNameValuePair("get_all_chauffeurs", Base64.encodeToString(BuildConfig.JSONParser_Socket.getBytes(), Base64.DEFAULT)));
-            JSONArray json = new JSONParser().get_jsonarray("POST", params, null);
+            JSONArray json = new JSONParser().get_jsonarray(params);
             if(json != null) {
                 if(json.getJSONObject(json.length() - 1).getInt("success") == 1) {
                     json.remove(json.length() - 1);
