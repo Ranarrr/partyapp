@@ -132,6 +132,7 @@ public class GuestListAdapter extends BaseAdapter {
 
                                 case R.id.make_host:
                                     if(!participant.getStilling().equals(EventStilling.VERT)) {
+                                        // TODO : ASK IF SURE?!?!?
                                         RemoveParticipant removeParticipant = new RemoveParticipant(thisActivity, eventId, participant.getBrukernavn(), GuestList);
                                         removeParticipant.execute();
                                         AddParticipant addParticipant = new AddParticipant(thisActivity, eventId, participant, GuestList);

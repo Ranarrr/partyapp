@@ -22,6 +22,7 @@
             android:textColor="@color/white"
             android:textSize="@dimen/_14ssp"
             android:textStyle="bold"
+            android:visibility="invisible"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent"
@@ -36,7 +37,7 @@
             android:layout_marginTop="@dimen/_5sdp"
             android:background="@drawable/border_rounded"
             android:padding="@dimen/_10sdp"
-            android:visibility="visible"
+            android:visibility="invisible"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent"
@@ -120,7 +121,7 @@
             android:text="Sett opp din bil"
             android:textColor="@color/white"
             android:textSize="@dimen/_13ssp"
-            android:visibility="visible"
+            android:visibility="invisible"
             app:layout_constraintEnd_toStartOf="@+id/chauffeur_current_car"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toEndOf="@+id/chauffeur_current_car"
@@ -137,6 +138,7 @@
             android:textColor="@color/white"
             android:textSize="@dimen/_14ssp"
             android:textStyle="bold"
+            android:visibility="invisible"
             app:layout_constraintEnd_toStartOf="@+id/chauffeur_add_car"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toEndOf="@+id/chauffeur_add_car"
@@ -149,10 +151,10 @@
             android:layout_marginBottom="@dimen/_10sdp"
             android:layout_marginEnd="@dimen/_15sdp"
             android:layout_marginStart="@dimen/_15sdp"
-            android:layout_marginTop="@dimen/_5sdp"
+            android:layout_marginTop="@dimen/_15sdp"
             android:paddingEnd="@dimen/_5sdp"
             android:paddingStart="@dimen/_5sdp"
-            android:visibility="visible"
+            android:visibility="invisible"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent"
@@ -162,12 +164,11 @@
                 android:id="@+id/antall_passasjerer"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/_15sdp"
                 android:text="Passasjerer"
                 android:textColor="@color/white"
                 android:textSize="@dimen/_11ssp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_chainStyle="packed"
+                app:layout_constraintEnd_toStartOf="@+id/ny_tid_timer"
+                app:layout_constraintHorizontal_bias="0.5"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
@@ -181,29 +182,28 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.5"
                 app:layout_constraintStart_toEndOf="@+id/ny_tid_timer"
-                app:layout_constraintTop_toTopOf="@+id/ny_tid_timer" />
+                app:layout_constraintTop_toTopOf="@+id/antall_passasjerer" />
 
             <TextView
                 android:id="@+id/ny_tid_timer"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/_10sdp"
                 android:text="Timer"
                 android:textColor="@color/white"
                 android:textSize="@dimen/_11ssp"
                 app:layout_constraintEnd_toStartOf="@+id/ny_tid_minutter"
                 app:layout_constraintHorizontal_bias="0.5"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/autoCompleteTextView" />
+                app:layout_constraintStart_toEndOf="@+id/antall_passasjerer"
+                app:layout_constraintTop_toTopOf="@+id/antall_passasjerer" />
 
             <Button
                 android:id="@+id/chauffeur_start"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/_10sdp"
+                android:layout_marginTop="@dimen/_15sdp"
                 android:background="@drawable/border_rounded"
                 android:padding="@dimen/_10sdp"
-                android:text="Start kjøreøkt"
+                android:text="Start"
                 android:textColor="@color/white"
                 android:textSize="@dimen/_13ssp"
                 app:layout_constraintBottom_toBottomOf="parent"
@@ -215,14 +215,12 @@
                 android:id="@+id/autoCompleteTextView"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/_5sdp"
                 android:gravity="center"
                 android:text="0"
                 android:textColor="@color/white"
                 android:textColorHint="@color/white"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.5"
-                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="@+id/antall_passasjerer"
+                app:layout_constraintStart_toStartOf="@+id/antall_passasjerer"
                 app:layout_constraintTop_toBottomOf="@+id/antall_passasjerer" />
 
             <AutoCompleteTextView
@@ -259,7 +257,7 @@
             android:layout_marginEnd="@dimen/_15sdp"
             android:layout_marginStart="@dimen/_15sdp"
             android:layout_marginTop="@dimen/_8sdp"
-            android:visibility="visible"
+            android:visibility="invisible"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -270,12 +268,12 @@
                 android:id="@+id/car_merke"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:theme="@style/MyEditTextTheme"
                 android:layout_marginTop="@dimen/_10sdp"
                 android:hint="Merke"
                 android:paddingStart="@dimen/_10sdp"
                 android:textColor="@color/white"
                 android:textColorHint="@color/white"
+                android:theme="@style/MyEditTextTheme"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.5"
                 app:layout_constraintStart_toStartOf="parent"
@@ -284,12 +282,12 @@
             <AutoCompleteTextView
                 android:id="@+id/car_farge"
                 android:layout_width="0dp"
-                android:theme="@style/MyEditTextTheme"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/_10sdp"
                 android:paddingStart="@dimen/_10sdp"
                 android:text="Farge"
                 android:textColor="@color/white"
+                android:theme="@style/MyEditTextTheme"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.5"
                 app:layout_constraintStart_toStartOf="parent"
@@ -321,7 +319,7 @@
             android:layout_marginEnd="@dimen/_15sdp"
             android:layout_marginStart="@dimen/_15sdp"
             android:layout_marginTop="@dimen/_8sdp"
-            android:visibility="visible">
+            android:visibility="invisible">
 
             <TextView
                 android:id="@+id/time_progress"
@@ -330,7 +328,7 @@
                 android:layout_marginEnd="@dimen/_8sdp"
                 android:layout_marginStart="@dimen/_8sdp"
                 android:layout_marginTop="@dimen/_8sdp"
-                android:text="TextView"
+                android:text="00:00:00"
                 android:textColor="@color/white"
                 android:textSize="@dimen/_50ssp"
                 android:textStyle="bold"
@@ -343,31 +341,16 @@
                 android:id="@+id/chauffeur_avslutt"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/_10sdp"
                 android:background="@drawable/border_rounded"
                 android:padding="@dimen/_10sdp"
                 android:text="Avslutt tid"
                 android:textColor="@color/white"
                 android:textSize="@dimen/_13ssp"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.5"
-                app:layout_constraintStart_toEndOf="@+id/chauffeur_forny"
-                app:layout_constraintTop_toTopOf="@+id/chauffeur_forny" />
-
-            <Button
-                android:id="@+id/chauffeur_forny"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="@dimen/_8sdp"
-                android:layout_marginTop="@dimen/_8sdp"
-                android:background="@drawable/border_rounded"
-                android:padding="@dimen/_10sdp"
-                android:text="Forny tid"
-                android:textColor="@color/white"
-                android:textSize="@dimen/_13ssp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@+id/chauffeur_avslutt"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/time_progress" />
+
         </android.support.constraint.ConstraintLayout>
 
     </LinearLayout>

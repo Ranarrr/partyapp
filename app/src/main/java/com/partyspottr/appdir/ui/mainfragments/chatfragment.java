@@ -1,5 +1,7 @@
 package com.partyspottr.appdir.ui.mainfragments;
 
+import android.animation.ObjectAnimator;
+import android.media.Image;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -14,6 +16,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 
 import com.partyspottr.appdir.R;
 import com.partyspottr.appdir.classes.Utilities;
@@ -36,11 +39,10 @@ public class chatfragment extends Fragment {
     }
 
     @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+    public void onViewCreated(final View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
         final AppCompatButton mine_chats = getActivity().findViewById(R.id.mine_chats);
-        ViewCompat.setBackgroundTintList(mine_chats, ContextCompat.getColorStateList(getActivity().getApplicationContext(), R.color.lightgrey));
 
         final AppCompatButton venner = getActivity().findViewById(R.id.venner);
 
@@ -82,17 +84,17 @@ public class chatfragment extends Fragment {
 
                         search_events.setVisibility(View.VISIBLE);
 
+                        ImageView arrow_chatfragment = view.findViewById(R.id.arrow_chatfragment);
+
                         switch(position) {
                             case 0:
-                                ViewCompat.setBackgroundTintList(mine_chats, ContextCompat.getColorStateList(getActivity().getApplicationContext(), R.color.lightgrey));
-                                ViewCompat.setBackgroundTintList(venner, ContextCompat.getColorStateList(getActivity().getApplicationContext(), R.color.lightlightgrey));
+                                ObjectAnimator.ofFloat(arrow_chatfragment, "translationX", 0.0f).start();
 
                                 Utilities.onSearchMineChats(getActivity());
                                 break;
 
                             case 1:
-                                ViewCompat.setBackgroundTintList(mine_chats, ContextCompat.getColorStateList(getActivity().getApplicationContext(), R.color.lightlightgrey));
-                                ViewCompat.setBackgroundTintList(venner, ContextCompat.getColorStateList(getActivity().getApplicationContext(), R.color.lightgrey));
+                                ObjectAnimator.ofFloat(arrow_chatfragment, "translationX", mine_chats.getWidth()).start();
 
                                 Utilities.onSearchVenner(getActivity());
                                 break;

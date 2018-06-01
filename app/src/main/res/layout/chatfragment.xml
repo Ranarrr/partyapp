@@ -6,6 +6,18 @@
     android:layout_height="match_parent"
     android:background="@color/colorPrimary">
 
+    <ImageView
+        android:id="@+id/arrow_chatfragment"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/_8sdp"
+        android:contentDescription="@null"
+        app:layout_constraintEnd_toEndOf="@+id/venner"
+        app:layout_constraintHorizontal_bias="0.21"
+        app:layout_constraintStart_toStartOf="@+id/mine_chats"
+        app:layout_constraintTop_toTopOf="@+id/mine_chats"
+        app:srcCompat="@drawable/downarrow_full" />
+
     <android.support.v7.widget.AppCompatButton
         android:id="@+id/mine_chats"
         android:layout_width="0dp"
@@ -17,7 +29,7 @@
         android:onClick="onMineChatsClick"
         android:text="Mine chats"
         android:textSize="@dimen/_10ssp"
-        app:backgroundTint="@color/lightlightgrey"
+        app:backgroundTint="@color/white"
         app:layout_constraintEnd_toStartOf="@+id/venner"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
@@ -33,7 +45,7 @@
         android:onClick="onVennerClick"
         android:text="Venner"
         android:textSize="@dimen/_10ssp"
-        app:backgroundTint="@color/lightlightgrey"
+        app:backgroundTint="@color/white"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/mine_chats"
         app:layout_constraintTop_toTopOf="parent" />

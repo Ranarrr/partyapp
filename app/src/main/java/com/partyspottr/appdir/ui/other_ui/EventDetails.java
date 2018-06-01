@@ -2,6 +2,7 @@ package com.partyspottr.appdir.ui.other_ui;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
@@ -19,11 +20,14 @@ import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.TextWatcher;
 import android.text.style.ForegroundColorSpan;
+import android.view.ContextThemeWrapper;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -38,8 +42,11 @@ import com.partyspottr.appdir.classes.Requester;
 import com.partyspottr.appdir.classes.adapters.GuestListAdapter;
 import com.partyspottr.appdir.classes.adapters.RequestAdapter;
 import com.partyspottr.appdir.classes.networking.AddEventRequest;
+import com.partyspottr.appdir.classes.networking.AddFriendRequest;
 import com.partyspottr.appdir.classes.networking.AddParticipant;
 import com.partyspottr.appdir.classes.networking.RemoveEventRequest;
+import com.partyspottr.appdir.classes.networking.RemoveParticipant;
+import com.partyspottr.appdir.enums.EventStilling;
 import com.partyspottr.appdir.ui.ProfilActivity;
 
 import java.util.ArrayList;
@@ -83,6 +90,7 @@ public class EventDetails extends AppCompatActivity {
         TextView datofra = findViewById(R.id.details_dato_fra);
         TextView aldersgrense_details = findViewById(R.id.aldersgrense_details);
         TextView host = findViewById(R.id.details_host);
+        ImageButton more_options = findViewById(R.id.event_details_options);
         TextView datotil = findViewById(R.id.details_dato_til);
         TextView beskrivelse = findViewById(R.id.beskrivelse_details);
         TextView vis_gjesteliste = findViewById(R.id.details_visgjesteliste);
@@ -108,6 +116,38 @@ public class EventDetails extends AppCompatActivity {
         beskrivelse.setTypeface(typeface);
         vis_gjesteliste.setTypeface(typeface);
         antall_deltakere.setTypeface(typeface);
+
+        more_options.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Context context = new ContextThemeWrapper(EventDetails.this, R.style.popup);
+                PopupMenu popupMenu = new PopupMenu(context, v);
+
+                popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem item) {
+                        switch (item.getItemId()) {
+                            case R.id.delete_event:
+
+
+                                return true;
+
+                            case R.id.edit_event:
+
+
+                                return true;
+
+                            default:
+                                return true;
+                        }
+                    }
+                });
+
+                popupMenu.inflate(R.menu.more_options_event_details);
+
+                popupMenu.show();
+            }
+        });
 
         final ImageView bilde = findViewById(R.id.imageView);
 

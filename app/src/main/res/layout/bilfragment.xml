@@ -7,6 +7,18 @@
     android:layout_height="match_parent"
     android:background="@color/colorPrimary">
 
+    <ImageView
+        android:id="@+id/arrow_bilfragment"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/_8sdp"
+        android:contentDescription="@null"
+        app:layout_constraintEnd_toEndOf="@+id/min_bil_btn"
+        app:layout_constraintHorizontal_bias="0.21"
+        app:layout_constraintStart_toStartOf="@+id/finn_bil_btn"
+        app:layout_constraintTop_toTopOf="@+id/finn_bil_btn"
+        app:srcCompat="@drawable/downarrow_full" />
+
     <android.support.v7.widget.AppCompatButton
         android:id="@+id/finn_bil_btn"
         android:layout_width="0dp"
@@ -18,7 +30,7 @@
         android:onClick="onFinnBilClick"
         android:text="Passasjer"
         android:textSize="@dimen/_10ssp"
-        app:backgroundTint="@color/lightlightgrey"
+        app:backgroundTint="@color/white"
         app:layout_constraintEnd_toStartOf="@+id/min_bil_btn"
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
@@ -34,7 +46,7 @@
         android:onClick="onMinBilClick"
         android:text="Sjåfør"
         android:textSize="@dimen/_10ssp"
-        app:backgroundTint="@color/lightlightgrey"
+        app:backgroundTint="@color/white"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/finn_bil_btn"
         app:layout_constraintTop_toTopOf="parent" />
@@ -43,7 +55,8 @@
         android:id="@+id/pagerview_bil"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginTop="@dimen/_5sdp"
+        android:layout_marginTop="@dimen/_10sdp"
+        android:background="@color/transparent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

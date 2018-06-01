@@ -104,19 +104,11 @@ public class ChauffeurAddNewTime extends AsyncTask<Void, Void, Integer> {
 
                     final long current = Bruker.get().getChauffeur().getChauffeur_time_to() - new Date().getTime();
 
-                    if(current > 1800000)
-                        time_progress.setTextColor(progressDialog.getContext().getResources().getColor(R.color.greentint));
-                    else
-                        time_progress.setTextColor(progressDialog.getContext().getResources().getColor(R.color.colorPrimary));
-
                     min_bil_fragment.countDownTimer = new CountDownTimer(current, 1000) {
                         @Override
                         public void onTick(long millisUntilFinished) {
                             GregorianCalendar timetoset = new GregorianCalendar();
                             timetoset.setTimeInMillis(millisUntilFinished);
-
-                            if(millisUntilFinished < 1800000)
-                                time_progress.setTextColor(progressDialog.getContext().getResources().getColor(R.color.colorPrimary));
 
                             time_progress.setText(String.format(Locale.ENGLISH, "%d:%02d:%02d", timetoset.get(Calendar.HOUR_OF_DAY) - 1, timetoset.get(Calendar.MINUTE),
                                     timetoset.get(Calendar.SECOND)));

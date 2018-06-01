@@ -86,7 +86,7 @@
         <android.support.constraint.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginTop="1dp"
+            android:layout_marginTop="@dimen/_10sdp"
             android:background="@drawable/border_bottom_fat">
 
             <android.support.v7.widget.AppCompatButton
@@ -103,14 +103,14 @@
                 android:textColor="@color/white"
                 android:textSize="@dimen/_9ssp"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@+id/imageButton13"
+                app:layout_constraintEnd_toStartOf="@+id/event_details_options"
                 app:layout_constraintHorizontal_bias="1.0"
                 app:layout_constraintHorizontal_chainStyle="spread_inside"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <ImageButton
-                android:id="@+id/imageButton13"
+                android:id="@+id/event_details_options"
                 android:layout_width="@dimen/_70sdp"
                 android:layout_height="0dp"
                 android:layout_marginBottom="@dimen/_18sdp"

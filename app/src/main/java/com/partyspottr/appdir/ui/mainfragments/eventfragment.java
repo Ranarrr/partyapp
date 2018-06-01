@@ -1,5 +1,7 @@
 package com.partyspottr.appdir.ui.mainfragments;
 
+import android.animation.ObjectAnimator;
+import android.media.Image;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -13,6 +15,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 
 import com.partyspottr.appdir.R;
 import com.partyspottr.appdir.classes.Utilities;
@@ -39,9 +42,8 @@ public class eventfragment extends Fragment {
     }
 
     @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
+    public void onViewCreated(final View view, Bundle savedInstanceState) {
         AppCompatButton alle_eventer_btn = getActivity().findViewById(R.id.alle_eventer_btn);
-        ViewCompat.setBackgroundTintList(alle_eventer_btn, ContextCompat.getColorStateList(getActivity().getApplicationContext(), R.color.lightgrey));
 
         AppCompatButton mine_eventer_btn = getActivity().findViewById(R.id.mine_eventer_btn);
         AppCompatButton mitt_arkiv_btn = getActivity().findViewById(R.id.arkiv_btn);
@@ -103,27 +105,24 @@ public class eventfragment extends Fragment {
 
                         search_events.setVisibility(View.VISIBLE);
 
+                        ImageView arrow_eventfragment = view.findViewById(R.id.arrow_eventfragment);
+
                         switch(position) {
                             case 0:
-                                ViewCompat.setBackgroundTintList(alle_eventer_btn, ContextCompat.getColorStateList(getActivity().getApplicationContext(), R.color.lightgrey));
-                                ViewCompat.setBackgroundTintList(mine_eventer_btn, ContextCompat.getColorStateList(getActivity().getApplicationContext(), R.color.lightlightgrey));
-                                ViewCompat.setBackgroundTintList(mitt_arkiv_btn, ContextCompat.getColorStateList(getActivity().getApplicationContext(), R.color.lightlightgrey));
+                                ObjectAnimator.ofFloat(arrow_eventfragment, "translationX", 0.0f).start();
 
                                 Utilities.onSearchEventsClickAlle(getActivity());
                                 break;
 
                             case 1:
-                                ViewCompat.setBackgroundTintList(alle_eventer_btn, ContextCompat.getColorStateList(getActivity().getApplicationContext(), R.color.lightlightgrey));
-                                ViewCompat.setBackgroundTintList(mine_eventer_btn, ContextCompat.getColorStateList(getActivity().getApplicationContext(), R.color.lightgrey));
-                                ViewCompat.setBackgroundTintList(mitt_arkiv_btn, ContextCompat.getColorStateList(getActivity().getApplicationContext(), R.color.lightlightgrey));
+                                ObjectAnimator.ofFloat(arrow_eventfragment, "translationX",
+                                        ((mine_eventer_btn.getX() + (mine_eventer_btn.getX() + mine_eventer_btn.getWidth())) / 2) - ((alle_eventer_btn.getX() + (alle_eventer_btn.getX() + alle_eventer_btn.getWidth())) / 2)).start();
 
                                 Utilities.onSearchMineEventer(getActivity());
                                 break;
 
                             case 2:
-                                ViewCompat.setBackgroundTintList(alle_eventer_btn, ContextCompat.getColorStateList(getActivity().getApplicationContext(), R.color.lightlightgrey));
-                                ViewCompat.setBackgroundTintList(mine_eventer_btn, ContextCompat.getColorStateList(getActivity().getApplicationContext(), R.color.lightlightgrey));
-                                ViewCompat.setBackgroundTintList(mitt_arkiv_btn, ContextCompat.getColorStateList(getActivity().getApplicationContext(), R.color.lightgrey));
+                                ObjectAnimator.ofFloat(arrow_eventfragment, "translationX", (((mine_eventer_btn.getX() + (mine_eventer_btn.getX() + mine_eventer_btn.getWidth())) / 2) - ((alle_eventer_btn.getX() + (alle_eventer_btn.getX() + alle_eventer_btn.getWidth())) / 2)) * 2.f).start();
 
                                 search_events.setVisibility(View.INVISIBLE);
                                 break;

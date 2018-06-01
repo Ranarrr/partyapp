@@ -1,5 +1,6 @@
 package com.partyspottr.appdir.ui.mainfragments;
 
+import android.animation.ObjectAnimator;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -12,6 +13,7 @@ import android.support.v7.widget.AppCompatButton;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 
 import com.partyspottr.appdir.R;
 import com.partyspottr.appdir.ui.mainfragments.bilchildfragments.finn_bil_fragment;
@@ -34,10 +36,8 @@ public class bilfragment extends Fragment {
     }
 
     @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
+    public void onViewCreated(final View view, Bundle savedInstanceState) {
         AppCompatButton finn_bil_btn = getActivity().findViewById(R.id.finn_bil_btn);
-        ViewCompat.setBackgroundTintList(finn_bil_btn, ContextCompat.getColorStateList(getActivity().getApplicationContext(), R.color.lightgrey));
-
         AppCompatButton min_bil_btn = getActivity().findViewById(R.id.min_bil_btn);
 
         finn_bil_btn.setTypeface(typeface);
@@ -53,18 +53,16 @@ public class bilfragment extends Fragment {
                 viewPager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
                     @Override
                     public void onPageSelected(int position) {
-                        AppCompatButton finn_bil_btn = getActivity().findViewById(R.id.finn_bil_btn);
                         AppCompatButton min_bil_btn = getActivity().findViewById(R.id.min_bil_btn);
+                        ImageView arrow_bilfragment = view.findViewById(R.id.arrow_bilfragment);
 
                         switch(position) {
                             case 0:
-                                ViewCompat.setBackgroundTintList(finn_bil_btn, ContextCompat.getColorStateList(getActivity().getApplicationContext(), R.color.lightgrey));
-                                ViewCompat.setBackgroundTintList(min_bil_btn, ContextCompat.getColorStateList(getActivity().getApplicationContext(), R.color.lightlightgrey));
+                                ObjectAnimator.ofFloat(arrow_bilfragment, "translationX", 0.0f).start();
                                 break;
 
                             case 1:
-                                ViewCompat.setBackgroundTintList(finn_bil_btn, ContextCompat.getColorStateList(getActivity().getApplicationContext(), R.color.lightlightgrey));
-                                ViewCompat.setBackgroundTintList(min_bil_btn, ContextCompat.getColorStateList(getActivity().getApplicationContext(), R.color.lightgrey));
+                                ObjectAnimator.ofFloat(arrow_bilfragment, "translationX", min_bil_btn.getWidth()).start();
                                 break;
                         }
                     }

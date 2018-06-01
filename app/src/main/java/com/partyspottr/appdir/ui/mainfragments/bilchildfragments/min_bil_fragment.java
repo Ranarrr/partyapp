@@ -275,20 +275,11 @@ public class min_bil_fragment extends Fragment {
 
             ny_tid_title.setText("Din økt");
 
-            if(current > 1800000)
-                time_progress.setTextColor(getResources().getColor(R.color.greentint));
-            else
-                time_progress.setTextColor(getResources().getColor(R.color.colorPrimary));
-
             countDownTimer = new CountDownTimer(current, 1000) {
                 @Override
                 public void onTick(long millisUntilFinished) {
                     GregorianCalendar timetoset = new GregorianCalendar();
                     timetoset.setTimeInMillis(millisUntilFinished);
-
-                    if(millisUntilFinished < 1800000)
-                        if(getActivity() != null)
-                            time_progress.setTextColor(getActivity().getResources().getColor(R.color.colorPrimary));
 
                     time_progress.setText(String.format(Locale.ENGLISH, "%d:%02d:%02d", timetoset.get(Calendar.HOUR_OF_DAY) - 1, timetoset.get(Calendar.MINUTE),
                             timetoset.get(Calendar.SECOND)));

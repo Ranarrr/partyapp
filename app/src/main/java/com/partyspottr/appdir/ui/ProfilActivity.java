@@ -1,6 +1,7 @@
 package com.partyspottr.appdir.ui;
 
 import android.Manifest;
+import android.animation.ObjectAnimator;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.TimePickerDialog;
@@ -39,6 +40,7 @@ import android.widget.CompoundButton;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.TimePicker;
@@ -362,13 +364,12 @@ public class ProfilActivity extends AppCompatActivity {
         AppCompatButton mine_eventer_btn = findViewById(R.id.mine_eventer_btn);
         AppCompatButton mitt_arkiv_btn = findViewById(R.id.arkiv_btn);
         ViewPager viewPager = findViewById(R.id.pagerview_event);
+        ImageView arrow_eventfragment = findViewById(R.id.arrow_eventfragment);
 
-        if(mine_eventer_btn == null || mitt_arkiv_btn == null || viewPager == null)
+        if(mine_eventer_btn == null || mitt_arkiv_btn == null || viewPager == null || arrow_eventfragment == null)
             return;
 
-        ViewCompat.setBackgroundTintList(v, ContextCompat.getColorStateList(getApplicationContext(), R.color.lightgrey));
-        ViewCompat.setBackgroundTintList(mine_eventer_btn, ContextCompat.getColorStateList(getApplicationContext(), R.color.lightlightgrey));
-        ViewCompat.setBackgroundTintList(mitt_arkiv_btn, ContextCompat.getColorStateList(getApplicationContext(), R.color.lightlightgrey));
+        ObjectAnimator.ofFloat(arrow_eventfragment, "translationX", 0.0f).start();
 
         viewPager.setCurrentItem(0, true);
         }
@@ -377,13 +378,12 @@ public class ProfilActivity extends AppCompatActivity {
         AppCompatButton alle_eventer_btn = findViewById(R.id.alle_eventer_btn);
         AppCompatButton mitt_arkiv_btn = findViewById(R.id.arkiv_btn);
         ViewPager viewPager = findViewById(R.id.pagerview_event);
+        ImageView arrow_eventfragment = findViewById(R.id.arrow_eventfragment);
 
-        if(alle_eventer_btn == null || mitt_arkiv_btn == null || viewPager == null)
+        if(alle_eventer_btn == null || mitt_arkiv_btn == null || viewPager == null || arrow_eventfragment == null)
             return;
 
-        ViewCompat.setBackgroundTintList(alle_eventer_btn, ContextCompat.getColorStateList(getApplicationContext(), R.color.lightlightgrey));
-        ViewCompat.setBackgroundTintList(v, ContextCompat.getColorStateList(getApplicationContext(), R.color.lightgrey));
-        ViewCompat.setBackgroundTintList(mitt_arkiv_btn, ContextCompat.getColorStateList(getApplicationContext(), R.color.lightlightgrey));
+        ObjectAnimator.ofFloat(arrow_eventfragment, "translationX", ((v.getX() + (v.getX() + v.getWidth())) / 2) - ((alle_eventer_btn.getX() + (alle_eventer_btn.getX() + alle_eventer_btn.getWidth())) / 2)).start();
 
         viewPager.setCurrentItem(1, true);
     }
@@ -392,13 +392,12 @@ public class ProfilActivity extends AppCompatActivity {
         AppCompatButton alle_eventer_btn = findViewById(R.id.alle_eventer_btn);
         AppCompatButton mine_eventer_btn = findViewById(R.id.mine_eventer_btn);
         ViewPager viewPager = findViewById(R.id.pagerview_event);
+        ImageView arrow_eventfragment = findViewById(R.id.arrow_eventfragment);
 
-        if(alle_eventer_btn == null || mine_eventer_btn == null || viewPager == null)
+        if(alle_eventer_btn == null || mine_eventer_btn == null || viewPager == null || arrow_eventfragment == null)
             return;
 
-        ViewCompat.setBackgroundTintList(alle_eventer_btn, ContextCompat.getColorStateList(getApplicationContext(), R.color.lightlightgrey));
-        ViewCompat.setBackgroundTintList(mine_eventer_btn, ContextCompat.getColorStateList(getApplicationContext(), R.color.lightlightgrey));
-        ViewCompat.setBackgroundTintList(v, ContextCompat.getColorStateList(getApplicationContext(), R.color.lightgrey));
+        ObjectAnimator.ofFloat(arrow_eventfragment, "translationX", (((mine_eventer_btn.getX() + (mine_eventer_btn.getX() + mine_eventer_btn.getWidth())) / 2) - ((alle_eventer_btn.getX() + (alle_eventer_btn.getX() + alle_eventer_btn.getWidth())) / 2)) * 2.f).start();
 
         viewPager.setCurrentItem(2, true);
     }
@@ -406,12 +405,12 @@ public class ProfilActivity extends AppCompatActivity {
     public void onFinnBilClick(View v) {
         AppCompatButton min_bil_btn = findViewById(R.id.min_bil_btn);
         ViewPager viewPager = findViewById(R.id.pagerview_bil);
+        ImageView arrow_bilfragment = findViewById(R.id.arrow_bilfragment);
 
-        if(min_bil_btn == null || viewPager == null)
+        if(min_bil_btn == null || viewPager == null || arrow_bilfragment == null)
             return;
 
-        ViewCompat.setBackgroundTintList(v, ContextCompat.getColorStateList(getApplicationContext(), R.color.lightgrey));
-        ViewCompat.setBackgroundTintList(min_bil_btn, ContextCompat.getColorStateList(getApplicationContext(), R.color.lightlightgrey));
+        ObjectAnimator.ofFloat(arrow_bilfragment, "translationX", 0.0f).start();
 
         viewPager.setCurrentItem(0, true);
     }
@@ -419,12 +418,12 @@ public class ProfilActivity extends AppCompatActivity {
     public void onMinBilClick(View v) {
         AppCompatButton finn_bil_btn = findViewById(R.id.finn_bil_btn);
         ViewPager viewPager = findViewById(R.id.pagerview_bil);
+        ImageView arrow_bilfragment = findViewById(R.id.arrow_bilfragment);
 
-        if(finn_bil_btn == null || viewPager == null)
+        if(finn_bil_btn == null || viewPager == null || arrow_bilfragment == null)
             return;
 
-        ViewCompat.setBackgroundTintList(v, ContextCompat.getColorStateList(getApplicationContext(), R.color.lightgrey));
-        ViewCompat.setBackgroundTintList(finn_bil_btn, ContextCompat.getColorStateList(getApplicationContext(), R.color.lightlightgrey));
+        ObjectAnimator.ofFloat(arrow_bilfragment, "translationX", finn_bil_btn.getWidth()).start();
 
         viewPager.setCurrentItem(1, true);
     }
@@ -432,12 +431,12 @@ public class ProfilActivity extends AppCompatActivity {
     public void onMineChatsClick(View v) {
         AppCompatButton venner_btn = findViewById(R.id.venner);
         ViewPager viewPager = findViewById(R.id.viewpager_chat);
+        ImageView arrow_chatfragment = findViewById(R.id.arrow_chatfragment);
 
-        if(venner_btn == null || viewPager == null)
+        if(venner_btn == null || viewPager == null || arrow_chatfragment == null)
             return;
 
-        ViewCompat.setBackgroundTintList(v, ContextCompat.getColorStateList(getApplicationContext(), R.color.lightgrey));
-        ViewCompat.setBackgroundTintList(venner_btn, ContextCompat.getColorStateList(getApplicationContext(), R.color.lightlightgrey));
+        ObjectAnimator.ofFloat(arrow_chatfragment, "translationX", 0.0f);
 
         viewPager.setCurrentItem(0, true);
     }
@@ -445,12 +444,12 @@ public class ProfilActivity extends AppCompatActivity {
     public void onVennerClick(View v) {
         AppCompatButton mine_chats = findViewById(R.id.mine_chats);
         ViewPager viewPager = findViewById(R.id.viewpager_chat);
+        ImageView arrow_chatfragment = findViewById(R.id.arrow_chatfragment);
 
-        if(mine_chats == null || viewPager == null)
+        if(mine_chats == null || viewPager == null || arrow_chatfragment == null)
             return;
 
-        ViewCompat.setBackgroundTintList(v, ContextCompat.getColorStateList(getApplicationContext(), R.color.lightgrey));
-        ViewCompat.setBackgroundTintList(mine_chats, ContextCompat.getColorStateList(getApplicationContext(), R.color.lightlightgrey));
+        ObjectAnimator.ofFloat(arrow_chatfragment, "translationX", mine_chats.getWidth());
 
         viewPager.setCurrentItem(1, true);
     }
