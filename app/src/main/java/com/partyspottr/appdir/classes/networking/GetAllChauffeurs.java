@@ -29,9 +29,6 @@ public class GetAllChauffeurs extends AsyncTask<Void, Void, Integer> {
     public GetAllChauffeurs(Activity activity) {
         progressDialog = new ProgressDialog(activity);
         progressDialog.setOwnerActivity(activity);
-
-
-
     }
 
     @Override
@@ -60,6 +57,7 @@ public class GetAllChauffeurs extends AsyncTask<Void, Void, Integer> {
         } catch(JSONException e) {
             e.printStackTrace();
         }
+
         return -1;
     }
 
@@ -79,12 +77,11 @@ public class GetAllChauffeurs extends AsyncTask<Void, Void, Integer> {
         if(integer == 0) {
             Toast.makeText(progressDialog.getContext(), progressDialog.getContext().getResources().getString(R.string.tilkoblingsfeil), Toast.LENGTH_SHORT).show();
         } else if(integer == -1) {
-            if(error_msg.equals("No chauffeurs.")) {
+            if(error_msg != null && error_msg.equals("No chauffeurs.")) {
                 Toast.makeText(progressDialog.getContext(), "There are no chauffeurs.", Toast.LENGTH_SHORT).show();
             } else {
                 Toast.makeText(progressDialog.getContext(), "Could not retrieve chauffeurs", Toast.LENGTH_SHORT).show();
             }
-
         }
     }
 }

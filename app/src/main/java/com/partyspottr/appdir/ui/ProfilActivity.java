@@ -95,13 +95,11 @@ public class ProfilActivity extends AppCompatActivity {
     public static List<String> childfragmentsinstack;
     public static List<String> childfragmentsinstackChat;
 
-    boolean bool;
-
     public static ValueEventListener valueEventListener;
     public static DatabaseReference ref;
     public static FirebaseStorage storage;
 
-    private ImageChange imageChange = new ImageChange();
+    public static ImageChange imageChange = new ImageChange();
 
     @Override
     public void onBackPressed() {
@@ -357,6 +355,7 @@ public class ProfilActivity extends AppCompatActivity {
         replaceFragment(2);
         ((TextView) findViewById(R.id.title_toolbar)).setText(Bruker.get().getBrukernavn());
 
+        findViewById(R.id.search_events).setVisibility(View.INVISIBLE);
         findViewById(R.id.add_event).setVisibility(View.INVISIBLE);
     }
 
@@ -459,16 +458,12 @@ public class ProfilActivity extends AppCompatActivity {
 
         dialog.setOwnerActivity(this);
 
-        bool = false;
-
         dialog.requestWindowFeature(1);
 
         dialog.setCancelable(true);
         dialog.setCanceledOnTouchOutside(true);
 
         dialog.setContentView(R.layout.legg_til_event);
-
-        // (That new View is just there to have something inside the dialog that can grow big enough to cover the whole screen.)
 
         WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
         if(dialog.getWindow() != null) {
@@ -594,7 +589,7 @@ public class ProfilActivity extends AppCompatActivity {
             public boolean onTouch(View v, MotionEvent event) {
                 if(event.getAction() == MotionEvent.ACTION_UP) {
                     Calendar nowtime = Calendar.getInstance();
-                    TimePickerDialog timePickerDialog = new TimePickerDialog(ProfilActivity.this, new TimePickerDialog.OnTimeSetListener() {
+                    TimePickerDialog timePickerDialog = new TimePickerDialog(ProfilActivity.this, R.style.mydatepickerdialog, new TimePickerDialog.OnTimeSetListener() {
                         @Override
                         public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
                             time.setText(String.format(Locale.ENGLISH, "%02d:%02d", hourOfDay, minute));
@@ -615,7 +610,7 @@ public class ProfilActivity extends AppCompatActivity {
             public boolean onTouch(View v, MotionEvent event) {
                 if(event.getAction() == MotionEvent.ACTION_UP) {
                     Calendar c = Calendar.getInstance();
-                    DatePickerDialog dialog = new DatePickerDialog(ProfilActivity.this, new DatePickerDialog.OnDateSetListener() {
+                    DatePickerDialog dialog = new DatePickerDialog(ProfilActivity.this, R.style.mydatepickerdialog, new DatePickerDialog.OnDateSetListener() {
                         @Override
                         public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
                             Calendar calendar;
@@ -641,7 +636,7 @@ public class ProfilActivity extends AppCompatActivity {
             public boolean onTouch(View v, MotionEvent event) {
                 if(event.getAction() == MotionEvent.ACTION_UP) {
                     Calendar nowtime = Calendar.getInstance();
-                    TimePickerDialog timePickerDialog = new TimePickerDialog(ProfilActivity.this, new TimePickerDialog.OnTimeSetListener() {
+                    TimePickerDialog timePickerDialog = new TimePickerDialog(ProfilActivity.this, R.style.mydatepickerdialog, new TimePickerDialog.OnTimeSetListener() {
                         @Override
                         public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
                             timetil.setText(String.format(Locale.ENGLISH, "%02d:%02d", hourOfDay, minute));
@@ -664,7 +659,7 @@ public class ProfilActivity extends AppCompatActivity {
                     v.requestFocusFromTouch();
 
                     Calendar c = Calendar.getInstance();
-                    DatePickerDialog dialog = new DatePickerDialog(ProfilActivity.this, new DatePickerDialog.OnDateSetListener() {
+                    DatePickerDialog dialog = new DatePickerDialog(ProfilActivity.this, R.style.mydatepickerdialog, new DatePickerDialog.OnDateSetListener() {
                         @Override
                         public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
                             Calendar calendar;
@@ -698,6 +693,8 @@ public class ProfilActivity extends AppCompatActivity {
         fjern_sluttidspunkt.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                datotil.setText("");
+                timetil.setText("");
                 til_label.setVisibility(View.INVISIBLE);
                 datotil.setVisibility(View.INVISIBLE);
                 fjern_sluttidspunkt.setVisibility(View.GONE);
@@ -738,6 +735,7 @@ public class ProfilActivity extends AppCompatActivity {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {}})
                             .show();
+                    return;
                 }
 
                 if(aldersgrense.getText().toString().isEmpty() || Integer.valueOf(aldersgrense.getText().toString()) <= 13) {
@@ -757,68 +755,16 @@ public class ProfilActivity extends AppCompatActivity {
                             .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface somedialog, int which) {
-                                    bool = true;
-                                    button.callOnClick();
+                                    Utilities.CheckAddEvent(dato, time, datotil, timetil, titletext, gate, aldersgrense, maks_deltakere, postnr, by, beskrivelse, dialog, vis_gjesteliste, alle_deltakere, vis_adresse,
+                                            false);
                                 }
                             })
                             .setNegativeButton("No", new DialogInterface.OnClickListener() {
                                 @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    return;
-                                }})
+                                public void onClick(DialogInterface dialog, int which) {}})
                             .show();
-                }
-
-                if(!datotil.getText().toString().isEmpty() && !timetil.getText().toString().isEmpty() && bool) {
-                    GregorianCalendar datefrom, dateto;
-
-                    if(dato.getText().toString().contains(".")) {
-                        datefrom = Utilities.getDateFromString(String.format(Locale.ENGLISH, "%s %s", dato.getText().toString(), time.getText().toString()), "dd MMM. yyyy HH:mm");
-                    } else {
-                        datefrom = Utilities.getDateFromString(String.format(Locale.ENGLISH, "%s %s", dato.getText().toString(), time.getText().toString()), "dd MMM yyyy HH:mm");
-                    }
-
-                    if(datotil.getText().toString().contains(".")) {
-                        dateto = Utilities.getDateFromString(String.format(Locale.ENGLISH, "%s %s", datotil.getText().toString(), timetil.getText().toString()), "dd MMM. yyyy HH:mm");
-                    } else {
-                        dateto = Utilities.getDateFromString(String.format(Locale.ENGLISH, "%s %s", datotil.getText().toString(), timetil.getText().toString()), "dd MMM yyyy HH:mm");
-                    }
-
-                    if(dateto != null && datefrom != null && !dateto.before(datefrom)) {
-
-                        Event creating_event = new Event(0, titletext.getText().toString(), gate.getText().toString(), "", Bruker.get().getBrukernavn(),
-                                alle_deltakere.isChecked(),0.0, 0.0, datefrom.getTimeInMillis(), dateto.getTimeInMillis(), Integer.valueOf(aldersgrense.getText().toString()),
-                                new ArrayList<>(Collections.singletonList(Participant.convertBrukerParticipant(Bruker.get(), EventStilling.VERT))), Integer.valueOf(maks_deltakere.getText().toString()),
-                                postnr.getText().toString(), by.getText().toString(), beskrivelse.getText().toString(), vis_gjesteliste.isChecked(), vis_adresse.isChecked(), new ArrayList<Requester>(),
-                                false);
-
-                        GetLocationInfo getLocationInfo = new GetLocationInfo(dialog, gate.getText().toString(), Integer.valueOf(postnr.getText().toString()), creating_event,
-                                imageChange.getImage(), true);
-                        getLocationInfo.execute();
-                        imageChange = new ImageChange();
-                    }
-                } else if(datotil.getText().toString().isEmpty() && timetil.getText().toString().isEmpty()) {
-                    GregorianCalendar datefrom;
-
-                    if(dato.getText().toString().contains(".")) {
-                        datefrom = Utilities.getDateFromString(String.format(Locale.ENGLISH, "%s %s", dato.getText().toString(), time.getText().toString()), "dd MMM. yyyy HH:mm");
-                    } else {
-                        datefrom = Utilities.getDateFromString(String.format(Locale.ENGLISH, "%s %s", dato.getText().toString(), time.getText().toString()), "dd MMM yyyy HH:mm");
-                    }
-
-                    if(datefrom != null) {
-                        Event creating_event = new Event(0, titletext.getText().toString(), gate.getText().toString(), "", Bruker.get().getBrukernavn(),
-                                alle_deltakere.isChecked(),0.0, 0.0, datefrom.getTimeInMillis(), 0, Integer.valueOf(aldersgrense.getText().toString()),
-                                new ArrayList<>(Collections.singletonList(Participant.convertBrukerParticipant(Bruker.get(), EventStilling.VERT))), Integer.valueOf(maks_deltakere.getText().toString()),
-                                postnr.getText().toString(), by.getText().toString(), beskrivelse.getText().toString(), vis_gjesteliste.isChecked(), vis_adresse.isChecked(), new ArrayList<Requester>(),
-                                false);
-
-                        GetLocationInfo getLocationInfo = new GetLocationInfo(dialog, gate.getText().toString(), Integer.valueOf(postnr.getText().toString()), creating_event,
-                                imageChange.getImage(), true);
-                        getLocationInfo.execute();
-                        imageChange = new ImageChange();
-                    }
-                }
+                } else
+                    Utilities.CheckAddEvent(dato, time, datotil, timetil, titletext, gate, aldersgrense, maks_deltakere, postnr, by, beskrivelse, dialog, vis_gjesteliste, alle_deltakere, vis_adresse, false);
             }
         });
 

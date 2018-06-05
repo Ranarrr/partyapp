@@ -63,6 +63,7 @@ public class Event {
     public String EventToJSON() {
         try {
             JSONObject ret = new JSONObject();
+            ret.put("eventId", eventId);
             ret.put(nameofeventElem, nameofevent);
             ret.put(addressElem, address);
             ret.put(townElem, town);

@@ -6,9 +6,9 @@ import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
-import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.AppCompatAutoCompleteTextView;
 import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,11 +16,10 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
-import android.widget.CompoundButton;
 import android.widget.ImageView;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.ToggleButton;
 
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -35,17 +34,19 @@ import com.partyspottr.appdir.classes.Car;
 import com.partyspottr.appdir.classes.Chauffeur;
 import com.partyspottr.appdir.classes.Utilities;
 import com.partyspottr.appdir.classes.adapters.CarBrands;
-import com.partyspottr.appdir.classes.networking.ChauffeurAddNewTime;
 import com.partyspottr.appdir.classes.networking.ChauffeurRemoveTime;
 import com.partyspottr.appdir.ui.MainActivity;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.List;
 import java.util.Locale;
 
 /**
@@ -55,7 +56,6 @@ import java.util.Locale;
  */
 
 public class min_bil_fragment extends Fragment {
-    public static int passasjerer, timer_tid, minutter_tid;
     public static CountDownTimer countDownTimer;
 
     @Override
@@ -69,10 +69,6 @@ public class min_bil_fragment extends Fragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        passasjerer = 0;
-        timer_tid = 0;
-        minutter_tid = -1;
-
         final TextView title = getActivity().findViewById(R.id.chauffeur_title);
         final ConstraintLayout current_car = getActivity().findViewById(R.id.chauffeur_current_car);
         ImageView car_img = getActivity().findViewById(R.id.car_img); // TODO : Fix car image
@@ -83,6 +79,28 @@ public class min_bil_fragment extends Fragment {
         final Button start_ny_tid = getActivity().findViewById(R.id.chauffeur_start);
         TextView ny_tid_title = view.findViewById(R.id.ny_tid_title);
         final ConstraintLayout timer_layout = getActivity().findViewById(R.id.chauffeur_timer_layout);
+
+        Spinner passasjerer = view.findViewById(R.id.passasjer_spinner);
+        ArrayAdapter<Integer> passasjer_adapter = new ArrayAdapter<>(getActivity(), R.layout.spinner_mine, Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8));
+        passasjerer.setAdapter(passasjer_adapter);
+
+        Spinner timer = view.findViewById(R.id.timer_spinner);
+        ArrayAdapter<Integer> timer_adapter = new ArrayAdapter<>(getActivity(), R.layout.spinner_mine, Arrays.asList(1, 2, 3, 4, 5));
+        timer.setAdapter(timer_adapter);
+
+        Spinner minutter = view.findViewById(R.id.minutter_spinner);
+        ArrayAdapter<Integer> minutter_adapter = new ArrayAdapter<>(getActivity(), R.layout.spinner_mine, Arrays.asList(0, 15, 30, 45));
+        minutter.setAdapter(minutter_adapter);
+
+        Spinner biler = view.findViewById(R.id.bil_spinner);
+        List<String> listcars = new ArrayList<>();
+
+        for(Car car : Bruker.get().getChauffeur().getListOfCars()) {
+            listcars.add(String.format(Locale.ENGLISH, "%s %s", car.getFarge(), car.getMerke()));
+        }
+
+        ArrayAdapter<String> biler_adapter = new ArrayAdapter<>(getActivity(), R.layout.spinner_mine, listcars);
+        biler.setAdapter(biler_adapter);
 
         registrate.setTypeface(MainActivity.typeface);
         title.setTypeface(MainActivity.typeface);
@@ -107,7 +125,7 @@ public class min_bil_fragment extends Fragment {
                 @Override
                 public void onClick(View v) {
                     final AutoCompleteTextView merke = getActivity().findViewById(R.id.car_merke);
-                    final TextInputLayout farge = getActivity().findViewById(R.id.car_farge);
+                    final AppCompatAutoCompleteTextView farge = getActivity().findViewById(R.id.car_farge);
 
                     merke.setTypeface(MainActivity.typeface);
                     farge.setTypeface(MainActivity.typeface);
@@ -122,11 +140,11 @@ public class min_bil_fragment extends Fragment {
                         registrate_car.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                                if(farge.getEditText() != null && merke.getText().toString().length() > 2 && farge.getEditText().getText().toString().length() > 2 && CarBrands.doesListContain(merke.getText().toString())) {
+                                if(merke.getText().toString().length() > 2 && farge.getText().toString().length() > 2 && CarBrands.doesListContain(merke.getText().toString())) {
                                     Location loc = Utilities.getLatLng(getActivity());
                                     StringRequest stringRequest = new StringRequest(Utilities.getGETMethodArgStr("create_chauffeur", "socketElem",
                                             Base64.encodeToString(BuildConfig.JSONParser_Socket.getBytes(), Base64.DEFAULT), "brukernavnElem", Bruker.get().getBrukernavn(), "carlistElem",
-                                            new Gson().toJson(Collections.singletonList(new Car(merke.getText().toString(), farge.getEditText().getText().toString(), false))),
+                                            new Gson().toJson(Collections.singletonList(new Car(merke.getText().toString(), farge.getText().toString(), false))),
                                             "timeDrivingFrom", "0", "timeDrivingTo", "0", "rating", "0", "capacity", "0", "age",
                                             String.valueOf(Utilities.calcAge(new GregorianCalendar(Bruker.get().getYear(), Bruker.get().getMonth(), Bruker.get().getDay_of_month()))),
                                             "fornavn", Bruker.get().getFornavn(), "etternavn", Bruker.get().getEtternavn(), "longitude", loc == null ? "0" : String.valueOf(loc.getLongitude()), "latitude",
@@ -141,7 +159,7 @@ public class min_bil_fragment extends Fragment {
                                                     Bruker.get().getChauffeur().setEtternavn(Bruker.get().getEtternavn());
                                                     Bruker.get().getChauffeur().setChauffeur_time_to(0);
                                                     Bruker.get().getChauffeur().setChauffeur_time_from(0);
-                                                    Bruker.get().getChauffeur().addCar(new Car(merke.getText().toString(), farge.getEditText().getText().toString(), false));
+                                                    Bruker.get().getChauffeur().addCar(new Car(merke.getText().toString(), farge.getText().toString(), false));
                                                     Bruker.get().getChauffeur().setM_brukernavn(Bruker.get().getBrukernavn());
                                                     Bruker.get().getChauffeur().setM_age(Utilities.calcAge(new GregorianCalendar(Bruker.get().getYear(), Bruker.get().getMonth(), Bruker.get().getDay_of_month())));
                                                     Bruker.get().setCurrent_car(Bruker.get().getChauffeur().getListOfCars().get(0));
@@ -196,11 +214,9 @@ public class min_bil_fragment extends Fragment {
         final TextView timer = getActivity().findViewById(R.id.ny_tid_timer);
         final TextView minutter = getActivity().findViewById(R.id.ny_tid_minutter);
         final TextView time_progress = getActivity().findViewById(R.id.time_progress);
-        final Button forny_tid = getActivity().findViewById(R.id.chauffeur_forny);
         final Button avslutt_tid = getActivity().findViewById(R.id.chauffeur_avslutt);
 
         avslutt_tid.setTypeface(MainActivity.typeface);
-        forny_tid.setTypeface(MainActivity.typeface);
         ny_tid_title.setTypeface(MainActivity.typeface);
         antall_passasjerer.setTypeface(MainActivity.typeface);
         timer.setTypeface(MainActivity.typeface);
@@ -228,19 +244,17 @@ public class min_bil_fragment extends Fragment {
             legg_til_tid_btn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if(passasjerer == 0 || timer_tid == 0 || minutter_tid == -1)
-                        return;
 
                     GregorianCalendar to = new GregorianCalendar();
                     to.setTimeInMillis(System.currentTimeMillis());
 
-                    to.add(Calendar.HOUR_OF_DAY, timer_tid);
+                    //to.add(Calendar.HOUR_OF_DAY, timer_tid);
 
-                    if(minutter_tid > 0)
-                        to.add(Calendar.MINUTE, minutter_tid);
+                    //if(minutter_tid > 0)
+                      //  to.add(Calendar.MINUTE, minutter_tid);
 
-                    ChauffeurAddNewTime chauffeurAddNewTime = new ChauffeurAddNewTime(getActivity(), to.getTimeInMillis(), passasjerer);
-                    chauffeurAddNewTime.execute();
+                    //ChauffeurAddNewTime chauffeurAddNewTime = new ChauffeurAddNewTime(getActivity(), to.getTimeInMillis(), passasjerer);
+                    //chauffeurAddNewTime.execute();
 
                     /*
                         new AlertDialog.Builder(getActivity())

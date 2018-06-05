@@ -68,7 +68,6 @@ public class SettingActivity extends AppCompatActivity {
 
                     slett_konto.getWindow().setAttributes(layoutParams);
                     slett_konto.getWindow().setGravity(Gravity.BOTTOM);
-
                 }
 
                 slett_konto.setOnShowListener(new DialogInterface.OnShowListener() {

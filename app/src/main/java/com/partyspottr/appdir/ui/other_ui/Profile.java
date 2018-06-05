@@ -98,10 +98,6 @@ public class Profile extends AppCompatActivity {
             }
         });
 
-        Point size = new Point();
-        getWindowManager().getDefaultDisplay().getSize(size);
-        content.setBackground(new BitmapDrawable(getResources(), Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.forsidebilde), size.x, size.y, true)));
-
         skal_paa.setTypeface(MainActivity.typeface);
         send_message.setTypeface(MainActivity.typeface);
         add_friend.setTypeface(MainActivity.typeface);

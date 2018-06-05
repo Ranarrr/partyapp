@@ -6,14 +6,23 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.partyspottr.appdir.R;
 import com.partyspottr.appdir.classes.Bruker;
 import com.partyspottr.appdir.enums.måneder;
 import com.partyspottr.appdir.ui.MainActivity;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+import java.util.List;
 
 /**
  * Created by Ranarrr on 26-Jan-18.
@@ -27,33 +36,79 @@ public class RegisterActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
 
+        final Spinner dd_spinner = findViewById(R.id.dd_spinner);
+        final Spinner mm_spinner = findViewById(R.id.mm_spinner);
+        final Spinner yyyy_spinner = findViewById(R.id.yyyy_spinner);
+
         EditText fornavnText = findViewById(R.id.fornavnText);
         EditText etternavnText = findViewById(R.id.etternavnText);
-        EditText ddNum = findViewById(R.id.ddNum);
-        EditText mmNum = findViewById(R.id.mmNum);
-        EditText yyyyNum = findViewById(R.id.ååååNum);
         TextView name = findViewById(R.id.textView2);
         TextView birth = findViewById(R.id.textView);
         TextView title = findViewById(R.id.textView3);
         Button continuebtn = findViewById(R.id.button);
 
+        ArrayAdapter<Integer> mm_adapter = new ArrayAdapter<>(this, R.layout.spinner_mine, Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12));
+
+        List<Integer> list = new ArrayList<>();
+
+        for(int i = Calendar.getInstance().get(Calendar.YEAR); i > Calendar.getInstance().get(Calendar.YEAR) - 99; i--) {
+            list.add(i);
+        }
+
+        ArrayAdapter<Integer> yyyy_adapter = new ArrayAdapter<>(this, R.layout.spinner_mine, list);
+        ArrayAdapter<Integer> dd_adapter = new ArrayAdapter<>(this, R.layout.spinner_mine, Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31));
+
+        dd_spinner.setAdapter(dd_adapter);
+        mm_spinner.setAdapter(mm_adapter);
+        yyyy_spinner.setAdapter(yyyy_adapter);
+
+        mm_spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                int mndNum = (int) mm_spinner.getSelectedItem();
+
+                if(mndNum == måneder.APRIL.ordinal() || mndNum == måneder.JUNI.ordinal() || mndNum == måneder.SEPTEMBER.ordinal() || mndNum == måneder.NOVEMBER.ordinal()) {
+                    dd_spinner.setAdapter(new ArrayAdapter<>(RegisterActivity.this, R.layout.spinner_mine, Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30)));
+                } else if(mndNum == måneder.FEBRUAR.ordinal() && new GregorianCalendar().isLeapYear(Calendar.getInstance().get(Calendar.YEAR))) {
+                    dd_spinner.setAdapter(new ArrayAdapter<>(RegisterActivity.this, R.layout.spinner_mine, Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29)));
+                } else if(mndNum == måneder.FEBRUAR.ordinal() && !new GregorianCalendar().isLeapYear(Calendar.getInstance().get(Calendar.YEAR))) {
+                    dd_spinner.setAdapter(new ArrayAdapter<>(RegisterActivity.this, R.layout.spinner_mine, Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28)));
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {}
+        });
+
         fornavnText.setTypeface(MainActivity.typeface);
         etternavnText.setTypeface(MainActivity.typeface);
-        ddNum.setTypeface(MainActivity.typeface);
-        mmNum.setTypeface(MainActivity.typeface);
-        yyyyNum.setTypeface(MainActivity.typeface);
         name.setTypeface(MainActivity.typeface);
         birth.setTypeface(MainActivity.typeface);
         title.setTypeface(MainActivity.typeface);
         continuebtn.setTypeface(MainActivity.typeface);
 
+        continuebtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int dagNum = (int) dd_spinner.getSelectedItem();
+                int mndNum = (int) mm_spinner.getSelectedItem();
+                int yyyyNum = (int) yyyy_spinner.getSelectedItem();
+
+
+            }
+        });
+
         if(Bruker.get().getFornavn() != null && !Bruker.get().getFornavn().isEmpty()) {
             fornavnText.setText(Bruker.get().getFornavn());
             etternavnText.setText(Bruker.get().getEtternavn());
 
-            ddNum.setText(String.valueOf(Bruker.get().getDay_of_month()));
-            mmNum.setText(String.valueOf(Bruker.get().getMonth()));
-            yyyyNum.setText(String.valueOf(Bruker.get().getYear()));
+            dd_spinner.setSelection(Bruker.get().getDay_of_month() - 1);
+            mm_spinner.setSelection(Bruker.get().getMonth() - 1);
+
+            for(int i = 0; i < yyyy_adapter.getCount(); i++) {
+                if(yyyy_adapter.getItem(i).equals(Bruker.get().getYear()))
+                    yyyy_spinner.setSelection(i);
+            }
         }
     }
 
@@ -61,7 +116,7 @@ public class RegisterActivity extends AppCompatActivity {
         EditText fornavnText = findViewById(R.id.fornavnText);
         EditText etternavnText = findViewById(R.id.etternavnText);
 
-        EditText ddNum = findViewById(R.id.ddNum);
+        /*EditText ddNum = findViewById(R.id.ddNum);
         EditText mmNum = findViewById(R.id.mmNum);
         EditText yyyyNum = findViewById(R.id.ååååNum);
         Integer dagNum = 0, mndNum = 0, yrNum = 0;
@@ -116,6 +171,6 @@ public class RegisterActivity extends AppCompatActivity {
             }
         } else {
             ViewCompat.setBackgroundTintList(ddNum, ContextCompat.getColorStateList(getApplicationContext(), R.color.redtint));
-        }
+        }*/
     }
 }

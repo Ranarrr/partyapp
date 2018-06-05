@@ -110,7 +110,7 @@ public class profilfragment extends Fragment {
         logout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                new AlertDialog.Builder(getActivity())
+                new AlertDialog.Builder(getActivity(), R.style.mydatepickerdialog)
                         .setTitle(getActivity().getResources().getString(R.string.logg_ut))
                         .setMessage("Er du sikker på at du vil logge ut?") // TODO: Translation
                         .setPositiveButton(getActivity().getResources().getString(R.string.nei), new DialogInterface.OnClickListener() {
@@ -127,8 +127,6 @@ public class profilfragment extends Fragment {
                         .show();
             }
         });
-
-        logout.setPaintFlags(logout.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
 
         if(Bruker.get().getTown() == null || Bruker.get().getTown().isEmpty()) {
             by.setText(Bruker.get().getCountry());

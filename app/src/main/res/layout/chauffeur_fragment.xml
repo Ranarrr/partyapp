@@ -167,9 +167,21 @@
                 android:text="Passasjerer"
                 android:textColor="@color/white"
                 android:textSize="@dimen/_11ssp"
-                app:layout_constraintEnd_toStartOf="@+id/ny_tid_timer"
+                app:layout_constraintEnd_toEndOf="@+id/passasjer_spinner"
                 app:layout_constraintHorizontal_bias="0.5"
-                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintHorizontal_chainStyle="spread_inside"
+                app:layout_constraintStart_toStartOf="@+id/passasjer_spinner"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/bil_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Bil"
+                android:textColor="@color/white"
+                android:textSize="@dimen/_11ssp"
+                app:layout_constraintEnd_toEndOf="@+id/bil_spinner"
+                app:layout_constraintStart_toStartOf="@+id/bil_spinner"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
@@ -179,28 +191,29 @@
                 android:text="Minutter"
                 android:textColor="@color/white"
                 android:textSize="@dimen/_11ssp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.5"
-                app:layout_constraintStart_toEndOf="@+id/ny_tid_timer"
-                app:layout_constraintTop_toTopOf="@+id/antall_passasjerer" />
+                app:layout_constraintEnd_toEndOf="@+id/minutter_spinner"
+                app:layout_constraintHorizontal_bias="0.545"
+                app:layout_constraintStart_toStartOf="@+id/minutter_spinner"
+                app:layout_constraintTop_toTopOf="@+id/ny_tid_timer" />
 
             <TextView
                 android:id="@+id/ny_tid_timer"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/_10sdp"
                 android:text="Timer"
                 android:textColor="@color/white"
                 android:textSize="@dimen/_11ssp"
-                app:layout_constraintEnd_toStartOf="@+id/ny_tid_minutter"
-                app:layout_constraintHorizontal_bias="0.5"
-                app:layout_constraintStart_toEndOf="@+id/antall_passasjerer"
-                app:layout_constraintTop_toTopOf="@+id/antall_passasjerer" />
+                app:layout_constraintEnd_toEndOf="@+id/timer_spinner"
+                app:layout_constraintHorizontal_bias="0.447"
+                app:layout_constraintStart_toStartOf="@+id/timer_spinner"
+                app:layout_constraintTop_toBottomOf="@+id/bil_spinner" />
 
             <Button
                 android:id="@+id/chauffeur_start"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/_15sdp"
+                android:layout_marginTop="@dimen/_25sdp"
                 android:background="@drawable/border_rounded"
                 android:padding="@dimen/_10sdp"
                 android:text="Start"
@@ -209,42 +222,58 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/autoCompleteTextView3" />
+                app:layout_constraintTop_toBottomOf="@+id/minutter_spinner" />
 
-            <AutoCompleteTextView
-                android:id="@+id/autoCompleteTextView"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
+            <Spinner
+                android:id="@+id/passasjer_spinner"
+                android:layout_width="@dimen/_60sdp"
+                android:layout_height="@dimen/_30sdp"
+                android:layout_marginTop="@dimen/_8sdp"
+                android:background="@drawable/border_bottom_fat"
                 android:gravity="center"
-                android:text="0"
-                android:textColor="@color/white"
-                android:textColorHint="@color/white"
-                app:layout_constraintEnd_toEndOf="@+id/antall_passasjerer"
-                app:layout_constraintStart_toStartOf="@+id/antall_passasjerer"
+                android:theme="@style/SpinnerTheme"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toEndOf="@+id/bil_spinner"
                 app:layout_constraintTop_toBottomOf="@+id/antall_passasjerer" />
 
-            <AutoCompleteTextView
-                android:id="@+id/autoCompleteTextView2"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
+            <Spinner
+                android:id="@+id/timer_spinner"
+                android:layout_width="@dimen/_60sdp"
+                android:layout_height="@dimen/_30sdp"
+                android:layout_marginTop="@dimen/_8sdp"
+                android:background="@drawable/border_bottom_fat"
                 android:gravity="center"
-                android:text="0"
-                android:textColor="@color/white"
-                android:textColorHint="@color/white"
-                app:layout_constraintEnd_toEndOf="@+id/ny_tid_timer"
-                app:layout_constraintStart_toStartOf="@+id/ny_tid_timer"
+                android:theme="@style/SpinnerTheme"
+                app:layout_constraintEnd_toStartOf="@+id/minutter_spinner"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/ny_tid_timer" />
 
-            <AutoCompleteTextView
-                android:id="@+id/autoCompleteTextView3"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
+            <Spinner
+                android:id="@+id/bil_spinner"
+                android:layout_width="@dimen/_60sdp"
+                android:layout_height="@dimen/_30sdp"
+                android:layout_marginTop="@dimen/_8sdp"
+                android:background="@drawable/border_bottom_fat"
                 android:gravity="center"
-                android:text="0"
-                android:textColor="@color/white"
-                android:textColorHint="@color/white"
-                app:layout_constraintEnd_toEndOf="@+id/ny_tid_minutter"
-                app:layout_constraintStart_toStartOf="@+id/ny_tid_minutter"
+                android:theme="@style/SpinnerTheme"
+                app:layout_constraintEnd_toStartOf="@+id/passasjer_spinner"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/bil_text" />
+
+            <Spinner
+                android:id="@+id/minutter_spinner"
+                android:layout_width="@dimen/_60sdp"
+                android:layout_height="@dimen/_30sdp"
+                android:layout_marginTop="@dimen/_8sdp"
+                android:background="@drawable/border_bottom_fat"
+                android:gravity="center"
+                android:theme="@style/SpinnerTheme"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toEndOf="@+id/timer_spinner"
                 app:layout_constraintTop_toBottomOf="@+id/ny_tid_minutter" />
 
         </android.support.constraint.ConstraintLayout>
@@ -284,9 +313,10 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/_10sdp"
+                android:hint="Farge"
                 android:paddingStart="@dimen/_10sdp"
-                android:text="Farge"
                 android:textColor="@color/white"
+                android:textColorHint="@color/colorAlpha"
                 android:theme="@style/MyEditTextTheme"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.5"

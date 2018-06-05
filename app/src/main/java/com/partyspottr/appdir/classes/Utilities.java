@@ -2,6 +2,8 @@ package com.partyspottr.appdir.classes;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.ContentUris;
 import android.content.Context;
 import android.content.pm.PackageManager;
@@ -24,9 +26,11 @@ import android.support.v4.app.ActivityCompat;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
@@ -35,7 +39,12 @@ import com.partyspottr.appdir.R;
 import com.partyspottr.appdir.classes.adapters.ChatPreviewAdapter;
 import com.partyspottr.appdir.classes.adapters.EventAdapter;
 import com.partyspottr.appdir.classes.adapters.FriendListAdapter;
+import com.partyspottr.appdir.classes.networking.GetLocationInfo;
+import com.partyspottr.appdir.classes.networking.UpdateEvent;
 import com.partyspottr.appdir.classes.networking.UpdateUser;
+import com.partyspottr.appdir.classes.networking.UploadImage;
+import com.partyspottr.appdir.enums.EventStilling;
+import com.partyspottr.appdir.ui.ProfilActivity;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -45,10 +54,12 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Locale;
+import java.util.Properties;
 
 /**
  * Created by Ranarrr on 02-Feb-18.
@@ -93,10 +104,12 @@ public class Utilities {
         return null;
     }
 
-    public static void setUnChecked(ToggleButton... views) {
-        for (ToggleButton v : views) {
-            v.setChecked(false);
-        }
+    public static String getDateStringFromMillis(long millis, boolean isdato) {
+        GregorianCalendar time = new GregorianCalendar();
+        time.setTimeInMillis(millis);
+
+        return isdato ? String.format(Locale.ENGLISH, "%02d %s %d", time.get(Calendar.DAY_OF_MONTH), time.getDisplayName(Calendar.MONTH, Calendar.SHORT, Locale.getDefault()), time.get(Calendar.YEAR)) :
+                String.format(Locale.ENGLISH, "%02d:%02d", time.get(Calendar.HOUR_OF_DAY), time.get(Calendar.MINUTE));
     }
 
     public static Location getLatLng(Activity activity) {
@@ -438,6 +451,86 @@ public class Utilities {
                 }
             }
         });
+    }
+
+    public static void CheckAddEvent(EditText dato, EditText time, EditText datotil, EditText timetil, EditText titletext, EditText gate, EditText aldersgrense, EditText maks_deltakere, EditText postnr, TextView by,
+                              EditText beskrivelse, Dialog dialog, CheckBox vis_gjesteliste, CheckBox alle_deltakere, CheckBox vis_adresse, boolean shouldupdate) {
+        if(!datotil.getText().toString().isEmpty() && !timetil.getText().toString().isEmpty()) {
+            GregorianCalendar datefrom, dateto;
+
+            if(dato.getText().toString().contains(".")) {
+                datefrom = Utilities.getDateFromString(String.format(Locale.ENGLISH, "%s %s", dato.getText().toString(), time.getText().toString()), "dd MMM. yyyy HH:mm");
+            } else {
+                datefrom = Utilities.getDateFromString(String.format(Locale.ENGLISH, "%s %s", dato.getText().toString(), time.getText().toString()), "dd MMM yyyy HH:mm");
+            }
+
+            if(datotil.getText().toString().contains(".")) {
+                dateto = Utilities.getDateFromString(String.format(Locale.ENGLISH, "%s %s", datotil.getText().toString(), timetil.getText().toString()), "dd MMM. yyyy HH:mm");
+            } else {
+                dateto = Utilities.getDateFromString(String.format(Locale.ENGLISH, "%s %s", datotil.getText().toString(), timetil.getText().toString()), "dd MMM yyyy HH:mm");
+            }
+
+            if(dateto != null && datefrom != null && !dateto.before(datefrom)) {
+
+                Event creating_event = new Event(0, titletext.getText().toString(), gate.getText().toString(), "", Bruker.get().getBrukernavn(),
+                        alle_deltakere.isChecked(),0.0, 0.0, datefrom.getTimeInMillis(), dateto.getTimeInMillis(), Integer.valueOf(aldersgrense.getText().toString()),
+                        new ArrayList<>(Collections.singletonList(Participant.convertBrukerParticipant(Bruker.get(), EventStilling.VERT))), Integer.valueOf(maks_deltakere.getText().toString()),
+                        postnr.getText().toString(), by.getText().toString(), beskrivelse.getText().toString(), vis_gjesteliste.isChecked(), vis_adresse.isChecked(), new ArrayList<Requester>(),
+                        ProfilActivity.imageChange.getImage() != null);
+
+                if(shouldupdate) {
+                    if(ProfilActivity.imageChange.getBmp() != null)
+                        creating_event.setHasimage(true);
+                    else
+                        creating_event.setHasimage(false);
+
+                    UpdateEvent updateEvent = new UpdateEvent(dialog.getOwnerActivity(), creating_event);
+                    updateEvent.execute();
+                    if(ProfilActivity.imageChange.getBmp() != null) {
+                        UploadImage uploadImage = new UploadImage(new ProgressDialog(dialog.getOwnerActivity()), creating_event, null, ProfilActivity.imageChange.getBmp());
+                        uploadImage.execute();
+                    }
+                } else {
+                    GetLocationInfo getLocationInfo = new GetLocationInfo(dialog, gate.getText().toString(), Integer.valueOf(postnr.getText().toString()), creating_event,
+                            ProfilActivity.imageChange.getImage(), true);
+                    getLocationInfo.execute();
+                }
+            }
+        } else if(datotil.getText().toString().isEmpty() && timetil.getText().toString().isEmpty()) {
+            GregorianCalendar datefrom;
+
+            if(dato.getText().toString().contains(".")) {
+                datefrom = Utilities.getDateFromString(String.format(Locale.ENGLISH, "%s %s", dato.getText().toString(), time.getText().toString()), "dd MMM. yyyy HH:mm");
+            } else {
+                datefrom = Utilities.getDateFromString(String.format(Locale.ENGLISH, "%s %s", dato.getText().toString(), time.getText().toString()), "dd MMM yyyy HH:mm");
+            }
+
+            if(datefrom != null) {
+                Event creating_event = new Event(0, titletext.getText().toString(), gate.getText().toString(), "", Bruker.get().getBrukernavn(),
+                        alle_deltakere.isChecked(),0.0, 0.0, datefrom.getTimeInMillis(), 0, Integer.valueOf(aldersgrense.getText().toString()),
+                        new ArrayList<>(Collections.singletonList(Participant.convertBrukerParticipant(Bruker.get(), EventStilling.VERT))), Integer.valueOf(maks_deltakere.getText().toString()),
+                        postnr.getText().toString(), by.getText().toString(), beskrivelse.getText().toString(), vis_gjesteliste.isChecked(), vis_adresse.isChecked(), new ArrayList<Requester>(),
+                        ProfilActivity.imageChange.getImage() != null);
+
+                if(shouldupdate) {
+                    if(ProfilActivity.imageChange.getBmp() != null)
+                        creating_event.setHasimage(true);
+                    else
+                        creating_event.setHasimage(false);
+
+                    UpdateEvent updateEvent = new UpdateEvent(dialog.getOwnerActivity(), creating_event);
+                    updateEvent.execute();
+                    if(ProfilActivity.imageChange.getBmp() != null) {
+                        UploadImage uploadImage = new UploadImage(new ProgressDialog(dialog.getOwnerActivity()), creating_event, null, ProfilActivity.imageChange.getBmp());
+                        uploadImage.execute();
+                    }
+                } else {
+                    GetLocationInfo getLocationInfo = new GetLocationInfo(dialog, gate.getText().toString(), Integer.valueOf(postnr.getText().toString()), creating_event,
+                            ProfilActivity.imageChange.getImage(), true);
+                    getLocationInfo.execute();
+                }
+            }
+        }
     }
 
     /**

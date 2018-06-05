@@ -72,7 +72,7 @@
 
         <ImageButton
             android:id="@+id/imageButton4"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="@dimen/_5sdp"
             android:layout_marginTop="@dimen/_5sdp"
@@ -89,9 +89,8 @@
 
         <ImageButton
             android:id="@+id/imageButton2"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="2dp"
             android:background="@android:color/transparent"
             android:contentDescription="@null"
             android:onClick="onBilMenyClick"
@@ -105,7 +104,7 @@
 
         <ImageButton
             android:id="@+id/imageButton3"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="1dp"
             android:background="@android:color/transparent"
@@ -122,22 +121,23 @@
 
         <ImageButton
             android:id="@+id/imageButton"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@android:color/transparent"
+            android:background="@drawable/border_bottom_fat"
             android:contentDescription="@null"
             android:onClick="onKalenderMenyClick"
             android:scaleType="fitCenter"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/imageButton2"
             app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintHorizontal_chainStyle="spread"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:srcCompat="@drawable/menyhome" />
 
         <ImageButton
             android:id="@+id/imageButton9"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="@dimen/_10sdp"
             android:layout_marginTop="@dimen/_10sdp"

@@ -1,9 +1,11 @@
 package com.partyspottr.appdir.classes.networking;
 
 import android.app.ProgressDialog;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnFailureListener;
@@ -12,8 +14,11 @@ import com.google.firebase.storage.StorageMetadata;
 import com.google.firebase.storage.UploadTask;
 import com.partyspottr.appdir.R;
 import com.partyspottr.appdir.classes.Event;
+import com.partyspottr.appdir.classes.ImageChange;
 import com.partyspottr.appdir.ui.ProfilActivity;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 
 /**
@@ -23,14 +28,23 @@ import java.io.File;
  */
 
 public class UploadImage extends AsyncTask<Void, Void, Void> {
-    private File bitmap;
+    private File bitmapfile;
+    private Bitmap bitmap;
+    private boolean isfile;
     private Event eventPriv;
     private ProgressDialog progressDialog;
 
-    UploadImage(ProgressDialog pD, Event event, File bmp) {
+    public UploadImage(ProgressDialog pD, Event event, @Nullable File file, @Nullable Bitmap bmp) {
         progressDialog = pD;
         eventPriv = event;
-        bitmap = bmp;
+
+        isfile = true;
+
+        if(file == null) {
+            bitmap = bmp;
+            isfile = false;
+        } else
+            bitmapfile = file;
     }
 
     @Override
@@ -39,7 +53,15 @@ public class UploadImage extends AsyncTask<Void, Void, Void> {
                 .setContentType("image/jpg")
                 .build();
 
-        UploadTask uploadTask = ProfilActivity.storage.getReference().child(eventPriv.getHostStr() + "_" + eventPriv.getNameofevent()).putFile(Uri.fromFile(bitmap), metadata);
+        UploadTask uploadTask;
+
+        if(isfile)
+            uploadTask = ProfilActivity.storage.getReference().child(eventPriv.getHostStr() + "_" + eventPriv.getNameofevent()).putFile(Uri.fromFile(bitmapfile), metadata);
+        else {
+            ByteArrayOutputStream stream = new ByteArrayOutputStream();
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+            uploadTask = ProfilActivity.storage.getReference().child(eventPriv.getHostStr() + "_" + eventPriv.getNameofevent()).putBytes(stream.toByteArray(), metadata);
+        }
 
         uploadTask.addOnFailureListener(new OnFailureListener() {
             @Override
@@ -54,6 +76,8 @@ public class UploadImage extends AsyncTask<Void, Void, Void> {
                 progressDialog.hide();
             }
         });
+
+        ProfilActivity.imageChange = new ImageChange();
 
         return null;
     }

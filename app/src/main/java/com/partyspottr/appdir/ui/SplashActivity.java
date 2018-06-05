@@ -108,7 +108,10 @@ public class SplashActivity extends AppCompatActivity {
                                     Utilities.LOCATION_REQUEST_CODE);
 
                     } else {
-                        new AlertDialog.Builder(this)
+                        Intent main = new Intent(SplashActivity.this, MainActivity.class);
+                        SplashActivity.this.startActivity(main);
+                        SplashActivity.this.finish();
+                        /*new AlertDialog.Builder(this, R.style.mydatepickerdialog)
                                 .setTitle("Required permissions")
                                 .setMessage("These permissions are required to use Partyspottr, and they are only used to better your experience with this app.")
                                 .setCancelable(false)
@@ -118,7 +121,7 @@ public class SplashActivity extends AppCompatActivity {
                                         ActivityCompat.requestPermissions(SplashActivity.this, new String[]{Manifest.permission.SEND_SMS}, Utilities.SEND_SMS_REQUEST_CODE);
                                     }
                                 })
-                                .show();
+                                .show();*/
                     }
                 }
             }

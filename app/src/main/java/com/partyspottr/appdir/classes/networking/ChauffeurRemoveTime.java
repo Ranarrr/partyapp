@@ -92,7 +92,7 @@ public class ChauffeurRemoveTime extends AsyncTask<Void, Void, Integer> {
                 start_ny_tid.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        if(min_bil_fragment.passasjerer == 0 || min_bil_fragment.timer_tid == 0 || min_bil_fragment.minutter_tid == -1)
+                        /*if(min_bil_fragment.passasjerer == 0 || min_bil_fragment.timer_tid == 0 || min_bil_fragment.minutter_tid == -1)
                             return;
 
                         GregorianCalendar to = new GregorianCalendar();
@@ -104,7 +104,7 @@ public class ChauffeurRemoveTime extends AsyncTask<Void, Void, Integer> {
                             to.add(Calendar.MINUTE, min_bil_fragment.minutter_tid);
 
                         ChauffeurAddNewTime chauffeurAddNewTime = new ChauffeurAddNewTime(progressDialog.getOwnerActivity(), to.getTimeInMillis(), min_bil_fragment.passasjerer);
-                        chauffeurAddNewTime.execute();
+                        chauffeurAddNewTime.execute();*/
                     }
                 });
             }

@@ -64,7 +64,7 @@ public class AddEvent extends AsyncTask<Void, Void, Integer> {
         if(integer == 1) {
             Bruker.get().addToMyEvents(eventToUse);
             if(bitmap != null) {
-                UploadImage compressImage = new UploadImage(progressDialog, eventToUse, bitmap);
+                UploadImage compressImage = new UploadImage(progressDialog, eventToUse, bitmap, null);
                 compressImage.execute();
             } else {
                 Toast.makeText(progressDialog.getContext(), progressDialog.getContext().getResources().getString(R.string.event_lagt_til), Toast.LENGTH_SHORT).show();

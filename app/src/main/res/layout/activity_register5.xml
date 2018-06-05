@@ -13,9 +13,9 @@
         android:layout_width="@dimen/_135sdp"
         android:layout_height="@dimen/_45sdp"
         android:layout_marginTop="@dimen/_345sdp"
-        android:background="@drawable/border_rounded"
+        android:background="@drawable/rounded_btn_rect"
         android:text="@string/ferdig"
-        android:textColor="@android:color/background_light"
+        android:textColor="@android:color/black"
         android:textSize="@dimen/_12ssp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.459"
@@ -31,10 +31,11 @@
         android:clickable="false"
         android:max="5"
         android:progress="5"
+        android:theme="@style/mySeekBarTheme"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/toolbar"
-        app:tickMarkTint="@android:color/white"/>
+        app:tickMarkTint="@color/redtint" />
 
     <android.support.v7.widget.Toolbar
         android:id="@+id/toolbar"

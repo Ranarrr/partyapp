@@ -33,7 +33,6 @@ public class Numbers extends BaseAdapter {
             8
     };
 
-
     @Override
     public int getCount() {
         return m_Numbers.length;
@@ -52,16 +51,12 @@ public class Numbers extends BaseAdapter {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         TextView view;
-        if( convertView == null )
-        {
+        if(convertView == null) {
             view = new TextView(m_Context);
             view.setPadding((int) m_Context.getResources().getDimension(R.dimen._10sdp), (int) m_Context.getResources().getDimension(R.dimen._10sdp), (int) m_Context.getResources().getDimension(R.dimen._10sdp),
                     (int) m_Context.getResources().getDimension(R.dimen._10sdp));
-        }
-        else
-        {
+        } else
             view = (TextView)convertView;
-        }
 
         view.setTypeface(MainActivity.typeface);
 

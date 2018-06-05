@@ -1,5 +1,6 @@
 package com.partyspottr.appdir.classes;
 
+import android.graphics.Bitmap;
 import android.net.Uri;
 
 import java.beans.PropertyChangeEvent;
@@ -18,6 +19,7 @@ public class ImageChange {
 
     private File image;
     private Uri uri;
+    private Bitmap bmp;
     private List<PropertyChangeListener> listeners = new ArrayList<>();
 
     public ImageChange() {}
@@ -46,5 +48,13 @@ public class ImageChange {
 
     public void setUri(Uri uri) {
         this.uri = uri;
+    }
+
+    public Bitmap getBmp() {
+        return bmp;
+    }
+
+    public void setBmp(Bitmap bmp) {
+        this.bmp = bmp;
     }
 }

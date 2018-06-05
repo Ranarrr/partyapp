@@ -1,18 +1,26 @@
 package com.partyspottr.appdir.ui.other_ui;
 
+import android.Manifest;
 import android.app.AlertDialog;
+import android.app.DatePickerDialog;
 import android.app.Dialog;
+import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
 import android.support.constraint.ConstraintSet;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
@@ -22,13 +30,20 @@ import android.text.TextWatcher;
 import android.text.style.ForegroundColorSpan;
 import android.view.ContextThemeWrapper;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.WindowManager;
+import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.PopupMenu;
 import android.widget.TextView;
+import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnFailureListener;
@@ -39,16 +54,22 @@ import com.partyspottr.appdir.classes.Bruker;
 import com.partyspottr.appdir.classes.Event;
 import com.partyspottr.appdir.classes.Participant;
 import com.partyspottr.appdir.classes.Requester;
+import com.partyspottr.appdir.classes.Utilities;
 import com.partyspottr.appdir.classes.adapters.GuestListAdapter;
 import com.partyspottr.appdir.classes.adapters.RequestAdapter;
 import com.partyspottr.appdir.classes.networking.AddEventRequest;
 import com.partyspottr.appdir.classes.networking.AddFriendRequest;
 import com.partyspottr.appdir.classes.networking.AddParticipant;
+import com.partyspottr.appdir.classes.networking.GetLocationInfo;
+import com.partyspottr.appdir.classes.networking.RemoveEvent;
 import com.partyspottr.appdir.classes.networking.RemoveEventRequest;
 import com.partyspottr.appdir.classes.networking.RemoveParticipant;
 import com.partyspottr.appdir.enums.EventStilling;
 import com.partyspottr.appdir.ui.ProfilActivity;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
@@ -64,7 +85,6 @@ import static com.partyspottr.appdir.ui.MainActivity.typeface;
  */
 
 public class EventDetails extends AppCompatActivity {
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -128,12 +148,379 @@ public class EventDetails extends AppCompatActivity {
                     public boolean onMenuItemClick(MenuItem item) {
                         switch (item.getItemId()) {
                             case R.id.delete_event:
-
+                                new AlertDialog.Builder(EventDetails.this)
+                                    .setTitle("Confirmation")
+                                    .setMessage("Are you sure you want to delete this event?")
+                                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            RemoveEvent removeEvent = new RemoveEvent(EventDetails.this, event.getEventId());
+                                            removeEvent.execute();
+                                        }
+                                    })
+                                    .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {}
+                                    })
+                                    .show();
 
                                 return true;
 
                             case R.id.edit_event:
+                                final Dialog dialog = new Dialog(EventDetails.this);
 
+                                dialog.setOwnerActivity(EventDetails.this);
+
+                                dialog.requestWindowFeature(1);
+
+                                dialog.setCancelable(true);
+                                dialog.setCanceledOnTouchOutside(true);
+
+                                dialog.setContentView(R.layout.legg_til_event);
+
+                                WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
+                                if(dialog.getWindow() != null) {
+                                    lp.copyFrom(dialog.getWindow().getAttributes());
+                                    lp.width = WindowManager.LayoutParams.MATCH_PARENT;
+                                    lp.height = WindowManager.LayoutParams.MATCH_PARENT;
+                                    lp.softInputMode = WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN;
+                                }
+
+                                final Button button = dialog.findViewById(R.id.create_event_btn1);
+                                final TextView til_label = dialog.findViewById(R.id.textView12);
+                                final EditText dato = dialog.findViewById(R.id.datofratext);
+                                final EditText time = dialog.findViewById(R.id.timefratext);
+                                final EditText datotil = dialog.findViewById(R.id.datotiltext);
+                                final EditText timetil = dialog.findViewById(R.id.timetiltext);
+                                final CheckBox alle_deltakere = dialog.findViewById(R.id.alle_deltakere_må);
+                                final TextView fjern_sluttidspunkt = dialog.findViewById(R.id.fjern_sluttidspunkt);
+                                fjern_sluttidspunkt.setPaintFlags(fjern_sluttidspunkt.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
+                                final CheckBox vis_adresse = dialog.findViewById(R.id.vis_adresse);
+                                final ImageButton legg_til_bilde = dialog.findViewById(R.id.imageButton6);
+                                final EditText maks_deltakere = dialog.findViewById(R.id.maks_deltakere);
+                                final EditText titletext = dialog.findViewById(R.id.create_eventText);
+                                final EditText beskrivelse = dialog.findViewById(R.id.beskrivelse_create);
+                                final EditText aldersgrense = dialog.findViewById(R.id.aldersgrense);
+                                final TextView sluttidspunkt = dialog.findViewById(R.id.legg_til_sluttidspunkt);
+                                sluttidspunkt.setPaintFlags(sluttidspunkt.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
+                                Toolbar create_event_toolbar = dialog.findViewById(R.id.toolbar2);
+                                final EditText postnr = dialog.findViewById(R.id.create_postnr);
+                                final EditText gate = dialog.findViewById(R.id.create_gate);
+                                final CheckBox vis_gjesteliste = dialog.findViewById(R.id.vis_gjesteliste);
+                                final TextView by = dialog.findViewById(R.id.by_textview);
+
+                                final Handler textchangedHandler = new Handler();
+
+                                postnr.addTextChangedListener(new TextWatcher() {
+                                    @Override
+                                    public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+                                    @Override
+                                    public void onTextChanged(final CharSequence s, int start, int before, int count) {
+                                        textchangedHandler.removeCallbacksAndMessages(null);
+                                        textchangedHandler.postDelayed(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                if(postnr.getText().toString().length() > 3 && gate.getText().toString().length() > 4) {
+                                                    GetLocationInfo getLocationInfo = new GetLocationInfo(dialog, gate.getText().toString(), Integer.valueOf(s.toString()), new Event(""),null, false);
+                                                    getLocationInfo.execute();
+                                                }
+                                            }
+                                        }, 200);
+                                    }
+
+                                    @Override
+                                    public void afterTextChanged(Editable s) {}
+                                });
+
+                                gate.addTextChangedListener(new TextWatcher() {
+                                    @Override
+                                    public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+                                    @Override
+                                    public void onTextChanged(final CharSequence s, int start, int before, int count) {
+                                        textchangedHandler.removeCallbacksAndMessages(null);
+                                        textchangedHandler.postDelayed(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                if(postnr.getText().toString().length() > 3 && gate.getText().toString().length() > 4) {
+                                                    GetLocationInfo getLocationInfo = new GetLocationInfo(dialog, s.toString(), Integer.valueOf(postnr.getText().toString()), new Event(""), null, false);
+                                                    getLocationInfo.execute();
+                                                }
+                                            }
+                                        }, 200);
+                                    }
+
+                                    @Override
+                                    public void afterTextChanged(Editable s) {}
+                                });
+
+                                create_event_toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        dialog.onBackPressed();
+                                    }
+                                });
+
+                                create_event_toolbar.setNavigationIcon(getResources().getDrawable(R.drawable.left_arrow));
+
+                                legg_til_bilde.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        if(ActivityCompat.checkSelfPermission(EventDetails.this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                                            Intent intent = new Intent();
+                                            intent.setType("image/*");
+                                            intent.setAction(Intent.ACTION_GET_CONTENT);
+                                            startActivityForResult(Intent.createChooser(intent, "Select Picture"), Utilities.SELECT_IMAGE_CODE);
+                                        } else {
+                                            ActivityCompat.requestPermissions(EventDetails.this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, Utilities.READ_EXTERNAL_STORAGE_CODE);
+                                        }
+                                    }
+                                });
+
+                                ProfilActivity.imageChange.addChangeListener(new PropertyChangeListener() {
+                                    @Override
+                                    public void propertyChange(PropertyChangeEvent evt) {
+                                        try {
+                                            legg_til_bilde.setImageBitmap(Bitmap.createScaledBitmap(MediaStore.Images.Media.getBitmap(getContentResolver(), ProfilActivity.imageChange.getUri()), (int) getResources().getDimension(R.dimen._150sdp), (int) getResources().getDimension(R.dimen._75sdp), true));
+                                            legg_til_bilde.setScaleX(1.0f);
+                                            legg_til_bilde.setScaleY(1.0f);
+                                        } catch (IOException e) {
+                                            e.printStackTrace();
+                                        }
+                                    }
+                                });
+
+                                alle_deltakere.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                                    @Override
+                                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                                        vis_adresse.setVisibility(isChecked ? View.VISIBLE : View.GONE);
+                                    }
+                                });
+
+                                //noinspection AndroidLintClickableViewAccessibility
+                                time.setOnTouchListener(new View.OnTouchListener() {
+                                    @Override
+                                    public boolean onTouch(View v, MotionEvent event) {
+                                        if(event.getAction() == MotionEvent.ACTION_UP) {
+                                            Calendar nowtime = Calendar.getInstance();
+                                            TimePickerDialog timePickerDialog = new TimePickerDialog(EventDetails.this, new TimePickerDialog.OnTimeSetListener() {
+                                                @Override
+                                                public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+                                                    time.setText(String.format(Locale.ENGLISH, "%02d:%02d", hourOfDay, minute));
+                                                }
+                                            }, nowtime.get(Calendar.HOUR_OF_DAY), nowtime.get(Calendar.MINUTE), true);
+                                            timePickerDialog.setButton(TimePickerDialog.BUTTON_POSITIVE, EventDetails.this.getResources().getString(R.string.angi), timePickerDialog);
+                                            timePickerDialog.setButton(TimePickerDialog.BUTTON_NEGATIVE, EventDetails.this.getResources().getString(R.string.avbryt), timePickerDialog);
+                                            timePickerDialog.show();
+                                            return true;
+                                        }
+                                        return false;
+                                    }
+                                });
+
+                                //noinspection AndroidLintClickableViewAccessibility
+                                dato.setOnTouchListener(new View.OnTouchListener() {
+                                    @Override
+                                    public boolean onTouch(View v, MotionEvent event) {
+                                        if(event.getAction() == MotionEvent.ACTION_UP) {
+                                            Calendar c = Calendar.getInstance();
+                                            DatePickerDialog dialog = new DatePickerDialog(EventDetails.this, new DatePickerDialog.OnDateSetListener() {
+                                                @Override
+                                                public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
+                                                    Calendar calendar;
+                                                    calendar = Calendar.getInstance();
+                                                    calendar.set(Calendar.MONTH, month);
+                                                    dato.setText(String.format(Locale.ENGLISH, "%02d %s %d", dayOfMonth, calendar.getDisplayName(Calendar.MONTH, Calendar.SHORT,
+                                                            EventDetails.this.getResources().getConfiguration().locale), year));
+                                                }
+                                            }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH));
+                                            dialog.setButton(DatePickerDialog.BUTTON_POSITIVE, EventDetails.this.getResources().getString(R.string.angi), dialog);
+                                            dialog.setButton(DatePickerDialog.BUTTON_NEGATIVE, EventDetails.this.getResources().getString(R.string.avbryt), dialog);
+                                            dialog.show();
+                                            return true;
+                                        }
+
+                                        return false;
+                                    }
+                                });
+
+                                //noinspection AndroidLintClickableViewAccessibility
+                                timetil.setOnTouchListener(new View.OnTouchListener() {
+                                    @Override
+                                    public boolean onTouch(View v, MotionEvent event) {
+                                        if(event.getAction() == MotionEvent.ACTION_UP) {
+                                            Calendar nowtime = Calendar.getInstance();
+                                            TimePickerDialog timePickerDialog = new TimePickerDialog(EventDetails.this, new TimePickerDialog.OnTimeSetListener() {
+                                                @Override
+                                                public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+                                                    timetil.setText(String.format(Locale.ENGLISH, "%02d:%02d", hourOfDay, minute));
+                                                }
+                                            }, nowtime.get(Calendar.HOUR_OF_DAY), nowtime.get(Calendar.MINUTE), true);
+                                            timePickerDialog.setButton(TimePickerDialog.BUTTON_POSITIVE, EventDetails.this.getResources().getString(R.string.angi), timePickerDialog);
+                                            timePickerDialog.setButton(TimePickerDialog.BUTTON_NEGATIVE, EventDetails.this.getResources().getString(R.string.avbryt), timePickerDialog);
+                                            timePickerDialog.show();
+                                            return true;
+                                        }
+                                        return false;
+                                    }
+                                });
+
+                                //noinspection AndroidLintClickableViewAccessibility
+                                datotil.setOnTouchListener(new View.OnTouchListener() {
+                                    @Override
+                                    public boolean onTouch(View v, MotionEvent event) {
+                                        if(event.getAction() == MotionEvent.ACTION_UP) {
+                                            v.requestFocusFromTouch();
+
+                                            Calendar c = Calendar.getInstance();
+                                            DatePickerDialog dialog = new DatePickerDialog(EventDetails.this, new DatePickerDialog.OnDateSetListener() {
+                                                @Override
+                                                public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
+                                                    Calendar calendar;
+                                                    calendar = Calendar.getInstance();
+                                                    calendar.set(Calendar.MONTH, month);
+                                                    datotil.setText(String.format(Locale.ENGLISH, "%02d %s %d", dayOfMonth, calendar.getDisplayName(Calendar.MONTH, Calendar.SHORT,
+                                                            EventDetails.this.getResources().getConfiguration().locale), year));
+                                                }
+                                            }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH));
+                                            dialog.setButton(DatePickerDialog.BUTTON_POSITIVE, EventDetails.this.getResources().getString(R.string.angi), dialog);
+                                            dialog.setButton(DatePickerDialog.BUTTON_NEGATIVE, EventDetails.this.getResources().getString(R.string.avbryt), dialog);
+                                            dialog.show();
+                                            return true;
+                                        }
+
+                                        return false;
+                                    }
+                                });
+
+                                sluttidspunkt.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        til_label.setVisibility(View.VISIBLE);
+                                        datotil.setVisibility(View.VISIBLE);
+                                        fjern_sluttidspunkt.setVisibility(View.VISIBLE);
+                                        sluttidspunkt.setVisibility(View.INVISIBLE);
+                                        timetil.setVisibility(View.VISIBLE);
+                                    }
+                                });
+
+                                fjern_sluttidspunkt.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        datotil.setText("");
+                                        timetil.setText("");
+                                        til_label.setVisibility(View.INVISIBLE);
+                                        datotil.setVisibility(View.INVISIBLE);
+                                        fjern_sluttidspunkt.setVisibility(View.GONE);
+                                        sluttidspunkt.setVisibility(View.VISIBLE);
+                                        timetil.setVisibility(View.INVISIBLE);
+                                    }
+                                });
+
+                                button.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        if(titletext.length() <= 3) {
+                                            Toast.makeText(EventDetails.this, "Please choose a title longer than 3 characters.", Toast.LENGTH_SHORT).show();
+                                            return;
+                                        }
+
+                                        if(dato.getText().toString().isEmpty() || time.getText().toString().isEmpty()) {
+                                            Toast.makeText(EventDetails.this, "Please choose a starting date.", Toast.LENGTH_SHORT).show();
+                                            return;
+                                        }
+
+                                        if(maks_deltakere.getText().toString().isEmpty() || Integer.valueOf(maks_deltakere.getText().toString()) <= 1) {
+                                            Toast.makeText(EventDetails.this, "Max participants can not be lower than 2.", Toast.LENGTH_SHORT).show();
+                                            return;
+                                        } else if(!maks_deltakere.getText().toString().isEmpty() && (Integer.valueOf(maks_deltakere.getText().toString()) > 40 && !Bruker.get().isPremium())) {
+                                            new android.support.v7.app.AlertDialog.Builder(EventDetails.this)
+                                                    .setTitle("Premium")
+                                                    .setMessage("To use this feature you need to have premium.\nWould you like to purchase premium? (This will not prompt you with a purchase, rather with information.)")
+                                                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                                        @Override
+                                                        public void onClick(DialogInterface dialog, int which) {
+                                                            // show info about premium and it's features.
+                                                        }})
+                                                    .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                                                        @Override
+                                                        public void onClick(DialogInterface dialog, int which) {}})
+                                                    .show();
+                                            return;
+                                        }
+
+                                        if(aldersgrense.getText().toString().isEmpty() || Integer.valueOf(aldersgrense.getText().toString()) <= 13) {
+                                            Toast.makeText(EventDetails.this, "The agerestriction can not be lower than 14.", Toast.LENGTH_SHORT).show();
+                                            return;
+                                        }
+
+                                        if(by.getText().toString().equals("By")) {
+                                            Toast.makeText(EventDetails.this, "Please make sure the address is filled in correctly.", Toast.LENGTH_SHORT).show();
+                                            return;
+                                        }
+
+                                        if(ProfilActivity.imageChange.getImage() == null) {
+                                            new android.support.v7.app.AlertDialog.Builder(EventDetails.this)
+                                                    .setTitle("Image")
+                                                    .setMessage("Are you sure you do not want to add an image?")
+                                                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                                        @Override
+                                                        public void onClick(DialogInterface somedialog, int which) {
+                                                            Utilities.CheckAddEvent(dato, time, datotil, timetil, titletext, gate, aldersgrense, maks_deltakere, postnr, by, beskrivelse, dialog, vis_gjesteliste, alle_deltakere, vis_adresse, true);
+                                                        }
+                                                    })
+                                                    .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                                                        @Override
+                                                        public void onClick(DialogInterface dialog, int which) {}})
+                                                    .show();
+                                        } else
+                                            Utilities.CheckAddEvent(dato, time, datotil, timetil, titletext, gate, aldersgrense, maks_deltakere, postnr, by, beskrivelse, dialog, vis_gjesteliste, alle_deltakere, vis_adresse, true);
+                                    }
+                                });
+
+                                dialog.show();
+
+                                if(dialog.getWindow() != null) {
+                                    dialog.getWindow().setAttributes(lp);
+                                }
+
+                                dato.setText(Utilities.getDateStringFromMillis(event.getDatefrom(), true));
+                                time.setText(Utilities.getDateStringFromMillis(event.getDatefrom(), false));
+
+                                if(event.getDateto() != 0) {
+                                    sluttidspunkt.performClick();
+                                    datotil.setText(Utilities.getDateStringFromMillis(event.getDateto(), true));
+                                    timetil.setText(Utilities.getDateStringFromMillis(event.getDateto(), false));
+                                }
+
+                                if(event.isHasimage()) {
+                                    StorageReference picRef = ProfilActivity.storage.getReference().child(event.getHostStr() + "_" + event.getNameofevent());
+
+                                    picRef.getBytes(1024 * 1024).addOnSuccessListener(new OnSuccessListener<byte[]>() {
+                                        @Override
+                                        public void onSuccess(byte[] bytes) {
+                                            legg_til_bilde.setImageBitmap(BitmapFactory.decodeByteArray(bytes, 0, bytes.length));
+                                            ProfilActivity.imageChange.setBmp(BitmapFactory.decodeByteArray(bytes, 0, bytes.length));
+                                        }
+                                    }).addOnFailureListener(new OnFailureListener() {
+                                        @Override
+                                        public void onFailure(@NonNull Exception e) {
+                                            legg_til_bilde.setImageDrawable(EventDetails.this.getResources().getDrawable(R.drawable.error_loading_image));
+                                        }
+                                    });
+                                }
+
+                                titletext.setText(event.getNameofevent());
+                                gate.setText(event.getAddress());
+                                aldersgrense.setText(event.getAgerestriction());
+                                maks_deltakere.setText(event.getMaxparticipants());
+                                postnr.setText(event.getPostalcode());
+                                by.setText(event.getTown());
+                                beskrivelse.setText(event.getDescription());
+                                vis_gjesteliste.setChecked(event.isShowguestlist());
+                                alle_deltakere.setChecked(event.isPrivateEvent());
+                                vis_adresse.setChecked(event.isShowaddress());
 
                                 return true;
 

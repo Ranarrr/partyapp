@@ -7,6 +7,43 @@
     android:background="@color/colorPrimary"
     tools:context="com.partyspottr.appdir.ui.registerui.RegisterActivity">
 
+    <Spinner
+        android:id="@+id/dd_spinner"
+        android:layout_width="@dimen/_60sdp"
+        android:layout_height="@dimen/_30sdp"
+        android:layout_marginTop="@dimen/_15sdp"
+        android:background="@drawable/border_bottom_fat"
+        android:gravity="center"
+        android:theme="@style/SpinnerTheme"
+        app:layout_constraintEnd_toStartOf="@+id/mm_spinner"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView" />
+
+    <Spinner
+        android:id="@+id/mm_spinner"
+        android:layout_width="@dimen/_60sdp"
+        android:layout_height="@dimen/_30sdp"
+        android:background="@drawable/border_bottom_fat"
+        android:gravity="center"
+        android:theme="@style/SpinnerTheme"
+        app:layout_constraintEnd_toStartOf="@+id/yyyy_spinner"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/dd_spinner"
+        app:layout_constraintTop_toTopOf="@+id/dd_spinner" />
+
+    <Spinner
+        android:id="@+id/yyyy_spinner"
+        android:layout_width="@dimen/_60sdp"
+        android:layout_height="@dimen/_30sdp"
+        android:background="@drawable/border_bottom_fat"
+        android:gravity="center"
+        android:theme="@style/SpinnerTheme"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/mm_spinner"
+        app:layout_constraintTop_toTopOf="@+id/dd_spinner" />
+
     <EditText
         android:id="@+id/fornavnText"
         android:layout_width="@dimen/_130sdp"
@@ -19,7 +56,7 @@
         android:inputType="text|textCapWords"
         android:paddingStart="@dimen/_5sdp"
         android:textColor="@color/white"
-        android:textColorHint="@color/white"
+        android:textColorHint="@color/colorAlpha"
         android:textSize="@dimen/_12ssp"
         android:theme="@style/MyEditTextTheme"
         app:layout_constraintEnd_toStartOf="@+id/etternavnText"
@@ -38,7 +75,7 @@
         android:inputType="text|textCapWords"
         android:paddingStart="@dimen/_5sdp"
         android:textColor="@color/white"
-        android:textColorHint="@color/white"
+        android:textColorHint="@color/colorAlpha"
         android:textSize="@dimen/_12ssp"
         android:theme="@style/MyEditTextTheme"
         app:layout_constraintEnd_toEndOf="parent"
@@ -64,11 +101,11 @@
         android:id="@+id/button"
         android:layout_width="@dimen/_135sdp"
         android:layout_height="@dimen/_45sdp"
-        android:layout_marginTop="@dimen/_270sdp"
-        android:background="@drawable/border_rounded"
+        android:layout_marginTop="@dimen/_290sdp"
+        android:background="@drawable/rounded_btn_rect"
         android:onClick="onClickRegistrerBtn"
         android:text="@string/fortsett"
-        android:textColor="@android:color/background_light"
+        android:textColor="@android:color/black"
         android:textSize="@dimen/_12ssp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -83,10 +120,11 @@
         android:clickable="false"
         android:max="5"
         android:progress="1"
+        android:theme="@style/mySeekBarTheme"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/toolbar"
-        app:tickMarkTint="@android:color/white" />
+        app:tickMarkTint="@color/redtint" />
 
     <TextView
         android:id="@+id/textView"
@@ -100,68 +138,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/etternavnText" />
-
-    <EditText
-        android:id="@+id/mmNum"
-        android:layout_width="@dimen/_50sdp"
-        android:layout_height="wrap_content"
-        android:digits="1234567890"
-        android:ems="10"
-        android:hint="mm"
-        android:inputType="number"
-        android:maxLength="2"
-        android:theme="@style/MyEditTextTheme"
-        android:selectAllOnFocus="true"
-        android:textAlignment="center"
-        android:textColor="@color/white"
-        android:textColorHint="@color/white"
-        android:textSize="@dimen/_14ssp"
-        app:layout_constraintEnd_toStartOf="@+id/ååååNum"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/ddNum"
-        app:layout_constraintTop_toTopOf="@+id/ddNum" />
-
-    <EditText
-        android:id="@+id/ååååNum"
-        android:layout_width="@dimen/_50sdp"
-        android:layout_height="wrap_content"
-        android:digits="1234567890"
-        android:ems="10"
-        android:hint="@string/åååå"
-        android:inputType="number"
-        android:theme="@style/MyEditTextTheme"
-        android:maxLength="4"
-        android:selectAllOnFocus="true"
-        android:textAlignment="center"
-        android:textColor="@color/white"
-        android:textColorHint="@color/white"
-        android:textSize="@dimen/_14ssp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/mmNum"
-        app:layout_constraintTop_toTopOf="@+id/mmNum" />
-
-    <EditText
-        android:id="@+id/ddNum"
-        android:layout_width="@dimen/_50sdp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/_12sdp"
-        android:digits="1234567890"
-        android:ems="10"
-        android:hint="dd"
-        android:inputType="number"
-        android:maxLength="2"
-        android:theme="@style/MyEditTextTheme"
-        android:selectAllOnFocus="true"
-        android:singleLine="true"
-        android:textAlignment="center"
-        android:textColor="@color/white"
-        android:textColorHint="@color/white"
-        android:textSize="@dimen/_14ssp"
-        app:layout_constraintEnd_toStartOf="@+id/mmNum"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView" />
 
     <android.support.v7.widget.Toolbar
         android:id="@+id/toolbar"
@@ -186,6 +162,42 @@
             tools:layout_editor_absoluteY="14dp" />
 
     </android.support.v7.widget.Toolbar>
+
+    <TextView
+        android:id="@+id/textView21"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/_5sdp"
+        android:text="(dd)"
+        android:textColor="@color/white"
+        android:textSize="@dimen/_10ssp"
+        app:layout_constraintEnd_toEndOf="@+id/dd_spinner"
+        app:layout_constraintStart_toStartOf="@+id/dd_spinner"
+        app:layout_constraintTop_toBottomOf="@+id/dd_spinner" />
+
+    <TextView
+        android:id="@+id/textView22"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/_5sdp"
+        android:text="(mm)"
+        android:textColor="@color/white"
+        android:textSize="@dimen/_10ssp"
+        app:layout_constraintEnd_toEndOf="@+id/mm_spinner"
+        app:layout_constraintStart_toStartOf="@+id/mm_spinner"
+        app:layout_constraintTop_toBottomOf="@+id/mm_spinner" />
+
+    <TextView
+        android:id="@+id/textView23"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/_5sdp"
+        android:text="(yyyy)"
+        android:textColor="@color/white"
+        android:textSize="@dimen/_10ssp"
+        app:layout_constraintEnd_toEndOf="@+id/yyyy_spinner"
+        app:layout_constraintStart_toStartOf="@+id/yyyy_spinner"
+        app:layout_constraintTop_toBottomOf="@+id/yyyy_spinner" />
 
 
 </android.support.constraint.ConstraintLayout>
