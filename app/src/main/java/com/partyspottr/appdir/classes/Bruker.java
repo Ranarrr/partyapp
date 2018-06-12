@@ -2,18 +2,20 @@ package com.partyspottr.appdir.classes;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
-import android.util.Base64;
+import android.provider.Telephony;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.GenericTypeIndicator;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.partyspottr.appdir.BuildConfig;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -37,7 +39,6 @@ public class Bruker {
     private String fornavn;
     private String etternavn;
     private String email;
-    private boolean harakseptert;
     private boolean premium;
     private boolean loggetpa;
     private boolean isConnected;
@@ -45,7 +46,6 @@ public class Bruker {
     private int month;
     private int year;
     private String country;
-    private String mobilnummer;
     private String town;
     private List<Friend> friendList;
     private List<Friend> requests;
@@ -63,7 +63,6 @@ public class Bruker {
     private static final String fornavnElem = "fornavnElem";
     private static final String emailElem = "emailElem";
     private static final String passordElem = "passordElem";
-    private static final String harakseptertElem = "harakseptertElem";
     private static final String etternavnElem = "etternavnElem";
     private static final String premiumElem = "premiumElem";
     private static final String loggedonElem = "loggedonElem";
@@ -74,7 +73,6 @@ public class Bruker {
     private static final String monthElem = "monthElem";
     private static final String townElem = "townElem";
     private static final String yearElem = "yearElem";
-    private static final String mobilElem = "mobilElem";
     private static final String socketElem = "socketElem";
     private static final String chatElem = "chatElem";
     private static final String onelinerElem = "oneliner";
@@ -89,6 +87,9 @@ public class Bruker {
 
     private static Bruker lokalBruker;
     private Chauffeur chauffeur;
+
+    public DatabaseReference ref;
+    public ChildEventListener eventListener;
 
     private SharedPreferences sharedPreferences;
 
@@ -115,7 +116,6 @@ public class Bruker {
         editor.putString(brukernavnElem, brukernavn);
         editor.putString(passordElem, passord);
 
-        editor.putBoolean(harakseptertElem, harakseptert);
         editor.putString(fornavnElem, fornavn);
         editor.putString(etternavnElem, etternavn);
         editor.putBoolean(premiumElem, premium);
@@ -123,7 +123,6 @@ public class Bruker {
         editor.putInt(day_of_monthElem, day_of_month);
         editor.putInt(monthElem, month);
         editor.putInt(yearElem, year);
-        editor.putString(mobilElem, mobilnummer);
         editor.putString(emailElem, email);
         editor.putString(onelinerElem, oneliner);
         editor.putBoolean(hascarElem, hascar);
@@ -137,7 +136,6 @@ public class Bruker {
     private void HentBruker() {
         brukernavn = sharedPreferences.getString(brukernavnElem, "");
         passord = sharedPreferences.getString(passordElem, "");
-        harakseptert = sharedPreferences.getBoolean(harakseptertElem, false);
         fornavn = sharedPreferences.getString(fornavnElem, "");
         etternavn = sharedPreferences.getString(etternavnElem, "");
         premium = sharedPreferences.getBoolean(premiumElem, false);
@@ -145,7 +143,6 @@ public class Bruker {
         day_of_month = sharedPreferences.getInt(day_of_monthElem, 0);
         month = sharedPreferences.getInt(monthElem, 0);
         year = sharedPreferences.getInt(yearElem, 0);
-        mobilnummer = sharedPreferences.getString(mobilElem, "");
         email = sharedPreferences.getString(emailElem, "");
         oneliner = sharedPreferences.getString(onelinerElem, "");
         hascar = sharedPreferences.getBoolean(hascarElem, false);
@@ -201,44 +198,178 @@ public class Bruker {
         }
     }
 
-    public void ParseEvents(JSONArray events) {
+    public void GetAndParseEvents() {
+        if(!Bruker.get().isConnected())
+            return;
+
         listOfEvents = new ArrayList<>();
         listOfMyEvents = new ArrayList<>();
 
-        if(events.length() == 0)
-            return;
+        ref = FirebaseDatabase.getInstance().getReference("events");
 
-        try {
-            for(int i = 0; i < events.length(); i++) {
-                JSONObject event = new JSONObject(events.getString(i));
+        eventListener = ref.addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                Event event = new Event();
 
-                List<Participant> participantList = new Gson().fromJson(event.getString("participants"), listParticipantsType);
-                List<Requester> requesterList = new Gson().fromJson(event.getString("requests"), listRequestsType);
+                for(DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                    if(snapshot.getKey() != null) {
+                        switch(snapshot.getKey()) {
+                            case "nameofevent":
+                                event.setNameofevent(snapshot.getValue(String.class));
+                                break;
 
-                Event eventToAdd = new Event(Long.valueOf(event.getString("eventId")), event.getString("nameofevent"), event.getString("address"), event.getString("country"),
-                        event.getString("hostStr"),Integer.valueOf(event.getString("privateEvent")) > 0, Double.valueOf(event.getString("longitude")),
-                        Double.valueOf(event.getString("latitude")), Long.valueOf(event.getString("datefrom")), event.getString("dateto").equals("0") ? 0 : Long.valueOf(event.getString("dateto")),
-                        Integer.valueOf(event.getString("agerestriction")), participantList, Integer.valueOf(event.getString("maxparticipants")),
-                        event.getString("postalcode"), event.getString("town"), event.getString("description"),
-                        Integer.valueOf(event.getString("showguestlist")) > 0, Integer.valueOf(event.getString("showaddress")) > 0, requesterList,
-                        Integer.valueOf(event.getString("hasimage")) > 0);
+                            case "address":
+                                event.setAddress(snapshot.getValue(String.class));
+                                break;
 
-                if(eventToAdd.getEventId() == 0)
-                    continue;
+                            case "agerestriction":
+                                if(snapshot.getValue(Integer.class) != null) {
+                                    event.setAgerestriction(snapshot.getValue(Integer.class));
+                                }
+                                break;
 
-                if(eventToAdd.getHostStr().isEmpty())
-                    continue;
+                            case "country":
+                                event.setCountry(snapshot.getValue(String.class));
+                                break;
 
-                if(!eventToAdd.getNameofevent().isEmpty()) {
-                    if(eventToAdd.getHostStr().equals(Bruker.get().getBrukernavn()))
-                        listOfMyEvents.add(eventToAdd);
+                            case "datefrom":
+                                if(snapshot.getValue(Long.class) != null) {
+                                    event.setDatefrom(snapshot.getValue(Long.class));
+                                }
+                                break;
 
-                    listOfEvents.add(eventToAdd);
+                            case "dateto":
+                                if(snapshot.getValue(Long.class) != null) {
+                                    event.setDateto(snapshot.getValue(Long.class));
+                                }
+                                break;
+
+                            case "desc":
+                                event.setDescription(snapshot.getValue(String.class));
+                                break;
+
+                            case "hasimage":
+                                if(snapshot.getValue(Boolean.class) != null) {
+                                    event.setHasimage(snapshot.getValue(Boolean.class));
+                                }
+                                break;
+
+                            case "hostStr":
+                                event.setHostStr(snapshot.getValue(String.class));
+                                break;
+
+                            case "isprivate":
+                                if(snapshot.getValue(Boolean.class) != null) {
+                                    event.setPrivateEvent(snapshot.getValue(Boolean.class));
+                                }
+                                break;
+
+                            case "latitude":
+                                event.setLatitude(snapshot.getValue(Double.class));
+                                break;
+
+                            case "longitude":
+                                event.setLongitude(snapshot.getValue(Double.class));
+                                break;
+
+                            case "maxparticipants":
+                                if(snapshot.getValue(Integer.class) != null) {
+                                    event.setMaxparticipants(snapshot.getValue(Integer.class));
+                                }
+                                break;
+
+                            case "participants":
+                                List<Participant> participants = new Gson().fromJson(snapshot.getValue(String.class), listParticipantsType);
+                                event.setParticipants(participants);
+                                break;
+
+                            case "postalcode":
+                                event.setPostalcode(snapshot.getValue(String.class));
+                                break;
+
+                            case "requests":
+                                List<Requester> requests = new Gson().fromJson(snapshot.getValue(String.class), listRequestsType);
+                                event.setRequests(requests);
+                                break;
+
+                            case "showaddress":
+                                if(snapshot.getValue(Boolean.class) != null) {
+                                    event.setShowaddress(snapshot.getValue(Boolean.class));
+                                }
+                                break;
+
+                            case "showguestlist":
+                                if(snapshot.getValue(Boolean.class) != null) {
+                                    event.setShowguestlist(snapshot.getValue(Boolean.class));
+                                }
+                                break;
+
+                            case "town":
+                                event.setTown(snapshot.getValue(String.class));
+                                break;
+
+                            case "eventId":
+                                if(snapshot.getValue(Long.class) != null) {
+                                    event.setEventId(snapshot.getValue(Long.class));
+                                }
+                                break;
+                        }
+                    }
                 }
+
+                if(event.getEventId() == 0)
+                    return;
+
+                if(event.getHostStr().isEmpty())
+                    return;
+
+                if(event.getHostStr().equals(Bruker.get().getBrukernavn()))
+                    listOfMyEvents.add(event);
+
+                listOfEvents.add(event);
             }
-        } catch(JSONException e){
-            e.printStackTrace();
-        }
+
+            @Override
+            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                Event event = dataSnapshot.getValue(Event.class);
+
+                if(event == null)
+                    return;
+
+                if(event.getEventId() == 0)
+                    return;
+
+                if(event.getHostStr().isEmpty())
+                    return;
+
+                setEventByID(event.getEventId(), event);
+            }
+
+            @Override
+            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
+                Event event = dataSnapshot.getValue(Event.class);
+
+                if(event == null)
+                    return;
+
+                if(event.getEventId() == 0)
+                    return;
+
+                if(event.getHostStr().isEmpty())
+                    return;
+
+                removeEventByID(event.getEventId());
+            }
+
+            @Override
+            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {}
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
     }
 
     public static Bruker retBrukerFromJSON(String str) {
@@ -250,7 +381,6 @@ public class Bruker {
             newBruker.fornavn = json.getString(fornavnElem);
             newBruker.etternavn = json.getString(etternavnElem);
             newBruker.premium = Integer.valueOf(json.getString(premiumElem)) > 0;
-            newBruker.mobilnummer = json.getString(mobilElem);
             newBruker.email = json.getString(emailElem);
             newBruker.town = json.getString(townElem);
             newBruker.userid = Integer.valueOf(json.getString("id"));
@@ -268,83 +398,16 @@ public class Bruker {
         return null;
     }
 
-    public void JSONToBruker(JSONObject json, boolean lagre) {
+    public void JSONToBruker(JSONObject json) {
         try {
             userid = json.getLong(idElem);
             brukernavn = json.getString(brukernavnElem);
-            harakseptert = Integer.valueOf(json.getString(harakseptertElem)) > 0;
-            fornavn = json.getString(fornavnElem);
-            etternavn = json.getString(etternavnElem);
-            premium = Integer.valueOf(json.getString(premiumElem)) > 0;
-            mobilnummer = json.getString(mobilElem);
             email = json.getString(emailElem);
-            day_of_month = Integer.valueOf(json.getString(day_of_monthElem));
-            month = Integer.valueOf(json.getString(monthElem));
-            year = Integer.valueOf(json.getString(yearElem));
-            oneliner = json.getString(onelinerElem);
-            friendList = new Gson().fromJson(json.getString(friendlistElem), listFriendsType);
-            requests = new Gson().fromJson(json.getString(requestlistElem), listFriendsType);
 
-            if(lagre)
-                LagreBruker();
+            LagreBruker();
         } catch (JSONException e) {
             e.printStackTrace();
         }
-    }
-
-    public String BrukerToJSON() {
-        try {
-            JSONObject fullJson = new JSONObject();
-            fullJson.put(brukernavnElem, brukernavn);
-            fullJson.put(passordElem, passord);
-            fullJson.put(harakseptertElem, harakseptert);
-            fullJson.put(fornavnElem, fornavn);
-            fullJson.put(etternavnElem, etternavn);
-            fullJson.put(premiumElem, premium);
-            fullJson.put(mobilElem, mobilnummer);
-            fullJson.put(emailElem, email);
-            fullJson.put(day_of_monthElem, day_of_month);
-            fullJson.put(monthElem, month);
-            fullJson.put(premiumElem, premium);
-            fullJson.put(loggedonElem, loggetpa);
-            fullJson.put(yearElem, year);
-            fullJson.put(countryElem, country);
-            fullJson.put(townElem, town);
-            fullJson.put(onelinerElem, oneliner);
-            fullJson.put(friendlistElem, new Gson().toJson(friendList));
-            fullJson.put(requestlistElem, new Gson().toJson(requests));
-            fullJson.put(socketElem, Base64.encodeToString(BuildConfig.JSONParser_Socket.getBytes(), Base64.DEFAULT));
-            return fullJson.toString();
-        } catch(JSONException e) {
-            e.printStackTrace();
-        }
-
-        return "";
-    }
-
-    public static void getBruker(Activity activity, String brukernavn, final Bruker out) {
-        if(out == null)
-            return;
-
-        StringRequest stringRequest = new StringRequest(Utilities.getGETMethodArgStr("get_user", "socketElem", Base64.encodeToString(BuildConfig.JSONParser_Socket.getBytes(), Base64.DEFAULT),
-                "username", brukernavn), new Response.Listener<String>() {
-            @Override
-            public void onResponse(String response) {
-                try {
-                    out.JSONToBruker(new JSONObject(response), false);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-
-            }
-        });
-
-        RequestQueue queue = Volley.newRequestQueue(activity);
-        queue.add(stringRequest);
     }
 
     public List<Integer> getAllEventIDUserGoingTo(String user) {
@@ -379,6 +442,29 @@ public class Bruker {
         for(int i = 0; i < listOfEvents.size(); i++) {
             if(listOfEvents.get(i).getEventId() == eventid) {
                 listOfEvents.set(i, eventToSet);
+                break;
+            }
+        }
+
+        for(int i = 0; i < listOfMyEvents.size(); i++) {
+            if(listOfMyEvents.get(i).getEventId() == eventid) {
+                listOfMyEvents.set(i, eventToSet);
+                return;
+            }
+        }
+    }
+
+    public void removeEventByID(long eventid) {
+        for(int i = 0; i < listOfEvents.size(); i++) {
+            if(listOfEvents.get(i).getEventId() == eventid) {
+                listOfEvents.remove(i);
+                break;
+            }
+        }
+
+        for(int i = 0; i < listOfMyEvents.size(); i++) {
+            if(listOfMyEvents.get(i).getEventId() == eventid) {
+                listOfMyEvents.remove(i);
                 return;
             }
         }
@@ -466,14 +552,6 @@ public class Bruker {
         this.etternavn = etternavn;
     }
 
-    public boolean isHarakseptert() {
-        return harakseptert;
-    }
-
-    public void setHarakseptert(boolean harakseptert) {
-        this.harakseptert = harakseptert;
-    }
-
     public int getDay_of_month() {
         return day_of_month;
     }
@@ -490,14 +568,6 @@ public class Bruker {
 
     public String getEmail() {
         return email;
-    }
-
-    public void setMobilnummer(String value) {
-        this.mobilnummer = value;
-    }
-
-    public String getMobilnummer() {
-        return mobilnummer;
     }
 
     public boolean isConnected() {

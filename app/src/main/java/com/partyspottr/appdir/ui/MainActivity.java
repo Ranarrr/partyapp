@@ -76,6 +76,8 @@ public class MainActivity extends AppCompatActivity {
         username.setTypeface(typeface);
         password.setTypeface(typeface);
 
+        Utilities.getPosition(this);
+
         if(!Bruker.get().isLoggetpa() && Bruker.get().getBrukernavn() != null && !Bruker.get().getBrukernavn().isEmpty()) {
             username.setText(Bruker.get().getBrukernavn());
         }

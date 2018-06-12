@@ -45,7 +45,7 @@ public class GetAllEvents extends AsyncTask<Void, Void, Integer> {
             if(json != null) {
                 if(json.getJSONObject(json.length() - 1).getInt("success") == 1) {
                     json.remove(json.length() - 1);
-                    Bruker.get().ParseEvents(json);
+                    //Bruker.get().ParseEvents(json);
                     return 1;
                 } else {
                     error_msg = json.getJSONObject(json.length() - 1).getString("error_msg");

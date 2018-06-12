@@ -22,6 +22,8 @@ import android.support.constraint.ConstraintLayout;
 import android.support.constraint.ConstraintSet;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.AppCompatButton;
+import android.support.v7.widget.AppCompatSpinner;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.Spannable;
@@ -661,7 +663,7 @@ public class EventDetails extends AppCompatActivity {
             set.applyTo(layout);
         }
 
-        final ImageButton details_deltaforesprsler = findViewById(R.id.details_delta_btn);
+        final AppCompatButton details_deltaforesprsler = findViewById(R.id.details_delta_btn);
 
         details_deltaforesprsler.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -743,9 +745,9 @@ public class EventDetails extends AppCompatActivity {
         });
 
         if(event.isBrukerInList(Bruker.get().getBrukernavn()) && !event.getHostStr().equals(Bruker.get().getBrukernavn())) {
-            details_deltaforesprsler.setImageDrawable(getResources().getDrawable(R.drawable.joint));
+            //details_deltaforesprsler.(getResources().getDrawable(R.drawable.joint));
         } else if(event.isBrukerRequesting(Bruker.get().getBrukernavn()) && !event.getHostStr().equals(Bruker.get().getBrukernavn())) {
-            details_deltaforesprsler.setImageDrawable(getResources().getDrawable(R.drawable.request_waiting));
+            //details_deltaforesprsler.setImageDrawable(getResources().getDrawable(R.drawable.request_waiting));
             details_deltaforesprsler.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -769,7 +771,7 @@ public class EventDetails extends AppCompatActivity {
         }
 
         if(event.getHostStr().equals(Bruker.get().getBrukernavn())) {
-            details_deltaforesprsler.setImageDrawable(getResources().getDrawable(R.drawable.view_queue));
+            //details_deltaforesprsler.setImageDrawable(getResources().getDrawable(R.drawable.view_queue));
 
             host.setText(String.format(Locale.ENGLISH, "Host: %s (deg)", event.getHostStr()));
         } else {

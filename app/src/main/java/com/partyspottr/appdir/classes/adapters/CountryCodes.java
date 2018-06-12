@@ -663,7 +663,7 @@ public class CountryCodes extends BaseAdapter {
      * @return A String object from m_fullCountry list, null if not found.
      */
     public static String getFullCountry( String twochar_country ) {
-        int index = getIndex(twochar_country);
+        int index = getCountryIndex(twochar_country);
         return m_fullCountry[index];
     }
 
@@ -685,7 +685,7 @@ public class CountryCodes extends BaseAdapter {
      */
     public static String getCode( String country )
     {
-        int index = getIndex( country );
+        int index = getCountryIndex( country );
         return index == -1? null: getCode(index);
     }
 
@@ -748,12 +748,20 @@ public class CountryCodes extends BaseAdapter {
      * @param country: country sign to search
      * @return array index. -1 if none matches.
      */
-    public static int getIndex( String country )
+    public static int getCountryIndex( String country )
     {
         String search = country.toUpperCase(Locale.getDefault());
 
         for( int i=0; i < m_Countries.length; ++i )
             if( m_Countries[i].equals( search ) )
+                return i;
+
+        return -1;
+    }
+
+    public static int getFullCountryIndex(String FullCountry) {
+        for( int i=0; i < m_fullCountry.length; ++i )
+            if( m_fullCountry[i].equals( FullCountry ) )
                 return i;
 
         return -1;
@@ -777,16 +785,18 @@ public class CountryCodes extends BaseAdapter {
     @Override
     public View getView(int index, View recycleView, ViewGroup viewGroup) {
         TextView view;
-        if( recycleView == null )
-        {
+        if( recycleView == null ) {
             view = new TextView(m_Context);
             view.setPadding((int) m_Context.getResources().getDimension(R.dimen._10sdp), (int) m_Context.getResources().getDimension(R.dimen._10sdp), (int) m_Context.getResources().getDimension(R.dimen._10sdp),
                     (int) m_Context.getResources().getDimension(R.dimen._10sdp));
         }
-        else
-        {
+        else {
             view = (TextView)recycleView;
         }
+
+        view.setTextColor(m_Context.getResources().getColor(R.color.white));
+
+        view.setTextSize(m_Context.getResources().getDimension(R.dimen._4ssp));
 
         view.setTypeface(MainActivity.typeface);
 

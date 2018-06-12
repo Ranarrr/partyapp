@@ -49,15 +49,15 @@ public class Register3Activity extends AppCompatActivity {
     }
 
     public void onClickFortsettBtn(View v) {
-        EditText brukerNavn = findViewById(R.id.brukernavnText);
-        EditText passord = findViewById(R.id.passordText);
+        final EditText brukerNavn = findViewById(R.id.brukernavnText);
+        final EditText passord = findViewById(R.id.passordText);
 
         if(passord.length() > 6) {
             Bruker.get().setPassord(passord.getText().toString());
             ViewCompat.setBackgroundTintList(passord, ContextCompat.getColorStateList(getApplicationContext(), R.color.greentint));
 
             if(brukerNavn.length() > 1) {
-                CheckUsername checkUsername = new CheckUsername(brukerNavn.getText().toString(), this);
+                CheckUsername checkUsername = new CheckUsername(Register3Activity.this, brukerNavn.getText().toString());
                 checkUsername.execute();
             } else {
                 ViewCompat.setBackgroundTintList(brukerNavn, ContextCompat.getColorStateList(getApplicationContext(), R.color.redtint));

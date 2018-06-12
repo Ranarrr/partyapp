@@ -1,5 +1,6 @@
 package com.partyspottr.appdir.classes.networking;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -31,16 +32,16 @@ public class CheckUsername extends AsyncTask<Void, Void, Integer> {
     private JSONObject info;
     private ProgressDialog progressDialog;
 
-    public CheckUsername(String usrname, Context c) {
+    public CheckUsername(Activity activity, String username) {
         try {
             info = new JSONObject();
-            info.put("username", usrname);
+            info.put("username", username);
             info.put("socketElem", Base64.encodeToString(BuildConfig.JSONParser_Socket.getBytes(), Base64.DEFAULT));
         } catch (JSONException e) {
             e.printStackTrace();
         }
 
-        progressDialog = new ProgressDialog(c);
+        progressDialog = new ProgressDialog(activity);
         progressDialog.setCanceledOnTouchOutside(false);
     }
 
@@ -82,6 +83,7 @@ public class CheckUsername extends AsyncTask<Void, Void, Integer> {
             } catch (JSONException e) {
                 e.printStackTrace();
             }
+
             Intent intent = new Intent(progressDialog.getContext(), Register4Activity.class);
             progressDialog.getContext().startActivity(intent);
         } else {

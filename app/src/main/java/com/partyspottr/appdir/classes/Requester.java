@@ -11,7 +11,6 @@ import java.lang.reflect.Type;
  */
 
 public class Requester {
-
     private String brukernavn;
     private String fornavn;
     private String etternavn;

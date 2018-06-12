@@ -1,14 +1,11 @@
 package com.partyspottr.appdir.ui.mainfragments;
 
 import android.animation.ObjectAnimator;
-import android.media.Image;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.view.PagerAdapter;
-import android.support.v4.view.ViewCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.AppCompatButton;
 import android.view.LayoutInflater;
@@ -44,7 +41,6 @@ public class eventfragment extends Fragment {
     @Override
     public void onViewCreated(final View view, Bundle savedInstanceState) {
         AppCompatButton alle_eventer_btn = getActivity().findViewById(R.id.alle_eventer_btn);
-
         AppCompatButton mine_eventer_btn = getActivity().findViewById(R.id.mine_eventer_btn);
         AppCompatButton mitt_arkiv_btn = getActivity().findViewById(R.id.arkiv_btn);
 
@@ -66,7 +62,6 @@ public class eventfragment extends Fragment {
                     public void onPageSelected(int position) {
                         AppCompatButton alle_eventer_btn = getActivity().findViewById(R.id.alle_eventer_btn);
                         AppCompatButton mine_eventer_btn = getActivity().findViewById(R.id.mine_eventer_btn);
-                        AppCompatButton mitt_arkiv_btn = getActivity().findViewById(R.id.arkiv_btn);
                         ImageButton search_events = getActivity().findViewById(R.id.search_events);
 
                         if(!firsttimepagechanged)

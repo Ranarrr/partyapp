@@ -32,7 +32,7 @@ public class SplashActivity extends AppCompatActivity {
     public static FirebaseAuth mAuth;
     private boolean hasFineLocation;
     private boolean hasCoarseLocation;
-    private boolean hasSendSMS;
+    //private boolean hasSendSMS;
     public static boolean hasSwitched;
     private static boolean passedfirst;
 
@@ -55,7 +55,7 @@ public class SplashActivity extends AppCompatActivity {
 
         hasFineLocation = ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
         hasCoarseLocation = ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED;
-        hasSendSMS = ActivityCompat.checkSelfPermission(this, Manifest.permission.SEND_SMS) == PackageManager.PERMISSION_GRANTED;
+        //hasSendSMS = ActivityCompat.checkSelfPermission(this, Manifest.permission.SEND_SMS) == PackageManager.PERMISSION_GRANTED;
 
         if(!Bruker.get().isLoggetpa() && !Bruker.get().getBrukernavn().isEmpty() && !Bruker.get().getPassord().isEmpty()
                 && !Bruker.get().getEmail().isEmpty()) {
@@ -70,9 +70,9 @@ public class SplashActivity extends AppCompatActivity {
         passedfirst = false;
         hasSwitched = false;
 
-        if(!hasSendSMS) {
+        /*if(!hasSendSMS) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.SEND_SMS}, Utilities.SEND_SMS_REQUEST_CODE);
-        }
+        }*/
 
         /*if(AccessToken.getCurrentAccessToken() != null) {
             Intent intent = new Intent(this, ProfilActivity.class);
@@ -84,7 +84,7 @@ public class SplashActivity extends AppCompatActivity {
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                if(!Bruker.get().isLoggetpa() && !hasSwitched && hasSendSMS && hasCoarseLocation && hasFineLocation) {
+                if(!Bruker.get().isLoggetpa() && !hasSwitched && hasCoarseLocation && hasFineLocation) {
                     Intent main = new Intent(SplashActivity.this, MainActivity.class);
                     SplashActivity.this.startActivity(main);
                     SplashActivity.this.finish();
@@ -97,7 +97,7 @@ public class SplashActivity extends AppCompatActivity {
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        if(requestCode == Utilities.SEND_SMS_REQUEST_CODE) {
+        /*if(requestCode == Utilities.SEND_SMS_REQUEST_CODE) {
             for(int i = 0; i < permissions.length; i++) {
                 if(permissions[i].equals(Manifest.permission.SEND_SMS)) {
                     if(grantResults[i] == PackageManager.PERMISSION_GRANTED) {
@@ -121,11 +121,11 @@ public class SplashActivity extends AppCompatActivity {
                                         ActivityCompat.requestPermissions(SplashActivity.this, new String[]{Manifest.permission.SEND_SMS}, Utilities.SEND_SMS_REQUEST_CODE);
                                     }
                                 })
-                                .show();*/
+                                .show();
                     }
                 }
             }
-        }
+        }*/
 
         if(requestCode == Utilities.LOCATION_REQUEST_CODE) {
             for(int i = 0; i < permissions.length; i++) {
@@ -134,8 +134,8 @@ public class SplashActivity extends AppCompatActivity {
                         hasCoarseLocation = true;
                         hasFineLocation = true;
 
-                        if(!hasSendSMS)
-                            ActivityCompat.requestPermissions(SplashActivity.this, new String[]{Manifest.permission.SEND_SMS}, Utilities.SEND_SMS_REQUEST_CODE);
+                        /*if(!hasSendSMS)
+                            ActivityCompat.requestPermissions(SplashActivity.this, new String[]{Manifest.permission.SEND_SMS}, Utilities.SEND_SMS_REQUEST_CODE);*/
 
                     } else {
                         new AlertDialog.Builder(this)
@@ -155,7 +155,7 @@ public class SplashActivity extends AppCompatActivity {
             }
         }
 
-        if(hasSendSMS && hasFineLocation && hasCoarseLocation && passedfirst) {
+        if(hasFineLocation && hasCoarseLocation && passedfirst) {
             new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {

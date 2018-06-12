@@ -4,9 +4,15 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.support.annotation.NonNull;
 import android.util.Base64;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.partyspottr.appdir.BuildConfig;
 import com.partyspottr.appdir.R;
 import com.partyspottr.appdir.classes.Bruker;
@@ -29,13 +35,15 @@ import java.util.List;
  */
 
 public class LoginUser extends AsyncTask<Void, Void, Integer> {
-
     private ProgressDialog progressDialog;
     private JSONObject info;
+    private String password;
 
     public LoginUser(Activity activity, String user, String pass) {
         progressDialog = new ProgressDialog(activity);
         progressDialog.setOwnerActivity(activity);
+        password = pass;
+
         try {
             info = new JSONObject();
             info.put("username", user);
@@ -53,6 +61,7 @@ public class LoginUser extends AsyncTask<Void, Void, Integer> {
             progressDialog.setMessage(progressDialog.getContext().getResources().getString(R.string.logger_inn));
             progressDialog.show();
         }
+
         super.onPreExecute();
     }
 
@@ -65,8 +74,25 @@ public class LoginUser extends AsyncTask<Void, Void, Integer> {
             if(json != null) {
                 if(json.getInt("success") == 1) {
                     SplashActivity.hasSwitched = true;
+
+                    SplashActivity.mAuth.signInWithEmailAndPassword(json.getString("emailElem"), password)
+                            .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                                @Override
+                                public void onComplete(@NonNull Task<AuthResult> task) {
+                                    if(task.isSuccessful()) {
+                                        Toast.makeText(progressDialog.getContext(), progressDialog.getContext().getResources().getString(R.string.velkommen) + " " + Bruker.get().getBrukernavn() + "!", Toast.LENGTH_SHORT).show();
+
+                                        DatabaseReference ref = FirebaseDatabase.getInstance().getReference("users").child(Bruker.get().getBrukernavn());
+                                        ref.child("loggedonElem").setValue(true);
+                                        Bruker.get().setLoggetpa(true);
+                                    } else
+                                        Toast.makeText(progressDialog.getContext(), progressDialog.getContext().getResources().getString(R.string.tilkoblingsfeil), Toast.LENGTH_SHORT).show();
+                                }
+                            });
                     return 1;
                 } else if(json.getInt("success") == 2) {
+                    Bruker.get().setLoggetpa(true);
+
                     SplashActivity.hasSwitched = true;
                     return 2;
                 } else {
@@ -95,11 +121,7 @@ public class LoginUser extends AsyncTask<Void, Void, Integer> {
                 Intent intent = new Intent(progressDialog.getOwnerActivity(), ProfilActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 progressDialog.getOwnerActivity().startActivity(intent);
-
                 progressDialog.getOwnerActivity().finish();
-
-                getUser getuser = new getUser(progressDialog.getOwnerActivity());
-                getuser.execute();
             }
 
             progressDialog.dismiss();

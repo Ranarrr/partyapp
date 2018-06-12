@@ -92,6 +92,10 @@ public class Event {
         return "";
     }
 
+    public Event() {
+        this(0, "", "", "", "", false, 0.0, 0.0, 0, 0, 0, new ArrayList<Participant>(), 0, "", "", "", false, false, new ArrayList<Requester>(), false);
+    }
+
     public Event(String name) {
         this(0, name, "", "", "", false, 0.0, 0.0, 0, 0, 0, new ArrayList<Participant>(), 0,
                 "0", "", "", false, false, new ArrayList<Requester>(), false);

@@ -31,18 +31,17 @@ public class alle_eventer_fragment extends Fragment {
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                GetAllEvents getAllEvents = new GetAllEvents(getActivity());
-                getAllEvents.execute();
+                if(Bruker.get().getListOfEvents() != null)
+                    if(!Bruker.get().getListOfEvents().isEmpty())
+                        listView.setAdapter(new EventAdapter(getActivity(), Bruker.get().getListOfEvents()));
+
+                swipeRefreshLayout.setRefreshing(false);
             }
         });
 
         if(Bruker.get().getListOfEvents() != null) {
-            if(!Bruker.get().getListOfEvents().isEmpty()) {
+            if(!Bruker.get().getListOfEvents().isEmpty())
                 listView.setAdapter(new EventAdapter(getActivity(), Bruker.get().getListOfEvents()));
-            } else {
-                GetAllEvents getAllEvents = new GetAllEvents(getActivity());
-                getAllEvents.execute();
-            }
         }
     }
 }

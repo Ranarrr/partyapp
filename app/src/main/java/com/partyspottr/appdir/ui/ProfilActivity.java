@@ -182,41 +182,13 @@ public class ProfilActivity extends AppCompatActivity {
         childfragmentsinstackChat = new ArrayList<>();
         childfragmentsinstack.add(alle_eventer_fragment.class.getName());
 
+        Bruker.get().GetAndParseEvents();
+
         ctd.start();
 
         storage = FirebaseStorage.getInstance();
 
-        ref = FirebaseDatabase.getInstance().getReference().child("messagepreviews");
-
-        valueEventListener = ref.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                List<ChatPreview> list = new ArrayList<>();
-
-                for(DataSnapshot child : dataSnapshot.getChildren()) {
-                    if(child.getKey() == null)
-                        continue;
-
-                    if(child.getKey().contains(Bruker.get().getBrukernavn())) {
-                        list.add(child.getValue(ChatPreview.class));
-                    }
-                }
-
-                ListView lv_chat = findViewById(R.id.lv_chat);
-
-                if(lv_chat != null)
-                    lv_chat.setAdapter(new ChatPreviewAdapter(ProfilActivity.this, list));
-
-                Bruker.get().setChatMessageList(list);
-                Bruker.get().LagreBruker();
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                if(databaseError.getCode() == DatabaseError.NETWORK_ERROR)
-                    Toast.makeText(ProfilActivity.this, "Could not find chats.", Toast.LENGTH_SHORT).show();
-            }
-        });
+        Utilities.startChatListener(this);
 
         if(!Utilities.hasNetwork(getApplicationContext())) {
             Bruker.get().setConnected(false);
@@ -224,13 +196,6 @@ public class ProfilActivity extends AppCompatActivity {
         } else if(Utilities.hasNetwork(getApplicationContext())) {
             if(Bruker.get().isLoggetpa()) {
                 Utilities.getPosition(this);
-            } else {
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        Utilities.getPosition(ProfilActivity.this);
-                    }
-                }, 3000);
             }
 
             Bruker.get().setConnected(true);
@@ -245,8 +210,7 @@ public class ProfilActivity extends AppCompatActivity {
 
         tittel.setTypeface(typeface);
 
-        if(Bruker.get().isConnected())
-            replaceFragment(0);
+        replaceFragment(0);
 
         setTitle("");
     }
@@ -258,15 +222,66 @@ public class ProfilActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onStop() {
+        ctd.cancel();
+
+        if(Bruker.get().ref != null && Bruker.get().eventListener != null)
+            Bruker.get().ref.removeEventListener(Bruker.get().eventListener);
+
+        if(ProfilActivity.valueEventListener != null && ProfilActivity.ref != null)
+            ProfilActivity.ref.removeEventListener(ProfilActivity.valueEventListener);
+
+        if(SplashActivity.mAuth.getCurrentUser() != null)
+            SplashActivity.mAuth.signOut();
+
+        DatabaseReference ref = FirebaseDatabase.getInstance().getReference("users").child(Bruker.get().getBrukernavn());
+        ref.child("loggedonElem").setValue(false);
+        Bruker.get().setLoggetpa(false);
+
+        super.onStop();
+    }
+
+    @Override
+    protected void onStart() {
+        if(!Bruker.get().isConnected()) {
+            super.onStart();
+            return;
+        }
+
+        Bruker.get().GetAndParseEvents();
+
+        Utilities.startChatListener(this);
+
+        if(SplashActivity.mAuth.getCurrentUser() == null && Bruker.get().getEmail() != null && !Bruker.get().getEmail().isEmpty()
+                && Bruker.get().getPassord() != null && !Bruker.get().getPassord().isEmpty())
+            SplashActivity.mAuth.signInWithEmailAndPassword(Bruker.get().getEmail(), Bruker.get().getPassord());
+        else {
+            Toast.makeText(this, "Failed to log you in, please try again.", Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(this, MainActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startActivity(intent);
+        }
+
+        DatabaseReference ref = FirebaseDatabase.getInstance().getReference("users").child(Bruker.get().getBrukernavn());
+        ref.child("loggedonElem").setValue(true);
+        Bruker.get().setLoggetpa(true);
+
+        replaceFragment(0);
+
+        super.onStart();
+    }
+
+    @Override
     protected void onResume() {
         if(!Utilities.hasNetwork(this)) {
             Toast.makeText(this, getResources().getString(R.string.tilkoblingsfeil), Toast.LENGTH_SHORT).show();
             Bruker.get().setConnected(false);
         } else {
+            if(Bruker.get().isLoggetpa())
+                Utilities.getPosition(this);
+
             Bruker.get().setConnected(true);
         }
-
-        Utilities.getPosition(this);
 
         ctd.start();
         super.onResume();

@@ -20,7 +20,6 @@ import java.util.Locale;
  */
 
 public class Register4Activity extends AppCompatActivity {
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -115,7 +114,6 @@ public class Register4Activity extends AppCompatActivity {
 
         nameText.setText(String.format("%s %s", Bruker.get().getFornavn(), Bruker.get().getEtternavn()));
         DOBText.setText(String.format(Locale.ENGLISH, "%d.%d.%d", Bruker.get().getDay_of_month(), Bruker.get().getMonth(), Bruker.get().getYear()));
-        phoneText.setText(Bruker.get().getMobilnummer());
         emailText.setText(Bruker.get().getEmail());
         usernameText.setText(Bruker.get().getBrukernavn());
         String pass = Bruker.get().getPassord();

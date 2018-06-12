@@ -40,8 +40,8 @@ public class RegisterActivity extends AppCompatActivity {
         final Spinner mm_spinner = findViewById(R.id.mm_spinner);
         final Spinner yyyy_spinner = findViewById(R.id.yyyy_spinner);
 
-        EditText fornavnText = findViewById(R.id.fornavnText);
-        EditText etternavnText = findViewById(R.id.etternavnText);
+        final EditText fornavnText = findViewById(R.id.fornavnText);
+        final EditText etternavnText = findViewById(R.id.etternavnText);
         TextView name = findViewById(R.id.textView2);
         TextView birth = findViewById(R.id.textView);
         TextView title = findViewById(R.id.textView3);
@@ -56,9 +56,8 @@ public class RegisterActivity extends AppCompatActivity {
         }
 
         ArrayAdapter<Integer> yyyy_adapter = new ArrayAdapter<>(this, R.layout.spinner_mine, list);
-        ArrayAdapter<Integer> dd_adapter = new ArrayAdapter<>(this, R.layout.spinner_mine, Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31));
 
-        dd_spinner.setAdapter(dd_adapter);
+        dd_spinner.setAdapter(new ArrayAdapter<>(RegisterActivity.this, R.layout.spinner_mine, Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31)));
         mm_spinner.setAdapter(mm_adapter);
         yyyy_spinner.setAdapter(yyyy_adapter);
 
@@ -66,13 +65,67 @@ public class RegisterActivity extends AppCompatActivity {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 int mndNum = (int) mm_spinner.getSelectedItem();
+                int ddNum = (int) dd_spinner.getSelectedItem();
+                int yyyyNum = (int) yyyy_spinner.getSelectedItem();
 
-                if(mndNum == måneder.APRIL.ordinal() || mndNum == måneder.JUNI.ordinal() || mndNum == måneder.SEPTEMBER.ordinal() || mndNum == måneder.NOVEMBER.ordinal()) {
+                if(mndNum == måneder.JANUAR.ordinal() || mndNum == måneder.MARS.ordinal() || mndNum == måneder.MAI.ordinal() || mndNum == måneder.JULI.ordinal() || mndNum == måneder.AUGUST.ordinal()
+                        || mndNum == måneder.OKTOBER.ordinal() || mndNum == måneder.DESEMBER.ordinal()) {
+                    dd_spinner.setAdapter(new ArrayAdapter<>(RegisterActivity.this, R.layout.spinner_mine, Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31)));
+
+                    dd_spinner.setSelection(ddNum - 1);
+
+                } else if(mndNum == måneder.APRIL.ordinal() || mndNum == måneder.JUNI.ordinal() || mndNum == måneder.SEPTEMBER.ordinal() || mndNum == måneder.NOVEMBER.ordinal()) {
                     dd_spinner.setAdapter(new ArrayAdapter<>(RegisterActivity.this, R.layout.spinner_mine, Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30)));
-                } else if(mndNum == måneder.FEBRUAR.ordinal() && new GregorianCalendar().isLeapYear(Calendar.getInstance().get(Calendar.YEAR))) {
+
+                    if(ddNum > 30)
+                        dd_spinner.setSelection(29);
+                    else
+                        dd_spinner.setSelection(ddNum - 1);
+
+                } else if(mndNum == måneder.FEBRUAR.ordinal() && new GregorianCalendar().isLeapYear(yyyyNum)) {
                     dd_spinner.setAdapter(new ArrayAdapter<>(RegisterActivity.this, R.layout.spinner_mine, Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29)));
-                } else if(mndNum == måneder.FEBRUAR.ordinal() && !new GregorianCalendar().isLeapYear(Calendar.getInstance().get(Calendar.YEAR))) {
+
+                    if(ddNum > 29)
+                        dd_spinner.setSelection(28);
+                    else
+                        dd_spinner.setSelection(ddNum - 1);
+
+                } else if(mndNum == måneder.FEBRUAR.ordinal() && !new GregorianCalendar().isLeapYear(yyyyNum)) {
                     dd_spinner.setAdapter(new ArrayAdapter<>(RegisterActivity.this, R.layout.spinner_mine, Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28)));
+
+                    if(ddNum > 28)
+                        dd_spinner.setSelection(27);
+                    else
+                        dd_spinner.setSelection(ddNum - 1);
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {}
+        });
+
+        yyyy_spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                int ddNum = (int) dd_spinner.getSelectedItem();
+                int mndNum = (int) mm_spinner.getSelectedItem();
+                int yyyyNum = (int) yyyy_spinner.getSelectedItem();
+
+                if(mndNum == måneder.FEBRUAR.ordinal() && new GregorianCalendar().isLeapYear(yyyyNum)) {
+                    dd_spinner.setAdapter(new ArrayAdapter<>(RegisterActivity.this, R.layout.spinner_mine, Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29)));
+
+                    if(ddNum > 29)
+                        dd_spinner.setSelection(28);
+                    else
+                        dd_spinner.setSelection(ddNum - 1);
+
+                } else if(mndNum == måneder.FEBRUAR.ordinal() && !new GregorianCalendar().isLeapYear(yyyyNum)) {
+                    dd_spinner.setAdapter(new ArrayAdapter<>(RegisterActivity.this, R.layout.spinner_mine, Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28)));
+
+                    if(ddNum > 28)
+                        dd_spinner.setSelection(27);
+                    else
+                        dd_spinner.setSelection(ddNum - 1);
                 }
             }
 
@@ -94,7 +147,26 @@ public class RegisterActivity extends AppCompatActivity {
                 int mndNum = (int) mm_spinner.getSelectedItem();
                 int yyyyNum = (int) yyyy_spinner.getSelectedItem();
 
+                Bruker.get().setDOB(dagNum, mndNum, yyyyNum);
 
+                if(fornavnText.length() > 1) {
+                    ViewCompat.setBackgroundTintList(fornavnText, ContextCompat.getColorStateList(getApplicationContext(), R.color.greentint));
+
+                    if(etternavnText.length() > 1) {
+                        ViewCompat.setBackgroundTintList(etternavnText, ContextCompat.getColorStateList(getApplicationContext(), R.color.greentint));
+
+                        Bruker.get().setFornavn(fornavnText.getText().toString());
+                        Bruker.get().setEtternavn(etternavnText.getText().toString());
+
+                        Intent intent = new Intent(getApplicationContext(), Register2Activity.class);
+                        startActivity(intent);
+
+                    } else {
+                        ViewCompat.setBackgroundTintList(etternavnText, ContextCompat.getColorStateList(getApplicationContext(), R.color.redtint));
+                    }
+                } else {
+                    ViewCompat.setBackgroundTintList(fornavnText, ContextCompat.getColorStateList(getApplicationContext(), R.color.redtint));
+                }
             }
         });
 
@@ -102,75 +174,13 @@ public class RegisterActivity extends AppCompatActivity {
             fornavnText.setText(Bruker.get().getFornavn());
             etternavnText.setText(Bruker.get().getEtternavn());
 
-            dd_spinner.setSelection(Bruker.get().getDay_of_month() - 1);
             mm_spinner.setSelection(Bruker.get().getMonth() - 1);
+            dd_spinner.setSelection(Bruker.get().getDay_of_month() - 1);
 
             for(int i = 0; i < yyyy_adapter.getCount(); i++) {
                 if(yyyy_adapter.getItem(i).equals(Bruker.get().getYear()))
                     yyyy_spinner.setSelection(i);
             }
         }
-    }
-
-    public void onClickRegistrerBtn(View v) {
-        EditText fornavnText = findViewById(R.id.fornavnText);
-        EditText etternavnText = findViewById(R.id.etternavnText);
-
-        /*EditText ddNum = findViewById(R.id.ddNum);
-        EditText mmNum = findViewById(R.id.mmNum);
-        EditText yyyyNum = findViewById(R.id.ååååNum);
-        Integer dagNum = 0, mndNum = 0, yrNum = 0;
-
-        if(ddNum.getText() != null && ddNum.length() > 0) {
-            dagNum = Integer.valueOf(ddNum.getText().toString());
-        }
-
-        if(mmNum.getText() != null && mmNum.length() > 0) {
-            mndNum = Integer.valueOf(mmNum.getText().toString());
-        }
-
-        if(yyyyNum.getText() != null && yyyyNum.length() > 0) {
-            yrNum = Integer.valueOf(yyyyNum.getText().toString());
-        }
-
-        if(dagNum > 0 && dagNum < 32 || (dagNum == 31 && (mndNum == måneder.JANUAR.ordinal() || mndNum == måneder.MARS.ordinal() || mndNum == måneder.MAI.ordinal()
-                || mndNum == måneder.JULI.ordinal() || mndNum == måneder.AUGUST.ordinal() || mndNum == måneder.OKTOBER.ordinal() || mndNum == måneder.DESEMBER.ordinal()))
-                || (dagNum > 28 && dagNum < 32 && mndNum != måneder.FEBRUAR.ordinal())) {
-            ViewCompat.setBackgroundTintList(ddNum, ContextCompat.getColorStateList(getApplicationContext(), R.color.greentint));
-
-            if(mndNum > 0 && mndNum < 13) {
-                ViewCompat.setBackgroundTintList(mmNum, ContextCompat.getColorStateList(getApplicationContext(), R.color.greentint));
-
-                if(yrNum > 1929 && yrNum < 2002) {
-                    Bruker.get().setDOB(dagNum, mndNum, yrNum);
-                    ViewCompat.setBackgroundTintList(yyyyNum, ContextCompat.getColorStateList(getApplicationContext(), R.color.greentint));
-
-                    if(fornavnText.length() > 1) {
-                        ViewCompat.setBackgroundTintList(fornavnText, ContextCompat.getColorStateList(getApplicationContext(), R.color.greentint));
-
-                        if(etternavnText.length() > 1) {
-                            ViewCompat.setBackgroundTintList(etternavnText, ContextCompat.getColorStateList(getApplicationContext(), R.color.greentint));
-                            Bruker.get().setHarakseptert(true);
-                            Bruker.get().setFornavn(fornavnText.getText().toString());
-                            Bruker.get().setEtternavn(etternavnText.getText().toString());
-
-                            Intent intent = new Intent(getApplicationContext(), Register2Activity.class);
-                            startActivity(intent);
-
-                        } else {
-                            ViewCompat.setBackgroundTintList(etternavnText, ContextCompat.getColorStateList(getApplicationContext(), R.color.redtint));
-                        }
-                    } else {
-                        ViewCompat.setBackgroundTintList(fornavnText, ContextCompat.getColorStateList(getApplicationContext(), R.color.redtint));
-                    }
-                } else {
-                    ViewCompat.setBackgroundTintList(yyyyNum, ContextCompat.getColorStateList(getApplicationContext(), R.color.redtint));
-                }
-            } else {
-                ViewCompat.setBackgroundTintList(mmNum, ContextCompat.getColorStateList(getApplicationContext(), R.color.redtint));
-            }
-        } else {
-            ViewCompat.setBackgroundTintList(ddNum, ContextCompat.getColorStateList(getApplicationContext(), R.color.redtint));
-        }*/
     }
 }

@@ -5,11 +5,16 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
+import android.util.Base64;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.gson.Gson;
+import com.partyspottr.appdir.BuildConfig;
 import com.partyspottr.appdir.R;
 import com.partyspottr.appdir.classes.Bruker;
 import com.partyspottr.appdir.ui.MainActivity;
@@ -30,10 +35,20 @@ import java.util.List;
  */
 
 public class CreateUser extends AsyncTask<Void, Void, Integer> {
-
+    private JSONObject info;
     private ProgressDialog progressDialog;
     
     public CreateUser(Context c) {
+        try {
+            info = new JSONObject();
+            info.put("socketElem", Base64.encodeToString(BuildConfig.JSONParser_Socket.getBytes(), Base64.DEFAULT));
+            info.put("email", Bruker.get().getEmail());
+            info.put("username", Bruker.get().getBrukernavn());
+            info.put("passord", Bruker.get().getPassord());
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
         progressDialog = new ProgressDialog(c);
         progressDialog.setMessage(c.getResources().getString(R.string.registrerer_bruker));
         progressDialog.setCanceledOnTouchOutside(false);
@@ -49,7 +64,7 @@ public class CreateUser extends AsyncTask<Void, Void, Integer> {
     protected Integer doInBackground(Void... voids) {
         try{
             List<NameValuePair> params = new ArrayList<>();
-            params.add(new BasicNameValuePair("register_user", Bruker.get().BrukerToJSON()));
+            params.add(new BasicNameValuePair("register_user", info.toString()));
             JSONObject json = new JSONParser().get_jsonobject(params);
             if(json != null) {
                 if(json.getInt("exists") == 1) {
@@ -73,7 +88,21 @@ public class CreateUser extends AsyncTask<Void, Void, Integer> {
                         @Override
                         public void onComplete(@NonNull Task<AuthResult> task) {
                             if(task.isSuccessful()) {
-                                Bruker.get().setHarakseptert(true);
+                                DatabaseReference ref = FirebaseDatabase.getInstance().getReference("users").child(Bruker.get().getBrukernavn());
+                                ref.child("fornavnElem").setValue(Bruker.get().getFornavn());
+                                ref.child("etternavnElem").setValue(Bruker.get().getEtternavn());
+                                ref.child("brukernavnElem").setValue(Bruker.get().getBrukernavn());
+                                ref.child("premiumElem").setValue(Bruker.get().isPremium());
+                                ref.child("loggedonElem").setValue(false);
+                                ref.child("countryElem").setValue(Bruker.get().getCountry());
+                                ref.child("day_of_monthElem").setValue(Bruker.get().getDay_of_month());
+                                ref.child("friendlistElem").setValue(new Gson().toJson(Bruker.get().getFriendList()));
+                                ref.child("requestlistElem").setValue(new Gson().toJson(Bruker.get().getRequests()));
+                                ref.child("monthElem").setValue(Bruker.get().getMonth());
+                                ref.child("townElem").setValue(Bruker.get().getTown());
+                                ref.child("yearElem").setValue(Bruker.get().getYear());
+                                ref.child("onelinerElem").setValue(Bruker.get().getOneliner());
+
                                 Bruker.get().LagreBruker();
                                 Intent intent = new Intent(progressDialog.getContext(), MainActivity.class);
                                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);

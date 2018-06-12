@@ -10,6 +10,8 @@ import android.widget.Toast;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.partyspottr.appdir.BuildConfig;
 import com.partyspottr.appdir.R;
 import com.partyspottr.appdir.classes.Bruker;
@@ -53,7 +55,7 @@ public class getUser extends AsyncTask<Void, Void, Integer> {
             JSONObject json = new JSONParser().get_jsonobject(params);
             if(json != null) {
                 if(json.getInt("success") == 1) {
-                    Bruker.get().JSONToBruker(json, true);
+                    Bruker.get().JSONToBruker(json);
                     Bruker.get().populateChauffeur(progressDialog.getOwnerActivity());
                     SplashActivity.mAuth.signInWithEmailAndPassword(Bruker.get().getEmail(), Bruker.get().getPassord())
                             .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
@@ -61,10 +63,8 @@ public class getUser extends AsyncTask<Void, Void, Integer> {
                                 public void onComplete(@NonNull Task<AuthResult> task) {
                                     if(task.isSuccessful()) {
                                         Toast.makeText(progressDialog.getContext(), progressDialog.getContext().getResources().getString(R.string.velkommen) + " " + Bruker.get().getBrukernavn() + "!", Toast.LENGTH_SHORT).show();
-                                        Bruker.get().setLoggetpa(true);
-                                    } else {
+                                    } else
                                         Toast.makeText(progressDialog.getContext(), progressDialog.getContext().getResources().getString(R.string.tilkoblingsfeil), Toast.LENGTH_SHORT).show();
-                                    }
                                 }
                             });
                     return 1;

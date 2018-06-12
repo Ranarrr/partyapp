@@ -22,6 +22,7 @@ import android.os.Handler;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.provider.Settings;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -34,6 +35,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.partyspottr.appdir.BuildConfig;
 import com.partyspottr.appdir.R;
 import com.partyspottr.appdir.classes.adapters.ChatPreviewAdapter;
@@ -112,6 +118,42 @@ public class Utilities {
                 String.format(Locale.ENGLISH, "%02d:%02d", time.get(Calendar.HOUR_OF_DAY), time.get(Calendar.MINUTE));
     }
 
+    public static void startChatListener(final Activity activity) {
+        ProfilActivity.ref = FirebaseDatabase.getInstance().getReference().child("messagepreviews");
+
+        ProfilActivity.valueEventListener = ProfilActivity.ref.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                List<ChatPreview> list = new ArrayList<>();
+
+                for(DataSnapshot child : dataSnapshot.getChildren()) {
+                    if(child.getKey() == null)
+                        continue;
+
+                    if(child.getKey().contains(Bruker.get().getBrukernavn())) {
+                        list.add(child.getValue(ChatPreview.class));
+                    }
+                }
+
+                if(activity != null) {
+                    ListView lv_chat = activity.findViewById(R.id.lv_chat);
+
+                    if(lv_chat != null)
+                        lv_chat.setAdapter(new ChatPreviewAdapter(activity, list));
+                }
+
+                Bruker.get().setChatMessageList(list);
+                Bruker.get().LagreBruker();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                if(databaseError.getCode() == DatabaseError.NETWORK_ERROR  && activity != null)
+                    Toast.makeText(activity, "Could not find chats.", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
     public static Location getLatLng(Activity activity) {
         if(ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED ||
                 ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -144,7 +186,7 @@ public class Utilities {
     /**
      * This method is used for gettting the latest position of the user currently logged in.
      *
-     * @param activity Activity to be used for checking permissions and getting location service5 see Context.LOCATION_SERVICE.
+     * @param activity Activity to be used for checking permissions and getting location service see Context.LOCATION_SERVICE.
      */
     public static void getPosition(Activity activity) {
         if(ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED ||
@@ -172,6 +214,14 @@ public class Utilities {
                             Bruker.get().setCountry(address.getCountryName());
                             Bruker.get().setTown(address.getLocality());
                             Bruker.get().LagreBruker();
+
+                            if(Bruker.get().isLoggetpa()) {
+                                DatabaseReference ref = FirebaseDatabase.getInstance().getReference("users").child(Bruker.get().getBrukernavn());
+
+                                ref.child("countryElem").setValue(address.getCountryName());
+                                ref.child("townElem").setValue(address.getLocality());
+                            }
+
                             UpdateUser updateUser = new UpdateUser();
                             updateUser.execute();
                         }
