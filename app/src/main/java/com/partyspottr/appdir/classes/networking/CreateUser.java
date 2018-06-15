@@ -89,19 +89,19 @@ public class CreateUser extends AsyncTask<Void, Void, Integer> {
                         public void onComplete(@NonNull Task<AuthResult> task) {
                             if(task.isSuccessful()) {
                                 DatabaseReference ref = FirebaseDatabase.getInstance().getReference("users").child(Bruker.get().getBrukernavn());
-                                ref.child("fornavnElem").setValue(Bruker.get().getFornavn());
-                                ref.child("etternavnElem").setValue(Bruker.get().getEtternavn());
-                                ref.child("brukernavnElem").setValue(Bruker.get().getBrukernavn());
-                                ref.child("premiumElem").setValue(Bruker.get().isPremium());
-                                ref.child("loggedonElem").setValue(false);
-                                ref.child("countryElem").setValue(Bruker.get().getCountry());
-                                ref.child("day_of_monthElem").setValue(Bruker.get().getDay_of_month());
-                                ref.child("friendlistElem").setValue(new Gson().toJson(Bruker.get().getFriendList()));
-                                ref.child("requestlistElem").setValue(new Gson().toJson(Bruker.get().getRequests()));
-                                ref.child("monthElem").setValue(Bruker.get().getMonth());
-                                ref.child("townElem").setValue(Bruker.get().getTown());
-                                ref.child("yearElem").setValue(Bruker.get().getYear());
-                                ref.child("onelinerElem").setValue(Bruker.get().getOneliner());
+                                ref.child("fornavn").setValue(Bruker.get().getFornavn());
+                                ref.child("etternavn").setValue(Bruker.get().getEtternavn());
+                                ref.child("brukernavn").setValue(Bruker.get().getBrukernavn());
+                                ref.child("premium").setValue(Bruker.get().isPremium());
+                                ref.child("loggedon").setValue(false);
+                                ref.child("country").setValue(Bruker.get().getCountry());
+                                ref.child("day_of_month").setValue(Bruker.get().getDay_of_month());
+                                ref.child("friendlist").setValue(new Gson().toJson(Bruker.get().getFriendList()));
+                                ref.child("requestlist").setValue(new Gson().toJson(Bruker.get().getRequests()));
+                                ref.child("month").setValue(Bruker.get().getMonth());
+                                ref.child("town").setValue(Bruker.get().getTown());
+                                ref.child("year").setValue(Bruker.get().getYear());
+                                ref.child("oneliner").setValue(Bruker.get().getOneliner());
 
                                 Bruker.get().LagreBruker();
                                 Intent intent = new Intent(progressDialog.getContext(), MainActivity.class);

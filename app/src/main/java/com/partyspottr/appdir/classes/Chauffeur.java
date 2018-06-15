@@ -139,44 +139,22 @@ public class Chauffeur {
         editor.apply();
     }
 
-    public static void getChauffeur(Activity activity, final String brukernavn, final Chauffeur out) {
-        StringRequest stringRequest = new StringRequest(Utilities.getGETMethodArgStr("get_chauffeur", "socketElem", Base64.encodeToString(BuildConfig.JSONParser_Socket.getBytes(), Base64.DEFAULT),
-                "username", brukernavn), new Response.Listener<String>() {
-            @Override
-            public void onResponse(String response) {
-                try {
-                    JSONObject json = new JSONObject(response);
-                    if(json.getInt("success") == 1) {
-                        out.setM_brukernavn(brukernavn);
-                        Bruker.get().setHascar(true);
-                        out.setChauffeur_time_from(Long.valueOf(json.getString("timeDrivingFrom")));
-                        out.setChauffeur_time_to(Long.valueOf(json.getString("timeDrivingTo")));
-                        List<Car> cars = new Gson().fromJson(json.getString("carlistElem"), listOfCarsType);
-                        out.setListOfCars(cars);
-                        Bruker.get().setCurrent_car(cars.get(0));
-                        out.setM_age(Integer.valueOf(json.getString("age")));
-                        out.setM_capacity(Integer.valueOf(json.getString("capacity")));
-                        out.setM_rating(Double.valueOf(json.getString("rating")));
-                    } else {
-                        Bruker.get().setHascar(false);
-                        Bruker.get().setCurrent_car(null);
-                        Bruker.get().getChauffeur().setListOfCars(new ArrayList<Car>());
-                        Bruker.get().getChauffeur().LagreChauffeur();
-                        Bruker.get().LagreBruker();
-                    }
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
+    public static void setChauffeur(Chauffeur chauffeur, final List<Chauffeur> chauffeurs) {
+        for(int i = 0; i < chauffeurs.size(); i++) {
+            if(chauffeurs.get(i).getM_brukernavn().equals(chauffeur.getM_brukernavn())) {
+                chauffeurs.set(i, chauffeur);
+                break;
             }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
+        }
+    }
 
+    public static void removeChauffeur(Chauffeur chauffeur, final List<Chauffeur> chauffeurs) {
+        for(int i = 0; i < chauffeurs.size(); i++) {
+            if(chauffeurs.get(i).getM_brukernavn().equals(chauffeur.getM_brukernavn())) {
+                chauffeurs.remove(i);
+                break;
             }
-        });
-
-        RequestQueue queue = Volley.newRequestQueue(activity);
-        queue.add(stringRequest);
+        }
     }
 
     public double getM_rating() {

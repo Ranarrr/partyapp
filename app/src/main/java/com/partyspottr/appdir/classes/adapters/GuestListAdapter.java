@@ -2,8 +2,12 @@ package com.partyspottr.appdir.classes.adapters;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.v7.app.AlertDialog;
 import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -18,8 +22,16 @@ import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import com.google.gson.Gson;
 import com.partyspottr.appdir.R;
 import com.partyspottr.appdir.classes.Bruker;
+import com.partyspottr.appdir.classes.Event;
 import com.partyspottr.appdir.classes.Participant;
 import com.partyspottr.appdir.classes.networking.AddFriendRequest;
 import com.partyspottr.appdir.classes.networking.AddParticipant;
@@ -78,7 +90,7 @@ public class GuestListAdapter extends BaseAdapter {
         if(convertView != null) {
             //ImageView profilbilde = convertView.findViewById(R.id.gjest_profilbilde);
             ImageView countryflag = convertView.findViewById(R.id.countryflag_IV);
-            TextView brukernavn = convertView.findViewById(R.id.gjest_brukernavn);
+            final TextView brukernavn = convertView.findViewById(R.id.gjest_brukernavn);
             TextView by_land = convertView.findViewById(R.id.gjest_by_land);
             final ImageButton more_options = convertView.findViewById(R.id.gjest_more_options);
 
@@ -124,6 +136,26 @@ public class GuestListAdapter extends BaseAdapter {
 
                                 case R.id.som_venn:
                                     if(!participant.getBrukernavn().equals(Bruker.get().getBrukernavn())) {
+
+                                        DatabaseReference brukerref = FirebaseDatabase.getInstance().getReference("users").child(participant.getBrukernavn());
+                                        brukerref.addChildEventListener(new ChildEventListener() {
+                                            @Override
+                                            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                                                for(DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                                                    //if(snapshot.getKey() != null && snapshot.getKey().equals("requests"))
+                                                }
+                                            }
+
+                                            @Override
+                                            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {}
+                                            @Override
+                                            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {}
+                                            @Override
+                                            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {}
+                                            @Override
+                                            public void onCancelled(@NonNull DatabaseError databaseError) {}
+                                        });
+
                                         AddFriendRequest addFriendRequest = new AddFriendRequest(thisActivity, participant.getBrukernavn());
                                         addFriendRequest.execute();
                                     }
@@ -131,22 +163,56 @@ public class GuestListAdapter extends BaseAdapter {
                                     return true;
 
                                 case R.id.make_host:
-                                    if(!participant.getStilling().equals(EventStilling.VERT)) {
-                                        // TODO : ASK IF SURE?!?!?
-                                        RemoveParticipant removeParticipant = new RemoveParticipant(thisActivity, eventId, participant.getBrukernavn(), GuestList);
-                                        removeParticipant.execute();
-                                        AddParticipant addParticipant = new AddParticipant(thisActivity, eventId, participant, GuestList);
-                                        addParticipant.execute();
-                                    } else {
-                                        Toast.makeText(thisActivity, "This participant is already a host!", Toast.LENGTH_SHORT).show();
-                                    }
+                                    new AlertDialog.Builder(thisActivity)
+                                            .setTitle("Confirmation")
+                                            .setMessage("Are you sure you want to make this person a host?")
+                                            .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                                @Override
+                                                public void onClick(DialogInterface dialog, int which) {
+                                                    Event event = Bruker.get().getEventFromID(eventId);
+
+                                                    DatabaseReference ref = FirebaseDatabase.getInstance().getReference("events").child(String.valueOf(eventId));
+
+                                                    event.getParticipants().set(Participant.getParticipantPos(event.getParticipants(), participant), new Participant(participant.getBrukernavn(),
+                                                            participant.getCountry(), participant.getTown(), EventStilling.VERT));
+
+                                                    if(ref.child("participants").setValue(new Gson().toJson(event.getParticipants())).isComplete()) {
+                                                        Toast.makeText(thisActivity, "Made participant a host!", Toast.LENGTH_SHORT).show();
+                                                    } else {
+                                                        Toast.makeText(thisActivity, "Failed to make this participant a host.", Toast.LENGTH_SHORT).show();
+                                                    }
+                                                }})
+                                            .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                                                @Override
+                                                public void onClick(DialogInterface dialog, int which) {}})
+                                            .show();
 
                                     return true;
 
                                 case R.id.remove:
                                     if(!participant.getBrukernavn().equals(Bruker.get().getBrukernavn())) {
-                                        RemoveParticipant removeParticipant = new RemoveParticipant(thisActivity, eventId, participant.getBrukernavn(), GuestList);
-                                        removeParticipant.execute();
+                                        new AlertDialog.Builder(thisActivity).setTitle("Confirmation").setMessage("Are you sure you want to make this person a host?")
+                                                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                                    @Override
+                                                    public void onClick(DialogInterface dialog, int which) {
+                                                        Event event = Bruker.get().getEventFromID(eventId);
+
+                                                        DatabaseReference ref = FirebaseDatabase.getInstance().getReference("events").child(String.valueOf(eventId));
+
+                                                        event.getParticipants().remove(Participant.getParticipantPos(event.getParticipants(), participant));
+
+                                                        if(ref.child("participants").setValue(new Gson().toJson(event.getParticipants())).isComplete()) {
+                                                            Toast.makeText(thisActivity, "Removed participant!", Toast.LENGTH_SHORT).show();
+                                                        } else {
+                                                            Toast.makeText(thisActivity, "Failed to remove participant.", Toast.LENGTH_SHORT).show();
+                                                        }
+                                                    }})
+                                                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                                                    @Override
+                                                    public void onClick(DialogInterface dialog, int which) {}})
+                                                .show();
+                                    } else {
+                                        Toast.makeText(thisActivity, "You can't remove yourself!", Toast.LENGTH_SHORT).show();
                                     }
 
                                     return true;

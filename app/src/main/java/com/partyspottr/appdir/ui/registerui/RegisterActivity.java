@@ -147,7 +147,9 @@ public class RegisterActivity extends AppCompatActivity {
                 int mndNum = (int) mm_spinner.getSelectedItem();
                 int yyyyNum = (int) yyyy_spinner.getSelectedItem();
 
-                Bruker.get().setDOB(dagNum, mndNum, yyyyNum);
+                Bruker.get().setDay_of_month(dagNum);
+                Bruker.get().setMonth(mndNum);
+                Bruker.get().setYear(yyyyNum);
 
                 if(fornavnText.length() > 1) {
                     ViewCompat.setBackgroundTintList(fornavnText, ContextCompat.getColorStateList(getApplicationContext(), R.color.greentint));

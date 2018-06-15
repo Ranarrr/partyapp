@@ -2,6 +2,7 @@ package com.partyspottr.appdir.ui;
 
 import android.Manifest;
 import android.animation.ObjectAnimator;
+import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.TimePickerDialog;
@@ -22,8 +23,6 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.view.ViewCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -41,28 +40,24 @@ import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.partyspottr.appdir.R;
 import com.partyspottr.appdir.classes.Bruker;
-import com.partyspottr.appdir.classes.ChatPreview;
 import com.partyspottr.appdir.classes.Event;
 import com.partyspottr.appdir.classes.ImageChange;
-import com.partyspottr.appdir.classes.Participant;
-import com.partyspottr.appdir.classes.Requester;
 import com.partyspottr.appdir.classes.Utilities;
-import com.partyspottr.appdir.classes.adapters.ChatPreviewAdapter;
 import com.partyspottr.appdir.classes.networking.GetLocationInfo;
-import com.partyspottr.appdir.enums.EventStilling;
 import com.partyspottr.appdir.ui.mainfragments.bilfragment;
 import com.partyspottr.appdir.ui.mainfragments.chatchildfragments.mine_chats_fragment;
 import com.partyspottr.appdir.ui.mainfragments.chatchildfragments.venner_fragment;
@@ -78,8 +73,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
-import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Locale;
 
@@ -182,7 +175,11 @@ public class ProfilActivity extends AppCompatActivity {
         childfragmentsinstackChat = new ArrayList<>();
         childfragmentsinstack.add(alle_eventer_fragment.class.getName());
 
-        Bruker.get().GetAndParseEvents();
+        Bruker.get().GetAndParseEvents(this);
+        Bruker.get().GetAndParseBrukerInfo();
+        Bruker.get().GetAndParseChauffeurs();
+        if(Bruker.get().isHascar())
+            Bruker.get().GetAndParseBrukerChauffeur();
 
         ctd.start();
 
@@ -225,8 +222,11 @@ public class ProfilActivity extends AppCompatActivity {
     protected void onStop() {
         ctd.cancel();
 
-        if(Bruker.get().ref != null && Bruker.get().eventListener != null)
-            Bruker.get().ref.removeEventListener(Bruker.get().eventListener);
+        Bruker.get().StopParsingBrukerInfo();
+        Bruker.get().StopParsingEvents();
+        Bruker.get().StopParsingChauffeurs();
+        if(Bruker.get().isHascar())
+            Bruker.get().StopParsingBrukerChauffeur();
 
         if(ProfilActivity.valueEventListener != null && ProfilActivity.ref != null)
             ProfilActivity.ref.removeEventListener(ProfilActivity.valueEventListener);
@@ -235,40 +235,52 @@ public class ProfilActivity extends AppCompatActivity {
             SplashActivity.mAuth.signOut();
 
         DatabaseReference ref = FirebaseDatabase.getInstance().getReference("users").child(Bruker.get().getBrukernavn());
-        ref.child("loggedonElem").setValue(false);
+        ref.child("loggedon").setValue(false);
         Bruker.get().setLoggetpa(false);
 
         super.onStop();
     }
 
     @Override
-    protected void onStart() {
+    protected void onRestart() {
         if(!Bruker.get().isConnected()) {
             super.onStart();
             return;
         }
 
-        Bruker.get().GetAndParseEvents();
-
-        Utilities.startChatListener(this);
-
         if(SplashActivity.mAuth.getCurrentUser() == null && Bruker.get().getEmail() != null && !Bruker.get().getEmail().isEmpty()
                 && Bruker.get().getPassord() != null && !Bruker.get().getPassord().isEmpty())
-            SplashActivity.mAuth.signInWithEmailAndPassword(Bruker.get().getEmail(), Bruker.get().getPassord());
-        else {
-            Toast.makeText(this, "Failed to log you in, please try again.", Toast.LENGTH_SHORT).show();
-            Intent intent = new Intent(this, MainActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            startActivity(intent);
-        }
+            SplashActivity.mAuth.signInWithEmailAndPassword(Bruker.get().getEmail(), Bruker.get().getPassord())
+                    .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                        @Override
+                        public void onComplete(@NonNull Task<AuthResult> task) {
+                            if(task.isSuccessful()) {
+                                Bruker.get().GetAndParseEvents(ProfilActivity.this);
+                                Bruker.get().GetAndParseBrukerInfo();
+                                Bruker.get().GetAndParseChauffeurs();
+                                if(Bruker.get().isHascar())
+                                    Bruker.get().GetAndParseBrukerChauffeur();
 
-        DatabaseReference ref = FirebaseDatabase.getInstance().getReference("users").child(Bruker.get().getBrukernavn());
-        ref.child("loggedonElem").setValue(true);
-        Bruker.get().setLoggetpa(true);
+                                Utilities.startChatListener(ProfilActivity.this);
 
-        replaceFragment(0);
+                                DatabaseReference ref = FirebaseDatabase.getInstance().getReference("users").child(Bruker.get().getBrukernavn());
+                                ref.child("loggedon").setValue(true);
+                                Bruker.get().setLoggetpa(true);
 
-        super.onStart();
+                                replaceFragment(0);
+                            }
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Toast.makeText(ProfilActivity.this, "Failed to log you in, please try again.", Toast.LENGTH_SHORT).show();
+                    Intent intent = new Intent(ProfilActivity.this, MainActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    startActivity(intent);
+                }
+            });
+
+        super.onRestart();
     }
 
     @Override

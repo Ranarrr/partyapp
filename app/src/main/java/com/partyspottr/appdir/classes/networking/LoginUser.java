@@ -75,7 +75,7 @@ public class LoginUser extends AsyncTask<Void, Void, Integer> {
                 if(json.getInt("success") == 1) {
                     SplashActivity.hasSwitched = true;
 
-                    SplashActivity.mAuth.signInWithEmailAndPassword(json.getString("emailElem"), password)
+                    SplashActivity.mAuth.signInWithEmailAndPassword(json.getString("email"), password)
                             .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                                 @Override
                                 public void onComplete(@NonNull Task<AuthResult> task) {
@@ -83,7 +83,7 @@ public class LoginUser extends AsyncTask<Void, Void, Integer> {
                                         Toast.makeText(progressDialog.getContext(), progressDialog.getContext().getResources().getString(R.string.velkommen) + " " + Bruker.get().getBrukernavn() + "!", Toast.LENGTH_SHORT).show();
 
                                         DatabaseReference ref = FirebaseDatabase.getInstance().getReference("users").child(Bruker.get().getBrukernavn());
-                                        ref.child("loggedonElem").setValue(true);
+                                        ref.child("loggedon").setValue(true);
                                         Bruker.get().setLoggetpa(true);
                                     } else
                                         Toast.makeText(progressDialog.getContext(), progressDialog.getContext().getResources().getString(R.string.tilkoblingsfeil), Toast.LENGTH_SHORT).show();

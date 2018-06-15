@@ -4,9 +4,14 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.support.annotation.NonNull;
 import android.util.Base64;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.partyspottr.appdir.BuildConfig;
 import com.partyspottr.appdir.classes.Bruker;
 import com.partyspottr.appdir.ui.MainActivity;
@@ -75,8 +80,17 @@ public class LogoutUser extends AsyncTask<Void, Void, Integer> {
                     if(ProfilActivity.valueEventListener != null && ProfilActivity.ref != null)
                         ProfilActivity.ref.removeEventListener(ProfilActivity.valueEventListener);
 
-                    if(SplashActivity.mAuth.getCurrentUser() != null)
-                        SplashActivity.mAuth.signOut();
+                    DatabaseReference ref = FirebaseDatabase.getInstance().getReference("users").child(Bruker.get().getBrukernavn());
+                    ref.child("loggedon").setValue(false).addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            if(task.isSuccessful())
+                                if(SplashActivity.mAuth.getCurrentUser() != null)
+                                    SplashActivity.mAuth.signOut();
+                        }
+                    });
+
+                    Bruker.get().setLoggetpa(false);
 
                     return 1;
                 } else {
@@ -93,7 +107,6 @@ public class LogoutUser extends AsyncTask<Void, Void, Integer> {
     @Override
     protected void onPostExecute(Integer integer) {
         if(integer == 1) {
-            Bruker.get().setLoggetpa(false);
             Bruker.get().setPassord("");
             Bruker.get().LagreBruker();
 
@@ -106,7 +119,7 @@ public class LogoutUser extends AsyncTask<Void, Void, Integer> {
             if(progressDialog.getOwnerActivity() != null)
                 progressDialog.getOwnerActivity().finish();
         } else if(integer == -1) {
-            Toast.makeText(progressDialog.getContext(), "", Toast.LENGTH_SHORT).show(); // TODO: Fix translation
+            //Toast.makeText(progressDialog.getContext(), "", Toast.LENGTH_SHORT).show(); // TODO: Fix translation
         } else {
             Toast.makeText(progressDialog.getContext(), "Failed to logout.", Toast.LENGTH_SHORT).show(); // TODO: Fix translation
         }

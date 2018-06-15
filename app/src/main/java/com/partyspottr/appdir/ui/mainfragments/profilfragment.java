@@ -29,6 +29,7 @@ import com.partyspottr.appdir.classes.Utilities;
 import com.partyspottr.appdir.classes.adapters.CountryCodes;
 import com.partyspottr.appdir.classes.networking.LogoutUser;
 import com.partyspottr.appdir.ui.MainActivity;
+import com.partyspottr.appdir.ui.other_ui.Drikkeleker;
 import com.partyspottr.appdir.ui.other_ui.SettingActivity;
 
 import java.beans.PropertyChangeEvent;
@@ -65,6 +66,15 @@ public class profilfragment extends Fragment {
         Button instillinger = view.findViewById(R.id.profil_instillinger);
         final Button logout = view.findViewById(R.id.log_out_btn);
         final ImageButton profilbilde = view.findViewById(R.id.profilbilde);
+        Button drikkeleker = view.findViewById(R.id.profil_drikkeleker);
+
+        drikkeleker.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getActivity(), Drikkeleker.class);
+                startActivity(intent);
+            }
+        });
 
         profilbilde.setOnClickListener(new View.OnClickListener() {
             @Override

@@ -2,20 +2,20 @@ package com.partyspottr.appdir.classes;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
-import android.provider.Telephony;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.widget.ListView;
 
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.GenericTypeIndicator;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.partyspottr.appdir.R;
+import com.partyspottr.appdir.classes.adapters.EventAdapter;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -28,6 +28,12 @@ import java.util.List;
 
 /**
  * Created by Ranarrr on 26-Jan-18.
+ *
+ * Thomas Høyland Rekvik f. 22. Juli 1998
+ * Han har 2 tanter
+ * Begge er i live.
+ *
+ * thpokasd telbiok
  *
  * @author Ranarrr
  */
@@ -79,17 +85,22 @@ public class Bruker {
     private static final String currentCarElem = "currentCarElem";
     private static final String hascarElem = "hascarElem";
 
-    private static final Type listFriendsType = new TypeToken<List<Friend>>(){}.getType();
-    private static final Type listParticipantsType = new TypeToken<List<Participant>>(){}.getType();
-    private static final Type listRequestsType = new TypeToken<List<Requester>>(){}.getType();
-    private static final Type listPreviewMsgsType = new TypeToken<List<ChatPreview>>(){}.getType();
-    private static final Type carType = new TypeToken<Car>(){}.getType();
-
     private static Bruker lokalBruker;
     private Chauffeur chauffeur;
 
-    public DatabaseReference ref;
-    public ChildEventListener eventListener;
+    public DatabaseReference eventsref;
+    public ChildEventListener eventschildlistener;
+
+    public DatabaseReference brukerinforef;
+    public ChildEventListener brukerinfolistener;
+
+    public DatabaseReference brukerchauffeurref;
+    public ChildEventListener brukerchauffeurlistener;
+
+    public DatabaseReference chauffeursref;
+    public ChildEventListener chauffeurslistener;
+
+    private long eventIdCounter;
 
     private SharedPreferences sharedPreferences;
 
@@ -107,15 +118,10 @@ public class Bruker {
         HentBruker();
     }
 
-    public void populateChauffeur(Activity activity) {
-        Chauffeur.getChauffeur(activity, brukernavn, chauffeur);
-    }
-
     public void LagreBruker() {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString(brukernavnElem, brukernavn);
         editor.putString(passordElem, passord);
-
         editor.putString(fornavnElem, fornavn);
         editor.putString(etternavnElem, etternavn);
         editor.putBoolean(premiumElem, premium);
@@ -146,11 +152,12 @@ public class Bruker {
         email = sharedPreferences.getString(emailElem, "");
         oneliner = sharedPreferences.getString(onelinerElem, "");
         hascar = sharedPreferences.getBoolean(hascarElem, false);
+        eventIdCounter = 0;
 
         if(sharedPreferences.getString(currentCarElem, "").equals(""))
             current_car = new Car();
         else
-            current_car = new Gson().fromJson(sharedPreferences.getString(currentCarElem, ""), carType);
+            current_car = new Gson().fromJson(sharedPreferences.getString(currentCarElem, ""), Utilities.carType);
 
         listOfEvents = new ArrayList<>();
         listOfMyEvents = new ArrayList<>();
@@ -158,17 +165,17 @@ public class Bruker {
         if(sharedPreferences.getString(chatElem, "").equals(""))
             chatMessageList = new ArrayList<>();
         else
-            chatMessageList = new Gson().fromJson(sharedPreferences.getString(chatElem, ""), listPreviewMsgsType);
+            chatMessageList = new Gson().fromJson(sharedPreferences.getString(chatElem, ""), Utilities.listPreviewMsgsType);
 
         if(sharedPreferences.getString(friendlistElem, "").equals(""))
             friendList = new ArrayList<>();
         else
-            friendList = new Gson().fromJson(sharedPreferences.getString(friendlistElem, ""), listFriendsType);
+            friendList = new Gson().fromJson(sharedPreferences.getString(friendlistElem, ""), Utilities.listFriendsType);
 
         if(sharedPreferences.getString(requestlistElem, "").equals(""))
             requests = new ArrayList<>();
         else
-            requests = new Gson().fromJson(sharedPreferences.getString(requestlistElem, ""), listRequestsType);
+            requests = new Gson().fromJson(sharedPreferences.getString(requestlistElem, ""), Utilities.listRequestsType);
     }
 
     public void ParseChauffeurs(JSONArray chauffeurs) {
@@ -198,124 +205,313 @@ public class Bruker {
         }
     }
 
-    public void GetAndParseEvents() {
-        if(!Bruker.get().isConnected())
-            return;
+    public void StopParsingChauffeurs() {
+        chauffeursref.removeEventListener(chauffeurslistener);
+    }
 
-        listOfEvents = new ArrayList<>();
-        listOfMyEvents = new ArrayList<>();
+    public void GetAndParseChauffeurs() {
+        chauffeursref = FirebaseDatabase.getInstance().getReference("chauffeurs");
 
-        ref = FirebaseDatabase.getInstance().getReference("events");
-
-        eventListener = ref.addChildEventListener(new ChildEventListener() {
+        chauffeurslistener = chauffeursref.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-                Event event = new Event();
+                for(DataSnapshot chauffeurs : dataSnapshot.getChildren()) {
+                    Chauffeur chauffeur = Utilities.getChauffeurFromDataSnapshot(chauffeurs);
+
+                    if(chauffeur != null)
+                        listchauffeurs.add(chauffeur);
+                }
+            }
+
+            @Override
+            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                for(DataSnapshot chauffeurs : dataSnapshot.getChildren()) {
+                    Chauffeur chauffeur = Utilities.getChauffeurFromDataSnapshot(chauffeurs);
+
+                    if(chauffeur == null)
+                        continue;
+
+                    Chauffeur.setChauffeur(chauffeur, listchauffeurs);
+                }
+            }
+
+            @Override
+            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
+                for(DataSnapshot chauffeurs : dataSnapshot.getChildren()) {
+                    Chauffeur chauffeur = Utilities.getChauffeurFromDataSnapshot(chauffeurs);
+
+                    if(chauffeur == null)
+                        continue;
+
+                    Chauffeur.removeChauffeur(chauffeur, listchauffeurs);
+                }
+            }
+
+            @Override
+            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {}
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {}
+        });
+    }
+
+    public void StopParsingBrukerChauffeur() {
+        brukerchauffeurref.removeEventListener(brukerchauffeurlistener);
+    }
+
+    public void GetAndParseBrukerChauffeur() {
+        brukerchauffeurref = FirebaseDatabase.getInstance().getReference("chauffeurs").child(getBrukernavn());
+
+        brukerchauffeurlistener = brukerchauffeurref.addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                if(!dataSnapshot.exists()) {
+                    setHascar(false);
+                    LagreBruker();
+                    return;
+                }
 
                 for(DataSnapshot snapshot : dataSnapshot.getChildren()) {
                     if(snapshot.getKey() != null) {
                         switch(snapshot.getKey()) {
-                            case "nameofevent":
-                                event.setNameofevent(snapshot.getValue(String.class));
+                            case "rating":
+                                if(snapshot.getValue() != null)
+                                    getChauffeur().setM_rating(snapshot.getValue(Double.class));
                                 break;
 
-                            case "address":
-                                event.setAddress(snapshot.getValue(String.class));
+                            case "brukernavn":
+                                getChauffeur().setM_brukernavn(snapshot.getValue(String.class));
                                 break;
 
-                            case "agerestriction":
-                                if(snapshot.getValue(Integer.class) != null) {
-                                    event.setAgerestriction(snapshot.getValue(Integer.class));
-                                }
+                            case "fornavn":
+                                getChauffeur().setFornavn(snapshot.getValue(String.class));
                                 break;
 
-                            case "country":
-                                event.setCountry(snapshot.getValue(String.class));
+                            case "etternavn":
+                                getChauffeur().setEtternavn(snapshot.getValue(String.class));
                                 break;
 
-                            case "datefrom":
-                                if(snapshot.getValue(Long.class) != null) {
-                                    event.setDatefrom(snapshot.getValue(Long.class));
-                                }
+                            case "age":
+                                if(snapshot.getValue(Integer.class) != null)
+                                    getChauffeur().setM_age(snapshot.getValue(Integer.class));
                                 break;
 
-                            case "dateto":
-                                if(snapshot.getValue(Long.class) != null) {
-                                    event.setDateto(snapshot.getValue(Long.class));
-                                }
+                            case "capacity":
+                                if(snapshot.getValue(Integer.class) != null)
+                                    getChauffeur().setM_capacity(snapshot.getValue(Integer.class));
                                 break;
 
-                            case "desc":
-                                event.setDescription(snapshot.getValue(String.class));
+                            case "timefrom":
+                                if(snapshot.getValue(Long.class) != null)
+                                    getChauffeur().setChauffeur_time_from(snapshot.getValue(Long.class));
                                 break;
 
-                            case "hasimage":
-                                if(snapshot.getValue(Boolean.class) != null) {
-                                    event.setHasimage(snapshot.getValue(Boolean.class));
-                                }
+                            case "timeto":
+                                if(snapshot.getValue(Long.class) != null)
+                                    getChauffeur().setChauffeur_time_to(snapshot.getValue(Long.class));
                                 break;
 
-                            case "hostStr":
-                                event.setHostStr(snapshot.getValue(String.class));
-                                break;
-
-                            case "isprivate":
-                                if(snapshot.getValue(Boolean.class) != null) {
-                                    event.setPrivateEvent(snapshot.getValue(Boolean.class));
-                                }
-                                break;
-
-                            case "latitude":
-                                event.setLatitude(snapshot.getValue(Double.class));
+                            case "listcars":
+                                List<Car> list = new Gson().fromJson(snapshot.getValue(String.class), Utilities.listCarsType);
+                                getChauffeur().setListOfCars(list);
                                 break;
 
                             case "longitude":
-                                event.setLongitude(snapshot.getValue(Double.class));
+                                if(snapshot.getValue(Double.class) != null)
+                                    getChauffeur().setLongitude(snapshot.getValue(Double.class));
                                 break;
 
-                            case "maxparticipants":
-                                if(snapshot.getValue(Integer.class) != null) {
-                                    event.setMaxparticipants(snapshot.getValue(Integer.class));
-                                }
-                                break;
-
-                            case "participants":
-                                List<Participant> participants = new Gson().fromJson(snapshot.getValue(String.class), listParticipantsType);
-                                event.setParticipants(participants);
-                                break;
-
-                            case "postalcode":
-                                event.setPostalcode(snapshot.getValue(String.class));
-                                break;
-
-                            case "requests":
-                                List<Requester> requests = new Gson().fromJson(snapshot.getValue(String.class), listRequestsType);
-                                event.setRequests(requests);
-                                break;
-
-                            case "showaddress":
-                                if(snapshot.getValue(Boolean.class) != null) {
-                                    event.setShowaddress(snapshot.getValue(Boolean.class));
-                                }
-                                break;
-
-                            case "showguestlist":
-                                if(snapshot.getValue(Boolean.class) != null) {
-                                    event.setShowguestlist(snapshot.getValue(Boolean.class));
-                                }
-                                break;
-
-                            case "town":
-                                event.setTown(snapshot.getValue(String.class));
-                                break;
-
-                            case "eventId":
-                                if(snapshot.getValue(Long.class) != null) {
-                                    event.setEventId(snapshot.getValue(Long.class));
-                                }
+                            case "latitude":
+                                if(snapshot.getValue(Double.class) != null)
+                                    getChauffeur().setLatitude(snapshot.getValue(Double.class));
                                 break;
                         }
                     }
+                }
+            }
+
+            @Override
+            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                if(!dataSnapshot.exists()) {
+                    setHascar(false);
+                    LagreBruker();
+                    return;
+                }
+
+                for(DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                    if(snapshot.getKey() != null) {
+                        switch(snapshot.getKey()) {
+                            case "rating":
+                                if(snapshot.getValue() != null)
+                                    Bruker.get().getChauffeur().setM_rating(snapshot.getValue(Double.class));
+                                break;
+
+                            case "brukernavn":
+                                Bruker.get().getChauffeur().setM_brukernavn(snapshot.getValue(String.class));
+                                break;
+
+                            case "fornavn":
+                                Bruker.get().getChauffeur().setFornavn(snapshot.getValue(String.class));
+                                break;
+
+                            case "etternavn":
+                                Bruker.get().getChauffeur().setEtternavn(snapshot.getValue(String.class));
+                                break;
+
+                            case "age":
+                                if(snapshot.getValue(Integer.class) != null)
+                                    Bruker.get().getChauffeur().setM_age(snapshot.getValue(Integer.class));
+                                break;
+
+                            case "capacity":
+                                if(snapshot.getValue(Integer.class) != null)
+                                    Bruker.get().getChauffeur().setM_capacity(snapshot.getValue(Integer.class));
+                                break;
+
+                            case "timefrom":
+                                if(snapshot.getValue(Long.class) != null)
+                                    Bruker.get().getChauffeur().setChauffeur_time_from(snapshot.getValue(Long.class));
+                                break;
+
+                            case "timeto":
+                                if(snapshot.getValue(Long.class) != null)
+                                    Bruker.get().getChauffeur().setChauffeur_time_to(snapshot.getValue(Long.class));
+                                break;
+
+                            case "listcars":
+                                List<Car> list = new Gson().fromJson(snapshot.getValue(String.class), Utilities.listCarsType);
+                                Bruker.get().getChauffeur().setListOfCars(list);
+                                break;
+
+                            case "longitude":
+                                if(snapshot.getValue(Double.class) != null)
+                                    Bruker.get().getChauffeur().setLongitude(snapshot.getValue(Double.class));
+                                break;
+
+                            case "latitude":
+                                if(snapshot.getValue(Double.class) != null)
+                                    Bruker.get().getChauffeur().setLatitude(snapshot.getValue(Double.class));
+                                break;
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {}
+
+            @Override
+            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {}
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {}
+        });
+    }
+
+    public void StopParsingBrukerInfo() {
+        brukerinforef.removeEventListener(brukerinfolistener);
+    }
+
+    public void GetAndParseBrukerInfo() {
+        brukerinforef = FirebaseDatabase.getInstance().getReference("users").child(getBrukernavn());
+
+        brukerinfolistener = brukerinforef.addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {}
+
+            @Override
+            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                for(DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                    if(snapshot.getKey() != null) {
+                        switch(snapshot.getKey()) {
+                            case "fornavn":
+                                setFornavn(snapshot.getValue(String.class));
+                                break;
+
+                            case "etternavn":
+                                setEtternavn(snapshot.getValue(String.class));
+                                break;
+
+                            case "premium":
+                                if(snapshot.getValue(Boolean.class) != null)
+                                    setPremium(snapshot.getValue(Boolean.class));
+                                break;
+
+                            case "country":
+                                setCountry(snapshot.getValue(String.class));
+                                break;
+
+                            case "day_of_month":
+                                if(snapshot.getValue(Integer.class) != null)
+                                    setDay_of_month(snapshot.getValue(Integer.class));
+                                break;
+
+                            case "friendlist":
+                                List<Friend> list = new Gson().fromJson(snapshot.getValue(String.class), Utilities.listFriendsType);
+                                setFriendList(list);
+                                break;
+
+                            case "requestlist":
+                                List<Friend> requests = new Gson().fromJson(snapshot.getValue(String.class), Utilities.listFriendsType);
+                                setRequests(requests);
+                                break;
+
+                            case "month":
+                                if(snapshot.getValue(Integer.class) != null)
+                                    setMonth(snapshot.getValue(Integer.class));
+                                break;
+
+                            case "town":
+                                setTown(snapshot.getValue(String.class));
+                                break;
+
+                            case "year":
+                                if(snapshot.getValue(Integer.class) != null)
+                                    setYear(snapshot.getValue(Integer.class));
+                                break;
+
+                            case "oneliner":
+                                setOneliner(snapshot.getValue(String.class));
+                                break;
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {}
+
+            @Override
+            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {}
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    public void StopParsingEvents() {
+        eventsref.removeEventListener(eventschildlistener);
+    }
+
+    public void GetAndParseEvents(final Activity activity) {
+        listOfEvents = new ArrayList<>();
+        listOfMyEvents = new ArrayList<>();
+
+        eventsref = FirebaseDatabase.getInstance().getReference("events");
+
+        eventschildlistener = eventsref.addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                Event event = new Event();
+
+                for(DataSnapshot events : dataSnapshot.getChildren()) {
+                    if(events.getKey() != null)
+                        if(events.getKey().equals("eventidCounter") && events.getValue() != null)
+                            Bruker.get().setEventIdCounter(events.getValue(Long.class));
+
+                    event = Utilities.getEventFromDataSnapshot(events);
                 }
 
                 if(event.getEventId() == 0)
@@ -328,11 +524,31 @@ public class Bruker {
                     listOfMyEvents.add(event);
 
                 listOfEvents.add(event);
+
+                ListView lv_alle_eventer = activity.findViewById(R.id.lvalle_eventer);
+                ListView lv_mine_eventer = activity.findViewById(R.id.lvmine_eventer);
+
+                if(lv_mine_eventer != null)
+                    lv_mine_eventer.setAdapter(new EventAdapter(activity, listOfMyEvents));
+
+                if(lv_alle_eventer != null)
+                    lv_alle_eventer.setAdapter(new EventAdapter(activity, listOfEvents));
             }
 
             @Override
             public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-                Event event = dataSnapshot.getValue(Event.class);
+                Event event = new Event();
+
+                for(DataSnapshot snap : dataSnapshot.getChildren()) {
+                    if(snap.getKey() != null) {
+                        if(snap.getKey().equals("eventidCounter") && snap.getValue() != null) {
+                            Bruker.get().setEventIdCounter(snap.getValue(Long.class));
+                            break;
+                        }
+                    }
+
+                    event = Utilities.getEventFromDataSnapshot(snap);
+                }
 
                 if(event == null)
                     return;
@@ -344,11 +560,24 @@ public class Bruker {
                     return;
 
                 setEventByID(event.getEventId(), event);
+
+                ListView lv_alle_eventer = activity.findViewById(R.id.lvalle_eventer);
+                ListView lv_mine_eventer = activity.findViewById(R.id.lvmine_eventer);
+
+                if(lv_mine_eventer != null)
+                    lv_mine_eventer.setAdapter(new EventAdapter(activity, listOfMyEvents));
+
+                if(lv_alle_eventer != null)
+                    lv_alle_eventer.setAdapter(new EventAdapter(activity, listOfEvents));
             }
 
             @Override
             public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
-                Event event = dataSnapshot.getValue(Event.class);
+                Event event = new Event();
+
+                for(DataSnapshot snap : dataSnapshot.getChildren()) {
+                    event = Utilities.getEventFromDataSnapshot(snap);
+                }
 
                 if(event == null)
                     return;
@@ -360,6 +589,15 @@ public class Bruker {
                     return;
 
                 removeEventByID(event.getEventId());
+
+                ListView lv_alle_eventer = activity.findViewById(R.id.lvalle_eventer);
+                ListView lv_mine_eventer = activity.findViewById(R.id.lvmine_eventer);
+
+                if(lv_mine_eventer != null)
+                    lv_mine_eventer.setAdapter(new EventAdapter(activity, listOfMyEvents));
+
+                if(lv_alle_eventer != null)
+                    lv_alle_eventer.setAdapter(new EventAdapter(activity, listOfEvents));
             }
 
             @Override
@@ -552,18 +790,32 @@ public class Bruker {
         this.etternavn = etternavn;
     }
 
+    public void setEmail(String value) {
+        this.email = value;
+    }
+
+    public int getMonth() {
+        return month;
+    }
+
+    public int getYear() {
+        return year;
+    }
+
     public int getDay_of_month() {
         return day_of_month;
     }
 
-    public void setDOB(int day, int mnth, int yr) {
-        day_of_month = day;
-        month = mnth;
-        year = yr;
+    public void setMonth(int month) {
+        this.month = month;
     }
 
-    public void setEmail(String value) {
-        this.email = value;
+    public void setYear(int year) {
+        this.year = year;
+    }
+
+    public void setDay_of_month(int day_of_month) {
+        this.day_of_month = day_of_month;
     }
 
     public String getEmail() {
@@ -576,14 +828,6 @@ public class Bruker {
 
     public void setConnected(boolean connected) {
         isConnected = connected;
-    }
-
-    public int getMonth() {
-        return month;
-    }
-
-    public int getYear() {
-        return year;
     }
 
     public List<Event> getListOfEvents() {
@@ -696,5 +940,13 @@ public class Bruker {
 
     public void setListchauffeurs(List<Chauffeur> listchauffeurs) {
         this.listchauffeurs = listchauffeurs;
+    }
+
+    public long getEventIdCounter() {
+        return eventIdCounter;
+    }
+
+    public void setEventIdCounter(long eventIdCounter) {
+        this.eventIdCounter = eventIdCounter;
     }
 }

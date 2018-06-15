@@ -40,6 +40,8 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.partyspottr.appdir.BuildConfig;
 import com.partyspottr.appdir.R;
 import com.partyspottr.appdir.classes.adapters.ChatPreviewAdapter;
@@ -56,6 +58,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -79,6 +82,13 @@ public class Utilities {
     public static final int READ_EXTERNAL_STORAGE_CODE = 1001;
     public static final int SELECT_IMAGE_CODE = 1003;
     public static final int SELECT_PROFILE_IMAGE_CODE = 1004;
+
+    public static final Type listFriendsType = new TypeToken<List<Friend>>(){}.getType();
+    public static final Type listParticipantsType = new TypeToken<List<Participant>>(){}.getType();
+    public static final Type listRequestsType = new TypeToken<List<Requester>>(){}.getType();
+    public static final Type listPreviewMsgsType = new TypeToken<List<ChatPreview>>(){}.getType();
+    public static final Type listCarsType = new TypeToken<List<Car>>(){}.getType();
+    public static final Type carType = new TypeToken<Car>(){}.getType();
 
     public static boolean hasNetwork(Context c) {
         if(Settings.Global.getInt(c.getContentResolver(), "airplane_mode_on", 0) != 0)
@@ -218,8 +228,8 @@ public class Utilities {
                             if(Bruker.get().isLoggetpa()) {
                                 DatabaseReference ref = FirebaseDatabase.getInstance().getReference("users").child(Bruker.get().getBrukernavn());
 
-                                ref.child("countryElem").setValue(address.getCountryName());
-                                ref.child("townElem").setValue(address.getLocality());
+                                ref.child("country").setValue(address.getCountryName());
+                                ref.child("town").setValue(address.getLocality());
                             }
 
                             UpdateUser updateUser = new UpdateUser();
@@ -294,6 +304,185 @@ public class Utilities {
                 }
             }
         });
+    }
+
+    public static Chauffeur getChauffeurFromDataSnapshot(DataSnapshot chauffeurs) {
+        Chauffeur ret = new Chauffeur();
+
+        for(DataSnapshot snapshot : chauffeurs.getChildren()) {
+            if(snapshot.getKey() != null) {
+                switch(snapshot.getKey()) {
+                    case "rating":
+                        if(snapshot.getValue() != null)
+                            ret.setM_rating(snapshot.getValue(Double.class));
+                        break;
+
+                    case "brukernavn":
+                        ret.setM_brukernavn(snapshot.getValue(String.class));
+                        break;
+
+                    case "fornavn":
+                        ret.setFornavn(snapshot.getValue(String.class));
+                        break;
+
+                    case "etternavn":
+                        ret.setEtternavn(snapshot.getValue(String.class));
+                        break;
+
+                    case "age":
+                        if(snapshot.getValue(Integer.class) != null)
+                            ret.setM_age(snapshot.getValue(Integer.class));
+                        break;
+
+                    case "capacity":
+                        if(snapshot.getValue(Integer.class) != null)
+                            ret.setM_capacity(snapshot.getValue(Integer.class));
+                        break;
+
+                    case "timefrom":
+                        if(snapshot.getValue(Long.class) != null)
+                            ret.setChauffeur_time_from(snapshot.getValue(Long.class));
+                        break;
+
+                    case "timeto":
+                        if(snapshot.getValue(Long.class) != null)
+                            ret.setChauffeur_time_to(snapshot.getValue(Long.class));
+                        break;
+
+                    case "listcars":
+                        List<Car> list = new Gson().fromJson(snapshot.getValue(String.class), Utilities.listCarsType);
+                        ret.setListOfCars(list);
+                        break;
+
+                    case "longitude":
+                        if(snapshot.getValue(Double.class) != null)
+                            ret.setLongitude(snapshot.getValue(Double.class));
+                        break;
+
+                    case "latitude":
+                        if(snapshot.getValue(Double.class) != null)
+                            ret.setLatitude(snapshot.getValue(Double.class));
+                        break;
+                }
+            }
+        }
+
+        if(ret.getChauffeur_time_to() < System.currentTimeMillis())
+            return null;
+
+        return ret;
+    }
+
+    public static Event getEventFromDataSnapshot(DataSnapshot events) {
+        Event event = new Event();
+
+        for(DataSnapshot eventinfo : events.getChildren()) {
+            if(eventinfo.getKey() != null) {
+                switch(eventinfo.getKey()) {
+                    case "nameofevent":
+                        event.setNameofevent(eventinfo.getValue(String.class));
+                        break;
+
+                    case "address":
+                        event.setAddress(eventinfo.getValue(String.class));
+                        break;
+
+                    case "agerestriction":
+                        if(eventinfo.getValue(Integer.class) != null) {
+                            event.setAgerestriction(eventinfo.getValue(Integer.class));
+                        }
+                        break;
+
+                    case "country":
+                        event.setCountry(eventinfo.getValue(String.class));
+                        break;
+
+                    case "datefrom":
+                        if(eventinfo.getValue(Long.class) != null) {
+                            event.setDatefrom(eventinfo.getValue(Long.class));
+                        }
+                        break;
+
+                    case "dateto":
+                        if(eventinfo.getValue(Long.class) != null) {
+                            event.setDateto(eventinfo.getValue(Long.class));
+                        }
+                        break;
+
+                    case "desc":
+                        event.setDescription(eventinfo.getValue(String.class));
+                        break;
+
+                    case "hasimage":
+                        if(eventinfo.getValue(Boolean.class) != null) {
+                            event.setHasimage(eventinfo.getValue(Boolean.class));
+                        }
+                        break;
+
+                    case "hostStr":
+                        event.setHostStr(eventinfo.getValue(String.class));
+                        break;
+
+                    case "isprivate":
+                        if(eventinfo.getValue(Boolean.class) != null) {
+                            event.setPrivateEvent(eventinfo.getValue(Boolean.class));
+                        }
+                        break;
+
+                    case "latitude":
+                        event.setLatitude(eventinfo.getValue(Double.class));
+                        break;
+
+                    case "longitude":
+                        event.setLongitude(eventinfo.getValue(Double.class));
+                        break;
+
+                    case "maxparticipants":
+                        if(eventinfo.getValue(Integer.class) != null) {
+                            event.setMaxparticipants(eventinfo.getValue(Integer.class));
+                        }
+                        break;
+
+                    case "participants":
+                        List<Participant> participants = new Gson().fromJson(eventinfo.getValue(String.class), listParticipantsType);
+                        event.setParticipants(participants);
+                        break;
+
+                    case "postalcode":
+                        event.setPostalcode(eventinfo.getValue(String.class));
+                        break;
+
+                    case "requests":
+                        List<Requester> requests = new Gson().fromJson(eventinfo.getValue(String.class), listRequestsType);
+                        event.setRequests(requests);
+                        break;
+
+                    case "showaddress":
+                        if(eventinfo.getValue(Boolean.class) != null) {
+                            event.setShowaddress(eventinfo.getValue(Boolean.class));
+                        }
+                        break;
+
+                    case "showguestlist":
+                        if(eventinfo.getValue(Boolean.class) != null) {
+                            event.setShowguestlist(eventinfo.getValue(Boolean.class));
+                        }
+                        break;
+
+                    case "town":
+                        event.setTown(eventinfo.getValue(String.class));
+                        break;
+
+                    case "eventId":
+                        if(eventinfo.getValue(Long.class) != null) {
+                            event.setEventId(eventinfo.getValue(Long.class));
+                        }
+                        break;
+                }
+            }
+        }
+
+        return event;
     }
 
     public static void onSearchMineEventer(final Activity activity) {
@@ -757,8 +946,7 @@ public class Utilities {
     }
 
     private static String getDataColumn(Context context, Uri uri, String selection,
-                                       String[] selectionArgs) {
-
+                                        String[] selectionArgs) {
         Cursor cursor = null;
         final String column = "_data";
         final String[] projection = {
@@ -778,7 +966,6 @@ public class Utilities {
         }
         return null;
     }
-
 
     /**
      * @param uri The Uri to check.
