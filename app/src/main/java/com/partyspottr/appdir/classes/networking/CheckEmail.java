@@ -13,7 +13,6 @@ import android.widget.Toast;
 import com.partyspottr.appdir.BuildConfig;
 import com.partyspottr.appdir.R;
 import com.partyspottr.appdir.classes.Bruker;
-import com.partyspottr.appdir.ui.SplashActivity;
 import com.partyspottr.appdir.ui.registerui.Register3Activity;
 
 import org.apache.http.NameValuePair;

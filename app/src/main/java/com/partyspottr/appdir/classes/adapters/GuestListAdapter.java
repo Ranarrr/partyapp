@@ -22,20 +22,21 @@ import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 import com.google.gson.Gson;
 import com.partyspottr.appdir.R;
 import com.partyspottr.appdir.classes.Bruker;
 import com.partyspottr.appdir.classes.Event;
+import com.partyspottr.appdir.classes.Friend;
 import com.partyspottr.appdir.classes.Participant;
+import com.partyspottr.appdir.classes.Utilities;
 import com.partyspottr.appdir.classes.networking.AddFriendRequest;
-import com.partyspottr.appdir.classes.networking.AddParticipant;
-import com.partyspottr.appdir.classes.networking.RemoveParticipant;
 import com.partyspottr.appdir.enums.EventStilling;
 import com.partyspottr.appdir.ui.other_ui.Profile;
 
@@ -137,12 +138,24 @@ public class GuestListAdapter extends BaseAdapter {
                                 case R.id.som_venn:
                                     if(!participant.getBrukernavn().equals(Bruker.get().getBrukernavn())) {
 
-                                        DatabaseReference brukerref = FirebaseDatabase.getInstance().getReference("users").child(participant.getBrukernavn());
+                                        final DatabaseReference brukerref = FirebaseDatabase.getInstance().getReference("users").child(participant.getBrukernavn());
                                         brukerref.addChildEventListener(new ChildEventListener() {
                                             @Override
                                             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
                                                 for(DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                                                    //if(snapshot.getKey() != null && snapshot.getKey().equals("requests"))
+                                                    if(snapshot.getKey() != null && snapshot.getKey().equals("requests")) {
+                                                        List<Friend> list = new Gson().fromJson(snapshot.getValue(String.class), Utilities.listFriendsType);
+
+                                                        list.add(Friend.BrukerToFriend(Bruker.get()));
+
+                                                        brukerref.child("requests").setValue(new Gson().toJson(list)).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                            @Override
+                                                            public void onComplete(@NonNull Task<Void> task) {
+                                                                if(task.isSuccessful())
+                                                                    Toast.makeText(thisActivity, "Sent friend request!", Toast.LENGTH_SHORT).show();
+                                                            }
+                                                        });
+                                                    }
                                                 }
                                             }
 
@@ -155,9 +168,6 @@ public class GuestListAdapter extends BaseAdapter {
                                             @Override
                                             public void onCancelled(@NonNull DatabaseError databaseError) {}
                                         });
-
-                                        AddFriendRequest addFriendRequest = new AddFriendRequest(thisActivity, participant.getBrukernavn());
-                                        addFriendRequest.execute();
                                     }
 
                                     return true;

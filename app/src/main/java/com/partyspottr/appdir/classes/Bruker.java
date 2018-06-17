@@ -13,7 +13,6 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import com.partyspottr.appdir.R;
 import com.partyspottr.appdir.classes.adapters.EventAdapter;
 
@@ -21,7 +20,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -206,7 +204,8 @@ public class Bruker {
     }
 
     public void StopParsingChauffeurs() {
-        chauffeursref.removeEventListener(chauffeurslistener);
+        if(chauffeursref != null)
+            chauffeursref.removeEventListener(chauffeurslistener);
     }
 
     public void GetAndParseChauffeurs() {
@@ -256,7 +255,8 @@ public class Bruker {
     }
 
     public void StopParsingBrukerChauffeur() {
-        brukerchauffeurref.removeEventListener(brukerchauffeurlistener);
+        if(brukerchauffeurref != null)
+            brukerchauffeurref.removeEventListener(brukerchauffeurlistener);
     }
 
     public void GetAndParseBrukerChauffeur() {
@@ -409,7 +409,8 @@ public class Bruker {
     }
 
     public void StopParsingBrukerInfo() {
-        brukerinforef.removeEventListener(brukerinfolistener);
+        if(brukerinforef != null)
+            brukerinforef.removeEventListener(brukerinfolistener);
     }
 
     public void GetAndParseBrukerInfo() {
@@ -492,7 +493,8 @@ public class Bruker {
     }
 
     public void StopParsingEvents() {
-        eventsref.removeEventListener(eventschildlistener);
+        if(eventsref != null)
+            eventsref.removeEventListener(eventschildlistener);
     }
 
     public void GetAndParseEvents(final Activity activity) {
@@ -504,15 +506,11 @@ public class Bruker {
         eventschildlistener = eventsref.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-                Event event = new Event();
+                if(dataSnapshot.getKey() != null)
+                    if(dataSnapshot.getKey().equals("eventidCounter") && dataSnapshot.getValue() != null)
+                        Bruker.get().setEventIdCounter(dataSnapshot.getValue(Long.class));
 
-                for(DataSnapshot events : dataSnapshot.getChildren()) {
-                    if(events.getKey() != null)
-                        if(events.getKey().equals("eventidCounter") && events.getValue() != null)
-                            Bruker.get().setEventIdCounter(events.getValue(Long.class));
-
-                    event = Utilities.getEventFromDataSnapshot(events);
-                }
+                Event event = Utilities.getEventFromDataSnapshot(dataSnapshot);
 
                 if(event.getEventId() == 0)
                     return;
@@ -540,12 +538,9 @@ public class Bruker {
                 Event event = new Event();
 
                 for(DataSnapshot snap : dataSnapshot.getChildren()) {
-                    if(snap.getKey() != null) {
-                        if(snap.getKey().equals("eventidCounter") && snap.getValue() != null) {
+                    if(snap.getKey() != null)
+                        if(snap.getKey().equals("eventidCounter") && snap.getValue() != null)
                             Bruker.get().setEventIdCounter(snap.getValue(Long.class));
-                            break;
-                        }
-                    }
 
                     event = Utilities.getEventFromDataSnapshot(snap);
                 }

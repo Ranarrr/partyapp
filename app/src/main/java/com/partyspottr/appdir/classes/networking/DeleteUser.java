@@ -10,7 +10,6 @@ import android.widget.Toast;
 import com.partyspottr.appdir.BuildConfig;
 import com.partyspottr.appdir.classes.Bruker;
 import com.partyspottr.appdir.ui.MainActivity;
-import com.partyspottr.appdir.ui.SplashActivity;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;

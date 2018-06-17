@@ -4,12 +4,9 @@ import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.DialogInterface;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Point;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
 import android.support.v4.view.PagerAdapter;
@@ -34,6 +31,11 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.partyspottr.appdir.BuildConfig;
 import com.partyspottr.appdir.R;
 import com.partyspottr.appdir.classes.Bruker;
@@ -105,6 +107,28 @@ public class Profile extends AppCompatActivity {
         by.setTypeface(MainActivity.typeface);
         oneliner.setTypeface(MainActivity.typeface);
         title.setTypeface(MainActivity.typeface);
+
+        DatabaseReference brukerref = FirebaseDatabase.getInstance().getReference("users").child(brukernavn);
+
+        brukerref.addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+            }
+
+            @Override
+            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+            }
+
+            @Override
+            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {}
+
+            @Override
+            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {}
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {}
+        });
 
         StringRequest stringRequest = new StringRequest(Utilities.getGETMethodArgStr("get_user", "socketElem", Base64.encodeToString(BuildConfig.JSONParser_Socket.getBytes(), Base64.DEFAULT), "username", brukernavn), new Response.Listener<String>() { // BuildConfig.DBMS_URL + "?get_user={\"socketElem\":\"" + Base64.encodeToString(BuildConfig.JSONParser_Socket.getBytes(),
             //Base64.DEFAULT) + "\",\"username\":\"" + brukernavn + "\"}"

@@ -88,28 +88,31 @@ public class CreateUser extends AsyncTask<Void, Void, Integer> {
                         @Override
                         public void onComplete(@NonNull Task<AuthResult> task) {
                             if(task.isSuccessful()) {
-                                DatabaseReference ref = FirebaseDatabase.getInstance().getReference("users").child(Bruker.get().getBrukernavn());
-                                ref.child("fornavn").setValue(Bruker.get().getFornavn());
-                                ref.child("etternavn").setValue(Bruker.get().getEtternavn());
-                                ref.child("brukernavn").setValue(Bruker.get().getBrukernavn());
-                                ref.child("premium").setValue(Bruker.get().isPremium());
-                                ref.child("loggedon").setValue(false);
-                                ref.child("country").setValue(Bruker.get().getCountry());
-                                ref.child("day_of_month").setValue(Bruker.get().getDay_of_month());
-                                ref.child("friendlist").setValue(new Gson().toJson(Bruker.get().getFriendList()));
-                                ref.child("requestlist").setValue(new Gson().toJson(Bruker.get().getRequests()));
-                                ref.child("month").setValue(Bruker.get().getMonth());
-                                ref.child("town").setValue(Bruker.get().getTown());
-                                ref.child("year").setValue(Bruker.get().getYear());
-                                ref.child("oneliner").setValue(Bruker.get().getOneliner());
+                                final DatabaseReference ref = FirebaseDatabase.getInstance().getReference("users").child(Bruker.get().getBrukernavn());
+                                ref.child("fornavn").setValue(Bruker.get().getFornavn()).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Void> task) {
+                                        ref.child("etternavn").setValue(Bruker.get().getEtternavn());
+                                        ref.child("brukernavn").setValue(Bruker.get().getBrukernavn());
+                                        ref.child("premium").setValue(Bruker.get().isPremium());
+                                        ref.child("loggedon").setValue(false);
+                                        ref.child("country").setValue(Bruker.get().getCountry());
+                                        ref.child("day_of_month").setValue(Bruker.get().getDay_of_month());
+                                        ref.child("friendlist").setValue(new Gson().toJson(Bruker.get().getFriendList()));
+                                        ref.child("requestlist").setValue(new Gson().toJson(Bruker.get().getRequests()));
+                                        ref.child("month").setValue(Bruker.get().getMonth());
+                                        ref.child("town").setValue(Bruker.get().getTown());
+                                        ref.child("year").setValue(Bruker.get().getYear());
+                                        ref.child("oneliner").setValue(Bruker.get().getOneliner());
 
-                                Bruker.get().LagreBruker();
-                                Intent intent = new Intent(progressDialog.getContext(), MainActivity.class);
-                                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                                progressDialog.getContext().startActivity(intent);
-                            } else {
+                                        Bruker.get().LagreBruker();
+                                        Intent intent = new Intent(progressDialog.getContext(), MainActivity.class);
+                                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                                        progressDialog.getContext().startActivity(intent);
+                                    }
+                                });
+                            } else
                                 Toast.makeText(progressDialog.getContext(), "Failed to create user!", Toast.LENGTH_SHORT).show();
-                            }
                         }
                     });
         } else if(integer == -1) {

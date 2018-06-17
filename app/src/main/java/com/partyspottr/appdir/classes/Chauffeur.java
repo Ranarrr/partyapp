@@ -1,14 +1,8 @@
 package com.partyspottr.appdir.classes;
 
-import android.app.Activity;
 import android.content.SharedPreferences;
 import android.util.Base64;
 
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.partyspottr.appdir.BuildConfig;
@@ -39,15 +33,16 @@ public class Chauffeur {
     private double m_longitude;
     private double m_latitude;
 
-    private static final String carlistElem = "carlistElem";
-    private static final String time_fromElem = "timeDrivingFrom";
-    private static final String time_toElem = "timeDrivingTo";
-    private static final String fornavnElem = "fornavnElem";
-    private static final String etternavnElem = "etternavnElem";
-    private static final String longitudeElem = "longitude";
-    private static final String rating = "rating";
-    private static final String capacity = "capacity";
-    private static final String age = "age";
+    public static final String carlistElem = "carlist";
+    public static final String time_fromElem = "timefrom";
+    public static final String time_toElem = "timeto";
+    public static final String fornavnElem = "fornavn";
+    public static final String etternavnElem = "etternavn";
+    public static final String longitudeElem = "longitude";
+    public static final String latitudeElem = "latitude";
+    public static final String rating = "rating";
+    public static final String capacity = "capacity";
+    public static final String age = "age";
 
     public static final Type listOfCarsType = new TypeToken<List<Car>>(){}.getType();
 

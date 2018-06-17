@@ -67,9 +67,6 @@ public class ChatPreviewAdapter extends BaseAdapter {
     public View getView(int position, View convertView, ViewGroup parent) {
         final ChatPreview preview = getItem(position);
 
-        if(preview.getChatters().size() <= 1 || preview.getLastmsg() == 0)
-            return null;
-
         if(preview.getGroupname().equals(BuildConfig.JSONParser_Socket) && preview.isGroupchat() && preview.getChatters().isEmpty() && preview.getMessage().isEmpty()) {
             LayoutInflater layoutInflater = (LayoutInflater) thisActivity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             if(layoutInflater != null) {

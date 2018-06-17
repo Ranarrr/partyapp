@@ -5,7 +5,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
@@ -67,6 +66,8 @@ public class profilfragment extends Fragment {
         final Button logout = view.findViewById(R.id.log_out_btn);
         final ImageButton profilbilde = view.findViewById(R.id.profilbilde);
         Button drikkeleker = view.findViewById(R.id.profil_drikkeleker);
+        Button hjelp = view.findViewById(R.id.profil_hjelp);
+        Button oppgrader = view.findViewById(R.id.profil_premium);
 
         drikkeleker.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -108,6 +109,10 @@ public class profilfragment extends Fragment {
         by.setTypeface(MainActivity.typeface);
         oneliner.setTypeface(MainActivity.typeface);
         logout.setTypeface(MainActivity.typeface);
+        drikkeleker.setTypeface(MainActivity.typeface);
+        instillinger.setTypeface(MainActivity.typeface);
+        hjelp.setTypeface(MainActivity.typeface);
+        oppgrader.setTypeface(MainActivity.typeface);
 
         instillinger.setOnClickListener(new View.OnClickListener() {
             @Override

@@ -4,12 +4,13 @@ import android.content.DialogInterface;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.AppCompatAutoCompleteTextView;
-import android.util.Base64;
+import android.support.v7.widget.AppCompatSpinner;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,24 +22,19 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.gson.Gson;
-import com.partyspottr.appdir.BuildConfig;
 import com.partyspottr.appdir.R;
 import com.partyspottr.appdir.classes.Bruker;
 import com.partyspottr.appdir.classes.Car;
 import com.partyspottr.appdir.classes.Chauffeur;
 import com.partyspottr.appdir.classes.Utilities;
 import com.partyspottr.appdir.classes.adapters.CarBrands;
-import com.partyspottr.appdir.classes.networking.ChauffeurRemoveTime;
 import com.partyspottr.appdir.ui.MainActivity;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -141,44 +137,45 @@ public class min_bil_fragment extends Fragment {
                             @Override
                             public void onClick(View v) {
                                 if(merke.getText().toString().length() > 2 && farge.getText().toString().length() > 2 && CarBrands.doesListContain(merke.getText().toString())) {
-                                    Location loc = Utilities.getLatLng(getActivity());
-                                    StringRequest stringRequest = new StringRequest(Utilities.getGETMethodArgStr("create_chauffeur", "socketElem",
-                                            Base64.encodeToString(BuildConfig.JSONParser_Socket.getBytes(), Base64.DEFAULT), "brukernavnElem", Bruker.get().getBrukernavn(), "carlistElem",
-                                            new Gson().toJson(Collections.singletonList(new Car(merke.getText().toString(), farge.getText().toString(), false))),
-                                            "timeDrivingFrom", "0", "timeDrivingTo", "0", "rating", "0", "capacity", "0", "age",
-                                            String.valueOf(Utilities.calcAge(new GregorianCalendar(Bruker.get().getYear(), Bruker.get().getMonth(), Bruker.get().getDay_of_month()))),
-                                            "fornavn", Bruker.get().getFornavn(), "etternavn", Bruker.get().getEtternavn(), "longitude", loc == null ? "0" : String.valueOf(loc.getLongitude()), "latitude",
-                                            loc == null ? "0" : String.valueOf(loc.getLatitude())), new Response.Listener<String>() {
-                                        @Override
-                                        public void onResponse(String response) {
-                                            try {
-                                                JSONObject respons = new JSONObject(response);
-                                                if (respons.getInt("success") == 1) {
-                                                    Bruker.get().setHascar(true);
-                                                    Bruker.get().getChauffeur().setFornavn(Bruker.get().getFornavn());
-                                                    Bruker.get().getChauffeur().setEtternavn(Bruker.get().getEtternavn());
-                                                    Bruker.get().getChauffeur().setChauffeur_time_to(0);
-                                                    Bruker.get().getChauffeur().setChauffeur_time_from(0);
-                                                    Bruker.get().getChauffeur().addCar(new Car(merke.getText().toString(), farge.getText().toString(), false));
-                                                    Bruker.get().getChauffeur().setM_brukernavn(Bruker.get().getBrukernavn());
-                                                    Bruker.get().getChauffeur().setM_age(Utilities.calcAge(new GregorianCalendar(Bruker.get().getYear(), Bruker.get().getMonth(), Bruker.get().getDay_of_month())));
-                                                    Bruker.get().setCurrent_car(Bruker.get().getChauffeur().getListOfCars().get(0));
-                                                    Bruker.get().getChauffeur().LagreChauffeur();
-                                                    setAfterRegistrated(title, legg_til_tid, start_ny_tid, timer_layout, registrate_car_layout, current_car);
-                                                } else {
-                                                    Toast.makeText(getActivity(), "Failed to registrate car!", Toast.LENGTH_SHORT).show();
-                                                }
-                                            } catch (JSONException e) {
-                                                e.printStackTrace();
-                                            }
-                                        }
-                                    }, new Response.ErrorListener() {
-                                        @Override
-                                        public void onErrorResponse(VolleyError error) {}
-                                    });
+                                    final Location loc = Utilities.getLatLng(getActivity());
 
-                                    RequestQueue queue = Volley.newRequestQueue(getActivity());
-                                    queue.add(stringRequest);
+                                    final DatabaseReference chauffeurref = FirebaseDatabase.getInstance().getReference("chauffeurs").child(Bruker.get().getBrukernavn());
+
+                                    chauffeurref.child("brukernavn").setValue(Bruker.get().getBrukernavn()).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<Void> task) {
+                                            chauffeurref.child(Chauffeur.carlistElem).setValue(new Gson().toJson(Collections.singletonList(new Car(merke.getText().toString(), farge.getText().toString(),
+                                                    false))));
+                                            chauffeurref.child(Chauffeur.time_fromElem).setValue(0);
+                                            chauffeurref.child(Chauffeur.time_toElem).setValue(0);
+                                            chauffeurref.child(Chauffeur.rating).setValue(0);
+                                            chauffeurref.child(Chauffeur.capacity).setValue(0);
+                                            chauffeurref.child(Chauffeur.age).setValue(String.valueOf(Utilities.calcAge(new GregorianCalendar(Bruker.get().getYear(), Bruker.get().getMonth(), Bruker.get().getDay_of_month()))));
+                                            chauffeurref.child(Chauffeur.fornavnElem).setValue(Bruker.get().getFornavn());
+                                            chauffeurref.child(Chauffeur.etternavnElem).setValue(Bruker.get().getEtternavn());
+                                            chauffeurref.child(Chauffeur.longitudeElem).setValue(loc == null ? "0" : String.valueOf(loc.getLongitude()));
+                                            chauffeurref.child(Chauffeur.latitudeElem).setValue(loc == null ? "0" : String.valueOf(loc.getLatitude()));
+
+                                            Bruker.get().setHascar(true);
+                                            Bruker.get().getChauffeur().setFornavn(Bruker.get().getFornavn());
+                                            Bruker.get().getChauffeur().setEtternavn(Bruker.get().getEtternavn());
+                                            Bruker.get().getChauffeur().setChauffeur_time_to(0);
+                                            Bruker.get().getChauffeur().setChauffeur_time_from(0);
+                                            Bruker.get().getChauffeur().addCar(new Car(merke.getText().toString(), farge.getText().toString(), false));
+                                            Bruker.get().getChauffeur().setM_brukernavn(Bruker.get().getBrukernavn());
+                                            Bruker.get().getChauffeur().setM_age(Utilities.calcAge(new GregorianCalendar(Bruker.get().getYear(), Bruker.get().getMonth(), Bruker.get().getDay_of_month())));
+                                            Bruker.get().setCurrent_car(Bruker.get().getChauffeur().getListOfCars().get(0));
+                                            Bruker.get().getChauffeur().LagreChauffeur();
+                                            Bruker.get().LagreBruker();
+                                            setAfterRegistrated(title, legg_til_tid, start_ny_tid, timer_layout, registrate_car_layout, current_car);
+                                        }
+                                    }).addOnFailureListener(new OnFailureListener() {
+                                        @Override
+                                        public void onFailure(@NonNull Exception e) {
+                                            if(getActivity() != null)
+                                                Toast.makeText(getActivity(), "Failed to registrate new car.", Toast.LENGTH_SHORT).show();
+                                        }
+                                    });
                                 }
                             }
                         });
@@ -244,17 +241,64 @@ public class min_bil_fragment extends Fragment {
             legg_til_tid_btn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    AppCompatSpinner timer_tid = getActivity().findViewById(R.id.timer_spinner);
+                    AppCompatSpinner minutter_tid = getActivity().findViewById(R.id.minutter_spinner);
+                    final AppCompatSpinner passasjerer = getActivity().findViewById(R.id.passasjer_spinner);
 
-                    GregorianCalendar to = new GregorianCalendar();
+                    final GregorianCalendar to = new GregorianCalendar();
                     to.setTimeInMillis(System.currentTimeMillis());
 
-                    //to.add(Calendar.HOUR_OF_DAY, timer_tid);
+                    to.add(Calendar.HOUR_OF_DAY, (int) timer_tid.getSelectedItem());
 
-                    //if(minutter_tid > 0)
-                      //  to.add(Calendar.MINUTE, minutter_tid);
+                    if((int) minutter_tid.getSelectedItem() > 0)
+                        to.add(Calendar.MINUTE, (int) minutter_tid.getSelectedItem());
 
-                    //ChauffeurAddNewTime chauffeurAddNewTime = new ChauffeurAddNewTime(getActivity(), to.getTimeInMillis(), passasjerer);
-                    //chauffeurAddNewTime.execute();
+                    final DatabaseReference ref = FirebaseDatabase.getInstance().getReference("chauffeurs").child(Bruker.get().getBrukernavn());
+                    ref.child(Chauffeur.time_fromElem).setValue(System.currentTimeMillis()).addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            ref.child(Chauffeur.time_toElem).setValue(to.getTimeInMillis());
+                            ref.child(Chauffeur.capacity).setValue(passasjerer.getSelectedItem());
+
+                            Bruker.get().getChauffeur().setChauffeur_time_from(System.currentTimeMillis());
+                            Bruker.get().getChauffeur().setChauffeur_time_to(to.getTimeInMillis());
+                            Bruker.get().getChauffeur().setM_capacity(((int) passasjerer.getSelectedItem()));
+                            Bruker.get().getChauffeur().LagreChauffeur();
+
+                            final ConstraintLayout legg_til_tid_layout = getActivity().findViewById(R.id.chauffeur_legg_til_tid);
+                            final TextView time_progress = getActivity().findViewById(R.id.time_progress);
+                            final TextView ny_tid_title = getActivity().findViewById(R.id.ny_tid_title);
+                            final ConstraintLayout timer_layout = getActivity().findViewById(R.id.chauffeur_timer_layout);
+
+                            if(legg_til_tid_layout != null && time_progress != null && ny_tid_title != null && timer_layout != null) {
+                                legg_til_tid_layout.setVisibility(View.GONE);
+                                timer_layout.setVisibility(View.VISIBLE);
+                                ny_tid_title.setText("Din økt");
+
+                                final long current = Bruker.get().getChauffeur().getChauffeur_time_to() - new Date().getTime();
+
+                                min_bil_fragment.countDownTimer = new CountDownTimer(current, 1000) {
+                                    @Override
+                                    public void onTick(long millisUntilFinished) {
+                                        GregorianCalendar timetoset = new GregorianCalendar();
+                                        timetoset.setTimeInMillis(millisUntilFinished);
+
+                                        time_progress.setText(String.format(Locale.ENGLISH, "%d:%02d:%02d", timetoset.get(Calendar.HOUR_OF_DAY) - 1, timetoset.get(Calendar.MINUTE),
+                                                timetoset.get(Calendar.SECOND)));
+                                    }
+
+                                    @Override
+                                    public void onFinish() {
+                                        legg_til_tid_layout.setVisibility(View.VISIBLE);
+                                        timer_layout.setVisibility(View.GONE);
+                                        ny_tid_title.setText("Start kjøreøkt");
+                                    }
+                                };
+
+                                min_bil_fragment.countDownTimer.start();
+                            }
+                        }
+                    });
 
                     /*
                         new AlertDialog.Builder(getActivity())
@@ -280,8 +324,33 @@ public class min_bil_fragment extends Fragment {
             avslutt_tid.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    ChauffeurRemoveTime chauffeurRemoveTime = new ChauffeurRemoveTime(getActivity());
-                    chauffeurRemoveTime.execute();
+                    final DatabaseReference ref = FirebaseDatabase.getInstance().getReference("chauffeurs").child(Bruker.get().getBrukernavn());
+
+                    ref.child(Chauffeur.time_toElem).setValue(0).addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            ref.child(Chauffeur.time_fromElem).setValue(0);
+                            ref.child(Chauffeur.capacity).setValue(0);
+
+                            TextView ny_tid_title = getActivity().findViewById(R.id.ny_tid_title);
+                            ConstraintLayout legg_til_tid = getActivity().findViewById(R.id.chauffeur_legg_til_tid);
+                            ConstraintLayout timer_layout = getActivity().findViewById(R.id.chauffeur_timer_layout);
+                            final Button start_ny_tid = getActivity().findViewById(R.id.chauffeur_start);
+
+                            min_bil_fragment.countDownTimer.cancel();
+
+                            ny_tid_title.setText("Start kjøreøkt");
+                            legg_til_tid.setVisibility(View.VISIBLE);
+                            timer_layout.setVisibility(View.GONE);
+
+                            start_ny_tid.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    // TODO: DO IT
+                                }
+                            });
+                        }
+                    });
                 }
             });
 

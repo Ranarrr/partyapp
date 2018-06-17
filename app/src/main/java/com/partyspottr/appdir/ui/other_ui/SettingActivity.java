@@ -12,16 +12,9 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Toast;
 
 import com.partyspottr.appdir.R;
-import com.partyspottr.appdir.classes.Bruker;
-import com.partyspottr.appdir.classes.ChatPreview;
-import com.partyspottr.appdir.classes.Chatter;
 import com.partyspottr.appdir.classes.networking.DeleteUser;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by Ranarrr on 20-Mar-18.

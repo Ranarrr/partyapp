@@ -43,7 +43,7 @@ public class AddEvent extends AsyncTask<Void, Void, Boolean> {
             public void onComplete(@NonNull Task<Void> task) {
                 // TODO : CHECK IF EVENT ALREADY EXISTS..
                 DatabaseReference ref = FirebaseDatabase.getInstance().getReference("events");
-                ref = ref.child(String.valueOf(Bruker.get().getEventIdCounter())).push();
+                ref = ref.child(String.valueOf(Bruker.get().getEventIdCounter()));
                 ref.child("nameofevent").setValue(eventToUse.getNameofevent());
                 ref.child("hostStr").setValue(eventToUse.getHostStr());
                 ref.child("address").setValue(eventToUse.getAddress());

@@ -6,6 +6,7 @@ import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.ContentUris;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.location.Address;
@@ -33,8 +34,11 @@ import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.ToggleButton;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -52,7 +56,9 @@ import com.partyspottr.appdir.classes.networking.UpdateEvent;
 import com.partyspottr.appdir.classes.networking.UpdateUser;
 import com.partyspottr.appdir.classes.networking.UploadImage;
 import com.partyspottr.appdir.enums.EventStilling;
+import com.partyspottr.appdir.ui.MainActivity;
 import com.partyspottr.appdir.ui.ProfilActivity;
+import com.partyspottr.appdir.ui.SplashActivity;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -68,7 +74,6 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Locale;
-import java.util.Properties;
 
 /**
  * Created by Ranarrr on 02-Feb-18.
@@ -546,6 +551,57 @@ public class Utilities {
                 }
             }
         });
+    }
+
+    public static void setupOnRestart(final Activity activity) {
+        if(SplashActivity.mAuth.getCurrentUser() == null && Bruker.get().getEmail() != null && !Bruker.get().getEmail().isEmpty()
+                && Bruker.get().getPassord() != null && !Bruker.get().getPassord().isEmpty())
+            SplashActivity.mAuth.signInWithEmailAndPassword(Bruker.get().getEmail(), Bruker.get().getPassord())
+                    .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                        @Override
+                        public void onComplete(@NonNull Task<AuthResult> task) {
+                            if(task.isSuccessful()) {
+                                Bruker.get().GetAndParseEvents(activity);
+                                Bruker.get().GetAndParseBrukerInfo();
+                                Bruker.get().GetAndParseChauffeurs();
+                                if(Bruker.get().isHascar())
+                                    Bruker.get().GetAndParseBrukerChauffeur();
+
+                                Utilities.startChatListener(activity);
+
+                                DatabaseReference ref = FirebaseDatabase.getInstance().getReference("users").child(Bruker.get().getBrukernavn());
+                                ref.child("loggedon").setValue(true);
+                                Bruker.get().setLoggetpa(true);
+                            }
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Toast.makeText(activity, "Failed to log you in, please try again.", Toast.LENGTH_SHORT).show();
+                    Intent intent = new Intent(activity, MainActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    activity.startActivity(intent);
+                }
+            });
+    }
+
+    public static void setupOnStop() {
+        Bruker.get().StopParsingBrukerInfo();
+        Bruker.get().StopParsingEvents();
+        Bruker.get().StopParsingChauffeurs();
+
+        if(Bruker.get().isHascar())
+            Bruker.get().StopParsingBrukerChauffeur();
+
+        if(ProfilActivity.valueEventListener != null && ProfilActivity.ref != null)
+            ProfilActivity.ref.removeEventListener(ProfilActivity.valueEventListener);
+
+        if(SplashActivity.mAuth.getCurrentUser() != null)
+            SplashActivity.mAuth.signOut();
+
+        DatabaseReference ref = FirebaseDatabase.getInstance().getReference("users").child(Bruker.get().getBrukernavn());
+        ref.child("loggedon").setValue(false);
+        Bruker.get().setLoggetpa(false);
     }
 
     public static void onSearchMineChats(final Activity activity) {

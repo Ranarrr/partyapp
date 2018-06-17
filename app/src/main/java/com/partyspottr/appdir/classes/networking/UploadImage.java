@@ -17,7 +17,6 @@ import com.partyspottr.appdir.classes.Event;
 import com.partyspottr.appdir.classes.ImageChange;
 import com.partyspottr.appdir.ui.ProfilActivity;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 

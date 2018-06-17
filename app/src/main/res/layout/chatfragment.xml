@@ -8,8 +8,8 @@
 
     <ImageView
         android:id="@+id/arrow_chatfragment"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="@dimen/_40sdp"
+        android:layout_height="@dimen/_40sdp"
         android:layout_marginTop="@dimen/_8sdp"
         android:contentDescription="@null"
         app:layout_constraintEnd_toEndOf="@+id/venner"
@@ -54,7 +54,7 @@
         android:id="@+id/viewpager_chat"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginTop="@dimen/_5sdp"
+        android:layout_marginTop="@dimen/_10sdp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"

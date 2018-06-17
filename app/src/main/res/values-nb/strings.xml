@@ -62,4 +62,8 @@
     <string name="til">til</string>
     <string name="gjesteliste">Gjesteliste</string>
     <string name="profil">Profil</string>
+    <string name="nhie_1">stjålet i en butikk</string>
+    <string name="nhie_2">vært i slåsskamp</string>
+    <string name="nhie_3">tjuvlånt bilen til mine foreldre</string>
+    <string name="nhie_4">vært full</string>
 </resources>

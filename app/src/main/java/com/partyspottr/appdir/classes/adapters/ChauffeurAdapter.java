@@ -36,7 +36,7 @@ public class ChauffeurAdapter extends BaseAdapter {
     public ChauffeurAdapter(Activity activity, List<Chauffeur> list) {
         thisActivity = activity;
 
-        if(list != null && list.size() == 0) {
+        if(list == null || list.size() == 0) {
             chauffeurList = new ArrayList<>();
             chauffeurList.add(new Chauffeur(0.0, "£££", 0, 0));
         } else {

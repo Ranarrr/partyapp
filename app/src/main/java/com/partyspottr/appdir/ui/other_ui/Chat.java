@@ -127,6 +127,25 @@ public class Chat extends AppCompatActivity {
     }
 
     @Override
+    protected void onStop() {
+        Utilities.setupOnStop();
+
+        super.onStop();
+    }
+
+    @Override
+    protected void onRestart() {
+        if(!Bruker.get().isConnected()) {
+            super.onRestart();
+            return;
+        }
+
+        Utilities.setupOnRestart(this);
+
+        super.onRestart();
+    }
+
+    @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.chatmessage);

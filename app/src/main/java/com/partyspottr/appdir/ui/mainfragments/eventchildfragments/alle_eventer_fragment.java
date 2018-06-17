@@ -12,7 +12,6 @@ import android.widget.ListView;
 import com.partyspottr.appdir.R;
 import com.partyspottr.appdir.classes.Bruker;
 import com.partyspottr.appdir.classes.adapters.EventAdapter;
-import com.partyspottr.appdir.classes.networking.GetAllEvents;
 
 public class alle_eventer_fragment extends Fragment {
     @Override
