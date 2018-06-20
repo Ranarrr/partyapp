@@ -84,6 +84,25 @@ import static com.partyspottr.appdir.ui.MainActivity.typeface;
 
 public class EventDetails extends AppCompatActivity {
     @Override
+    protected void onStop() {
+        Utilities.setupOnStop();
+
+        super.onStop();
+    }
+
+    @Override
+    protected void onRestart() {
+        if(!Bruker.get().isConnected()) {
+            super.onRestart();
+            return;
+        }
+
+        Utilities.setupOnRestart(this);
+
+        super.onRestart();
+    }
+
+    @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.event_details);
@@ -565,11 +584,10 @@ public class EventDetails extends AppCompatActivity {
                 String uri = "http://maps.google.com/maps?q=loc:" + event.getLatitude() + "," + event.getLongitude() + " (" + event.getNameofevent() + ")";
                 Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
                 intent.setPackage("com.google.android.apps.maps");
-                if (intent.resolveActivity(getPackageManager()) != null) {
+                if (intent.resolveActivity(getPackageManager()) != null)
                     EventDetails.this.startActivity(intent);
-                } else {
+                else
                     Toast.makeText(EventDetails.this, "You do not have google maps installed.", Toast.LENGTH_SHORT).show();
-                }
             }
         });
 

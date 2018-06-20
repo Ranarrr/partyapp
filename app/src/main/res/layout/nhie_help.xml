@@ -27,7 +27,6 @@
         android:layout_marginEnd="@dimen/_10sdp"
         android:layout_marginStart="@dimen/_10sdp"
         android:layout_marginTop="@dimen/_8sdp"
-        android:background="@drawable/border_rounded"
         android:gravity="center"
         android:padding="@dimen/_10sdp"
         android:text='The person holding the phone reads a simple statement with "Never have i ever".\nAnyone who at some point in their lives has done the action that the first player says, must drink.'

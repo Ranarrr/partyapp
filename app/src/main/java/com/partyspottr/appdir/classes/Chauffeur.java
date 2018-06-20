@@ -118,7 +118,6 @@ public class Chauffeur {
             listOfCars = new Gson().fromJson(m_sharedPreferences.getString(Chauffeur.carlistElem, ""), Chauffeur.listOfCarsType);
 
         Bruker.get().setHascar(listOfCars.size() > 0);
-
     }
 
     public void LagreChauffeur() {
@@ -135,6 +134,9 @@ public class Chauffeur {
     }
 
     public static void setChauffeur(Chauffeur chauffeur, final List<Chauffeur> chauffeurs) {
+        if(chauffeurs == null)
+            return;
+
         for(int i = 0; i < chauffeurs.size(); i++) {
             if(chauffeurs.get(i).getM_brukernavn().equals(chauffeur.getM_brukernavn())) {
                 chauffeurs.set(i, chauffeur);
@@ -144,6 +146,9 @@ public class Chauffeur {
     }
 
     public static void removeChauffeur(Chauffeur chauffeur, final List<Chauffeur> chauffeurs) {
+        if(chauffeurs == null)
+            return;
+
         for(int i = 0; i < chauffeurs.size(); i++) {
             if(chauffeurs.get(i).getM_brukernavn().equals(chauffeur.getM_brukernavn())) {
                 chauffeurs.remove(i);

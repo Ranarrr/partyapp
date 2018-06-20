@@ -80,6 +80,11 @@ public class LogoutUser extends AsyncTask<Void, Void, Integer> {
                     if(ProfilActivity.valueEventListener != null && ProfilActivity.ref != null)
                         ProfilActivity.ref.removeEventListener(ProfilActivity.valueEventListener);
 
+                    Bruker.get().StopParsingChauffeurs();
+                    Bruker.get().StopParsingBrukerChauffeur();
+                    Bruker.get().StopParsingEvents();
+                    Bruker.get().StopParsingBrukerInfo();
+
                     DatabaseReference ref = FirebaseDatabase.getInstance().getReference("users").child(Bruker.get().getBrukernavn());
                     ref.child("loggedon").setValue(false).addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override

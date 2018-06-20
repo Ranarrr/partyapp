@@ -14,6 +14,8 @@ import android.widget.Button;
 import android.widget.EditText;
 
 import com.partyspottr.appdir.R;
+import com.partyspottr.appdir.classes.Bruker;
+import com.partyspottr.appdir.classes.Utilities;
 import com.partyspottr.appdir.classes.networking.DeleteUser;
 
 /**
@@ -23,6 +25,25 @@ import com.partyspottr.appdir.classes.networking.DeleteUser;
  */
 
 public class SettingActivity extends AppCompatActivity {
+    @Override
+    protected void onStop() {
+        Utilities.setupOnStop();
+
+        super.onStop();
+    }
+
+    @Override
+    protected void onRestart() {
+        if(!Bruker.get().isConnected()) {
+            super.onRestart();
+            return;
+        }
+
+        Utilities.setupOnRestart(this);
+
+        super.onRestart();
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

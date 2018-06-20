@@ -1,149 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/colorPrimary"
-    tools:context="com.partyspottr.appdir.ui.registerui.RegisterActivity">
-
-    <Spinner
-        android:id="@+id/dd_spinner"
-        android:layout_width="@dimen/_60sdp"
-        android:layout_height="@dimen/_30sdp"
-        android:layout_marginTop="@dimen/_15sdp"
-        android:background="@drawable/border_bottom_fat"
-        android:gravity="center"
-        android:theme="@style/SpinnerTheme"
-        app:layout_constraintEnd_toStartOf="@+id/mm_spinner"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView" />
-
-    <Spinner
-        android:id="@+id/mm_spinner"
-        android:layout_width="@dimen/_60sdp"
-        android:layout_height="@dimen/_30sdp"
-        android:background="@drawable/border_bottom_fat"
-        android:gravity="center"
-        android:theme="@style/SpinnerTheme"
-        app:layout_constraintEnd_toStartOf="@+id/yyyy_spinner"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/dd_spinner"
-        app:layout_constraintTop_toTopOf="@+id/dd_spinner" />
-
-    <Spinner
-        android:id="@+id/yyyy_spinner"
-        android:layout_width="@dimen/_60sdp"
-        android:layout_height="@dimen/_30sdp"
-        android:background="@drawable/border_bottom_fat"
-        android:gravity="center"
-        android:theme="@style/SpinnerTheme"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/mm_spinner"
-        app:layout_constraintTop_toTopOf="@+id/dd_spinner" />
-
-    <EditText
-        android:id="@+id/fornavnText"
-        android:layout_width="@dimen/_130sdp"
-        android:layout_height="@dimen/_33sdp"
-        android:layout_marginEnd="@dimen/_5sdp"
-        android:layout_marginTop="@dimen/_15sdp"
-        android:digits="ABCDEFGHIJKLMNOPQRSTUVWZYXÆØÅabcdefghijklmnopqrstuvwxyzæøå"
-        android:ems="10"
-        android:hint="@string/fornavn"
-        android:inputType="text|textCapWords"
-        android:paddingStart="@dimen/_5sdp"
-        android:textColor="@color/white"
-        android:textColorHint="@color/colorAlpha"
-        android:textSize="@dimen/_12ssp"
-        android:theme="@style/MyEditTextTheme"
-        app:layout_constraintEnd_toStartOf="@+id/etternavnText"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintHorizontal_chainStyle="packed"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView2" />
-
-    <EditText
-        android:id="@+id/etternavnText"
-        android:layout_width="@dimen/_130sdp"
-        android:layout_height="@dimen/_33sdp"
-        android:digits="ABCDEFGHIJKLMNOPQRSTUVWXYZÆØÅabcdefghijklmnopqrstuvwxyzæøå"
-        android:ems="10"
-        android:hint="@string/etternavn"
-        android:inputType="text|textCapWords"
-        android:paddingStart="@dimen/_5sdp"
-        android:textColor="@color/white"
-        android:textColorHint="@color/colorAlpha"
-        android:textSize="@dimen/_12ssp"
-        android:theme="@style/MyEditTextTheme"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/fornavnText"
-        app:layout_constraintTop_toTopOf="@+id/fornavnText" />
-
-    <TextView
-        android:id="@+id/textView2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/_15sdp"
-        android:text="@string/hva_heter_du"
-        android:textColor="@color/white"
-        android:textSize="@dimen/_18ssp"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.502"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/seekBar" />
-
-    <Button
-        android:id="@+id/button"
-        android:layout_width="@dimen/_135sdp"
-        android:layout_height="@dimen/_45sdp"
-        android:layout_marginTop="@dimen/_290sdp"
-        android:background="@drawable/rounded_btn_rect"
-        android:text="@string/fortsett"
-        android:textColor="@android:color/black"
-        android:textSize="@dimen/_12ssp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <android.support.v7.widget.AppCompatSeekBar
-        android:id="@+id/seekBar"
-        style="@style/Widget.AppCompat.SeekBar.Discrete"
-        android:layout_width="@dimen/_270sdp"
-        android:layout_height="@dimen/_20sdp"
-        android:layout_marginTop="@dimen/_8sdp"
-        android:clickable="false"
-        android:max="5"
-        android:progress="1"
-        android:theme="@style/mySeekBarTheme"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/toolbar"
-        app:tickMarkTint="@color/redtint" />
-
-    <TextView
-        android:id="@+id/textView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/_25sdp"
-        android:text="@string/fødselsdagen_din"
-        android:textColor="@color/white"
-        android:textSize="@dimen/_18ssp"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/etternavnText" />
+    android:orientation="vertical">
 
     <android.support.v7.widget.Toolbar
         android:id="@+id/toolbar"
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="@dimen/_40sdp"
         android:background="@drawable/border_bottom_fat"
-        android:minHeight="?attr/actionBarSize"
         android:theme="?attr/actionBarTheme"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -162,41 +30,185 @@
 
     </android.support.v7.widget.Toolbar>
 
-    <TextView
-        android:id="@+id/textView21"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/_5sdp"
-        android:text="(dd)"
-        android:textColor="@color/white"
-        android:textSize="@dimen/_10ssp"
-        app:layout_constraintEnd_toEndOf="@+id/dd_spinner"
-        app:layout_constraintStart_toStartOf="@+id/dd_spinner"
-        app:layout_constraintTop_toBottomOf="@+id/dd_spinner" />
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
-    <TextView
-        android:id="@+id/textView22"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/_5sdp"
-        android:text="(mm)"
-        android:textColor="@color/white"
-        android:textSize="@dimen/_10ssp"
-        app:layout_constraintEnd_toEndOf="@+id/mm_spinner"
-        app:layout_constraintStart_toStartOf="@+id/mm_spinner"
-        app:layout_constraintTop_toBottomOf="@+id/mm_spinner" />
+        <android.support.constraint.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            tools:context="com.partyspottr.appdir.ui.registerui.RegisterActivity">
 
-    <TextView
-        android:id="@+id/textView23"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/_5sdp"
-        android:text="(yyyy)"
-        android:textColor="@color/white"
-        android:textSize="@dimen/_10ssp"
-        app:layout_constraintEnd_toEndOf="@+id/yyyy_spinner"
-        app:layout_constraintStart_toStartOf="@+id/yyyy_spinner"
-        app:layout_constraintTop_toBottomOf="@+id/yyyy_spinner" />
+            <Spinner
+                android:id="@+id/dd_spinner"
+                android:layout_width="@dimen/_60sdp"
+                android:layout_height="@dimen/_30sdp"
+                android:layout_marginTop="@dimen/_15sdp"
+                android:background="@drawable/border_bottom_fat"
+                android:gravity="center"
+                android:theme="@style/SpinnerTheme"
+                app:layout_constraintEnd_toStartOf="@+id/mm_spinner"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/textView" />
+
+            <Spinner
+                android:id="@+id/mm_spinner"
+                android:layout_width="@dimen/_60sdp"
+                android:layout_height="@dimen/_30sdp"
+                android:background="@drawable/border_bottom_fat"
+                android:gravity="center"
+                android:theme="@style/SpinnerTheme"
+                app:layout_constraintEnd_toStartOf="@+id/yyyy_spinner"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toEndOf="@+id/dd_spinner"
+                app:layout_constraintTop_toTopOf="@+id/dd_spinner" />
+
+            <Spinner
+                android:id="@+id/yyyy_spinner"
+                android:layout_width="@dimen/_60sdp"
+                android:layout_height="@dimen/_30sdp"
+                android:background="@drawable/border_bottom_fat"
+                android:gravity="center"
+                android:theme="@style/SpinnerTheme"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toEndOf="@+id/mm_spinner"
+                app:layout_constraintTop_toTopOf="@+id/dd_spinner" />
+
+            <EditText
+                android:id="@+id/fornavnText"
+                android:layout_width="@dimen/_130sdp"
+                android:layout_height="@dimen/_33sdp"
+                android:layout_marginEnd="@dimen/_5sdp"
+                android:layout_marginTop="@dimen/_15sdp"
+                android:digits="ABCDEFGHIJKLMNOPQRSTUVWZYXÆØÅabcdefghijklmnopqrstuvwxyzæøå"
+                android:ems="10"
+                android:hint="@string/fornavn"
+                android:inputType="text|textCapWords"
+                android:paddingStart="@dimen/_5sdp"
+                android:textColor="@color/white"
+                android:textColorHint="@color/colorAlpha"
+                android:textSize="@dimen/_12ssp"
+                android:theme="@style/MyEditTextTheme"
+                app:layout_constraintEnd_toStartOf="@+id/etternavnText"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintHorizontal_chainStyle="packed"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/textView2" />
+
+            <EditText
+                android:id="@+id/etternavnText"
+                android:layout_width="@dimen/_130sdp"
+                android:layout_height="@dimen/_33sdp"
+                android:digits="ABCDEFGHIJKLMNOPQRSTUVWXYZÆØÅabcdefghijklmnopqrstuvwxyzæøå"
+                android:ems="10"
+                android:hint="@string/etternavn"
+                android:inputType="text|textCapWords"
+                android:paddingStart="@dimen/_5sdp"
+                android:textColor="@color/white"
+                android:textColorHint="@color/colorAlpha"
+                android:textSize="@dimen/_12ssp"
+                android:theme="@style/MyEditTextTheme"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toEndOf="@+id/fornavnText"
+                app:layout_constraintTop_toTopOf="@+id/fornavnText" />
+
+            <TextView
+                android:id="@+id/textView2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/_15sdp"
+                android:text="@string/hva_heter_du"
+                android:textColor="@color/white"
+                android:textSize="@dimen/_18ssp"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.502"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/seekBar" />
+
+            <Button
+                android:id="@+id/button"
+                android:layout_width="@dimen/_135sdp"
+                android:layout_height="@dimen/_45sdp"
+                android:layout_marginBottom="@dimen/_15sdp"
+                android:layout_marginTop="@dimen/_15sdp"
+                android:background="@drawable/rounded_btn_rect"
+                android:text="@string/fortsett"
+                android:textColor="@android:color/black"
+                android:textSize="@dimen/_12ssp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/textView22" />
+
+            <android.support.v7.widget.AppCompatSeekBar
+                android:id="@+id/seekBar"
+                style="@style/Widget.AppCompat.SeekBar.Discrete"
+                android:layout_width="@dimen/_270sdp"
+                android:layout_height="@dimen/_20sdp"
+                android:layout_marginTop="@dimen/_8sdp"
+                android:clickable="false"
+                android:max="5"
+                android:progress="1"
+                android:theme="@style/mySeekBarTheme"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:tickMarkTint="@color/redtint" />
+
+            <TextView
+                android:id="@+id/textView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/_25sdp"
+                android:text="@string/fødselsdagen_din"
+                android:textColor="@color/white"
+                android:textSize="@dimen/_18ssp"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/etternavnText" />
+
+            <TextView
+                android:id="@+id/textView21"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/_5sdp"
+                android:text="(dd)"
+                android:textColor="@color/white"
+                android:textSize="@dimen/_10ssp"
+                app:layout_constraintEnd_toEndOf="@+id/dd_spinner"
+                app:layout_constraintStart_toStartOf="@+id/dd_spinner"
+                app:layout_constraintTop_toBottomOf="@+id/dd_spinner" />
+
+            <TextView
+                android:id="@+id/textView22"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/_5sdp"
+                android:text="(mm)"
+                android:textColor="@color/white"
+                android:textSize="@dimen/_10ssp"
+                app:layout_constraintEnd_toEndOf="@+id/mm_spinner"
+                app:layout_constraintStart_toStartOf="@+id/mm_spinner"
+                app:layout_constraintTop_toBottomOf="@+id/mm_spinner" />
+
+            <TextView
+                android:id="@+id/textView23"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/_5sdp"
+                android:text="(yyyy)"
+                android:textColor="@color/white"
+                android:textSize="@dimen/_10ssp"
+                app:layout_constraintEnd_toEndOf="@+id/yyyy_spinner"
+                app:layout_constraintStart_toStartOf="@+id/yyyy_spinner"
+                app:layout_constraintTop_toBottomOf="@+id/yyyy_spinner" />
 
 
-</android.support.constraint.ConstraintLayout>
+        </android.support.constraint.ConstraintLayout>
+    </ScrollView>
+</LinearLayout>

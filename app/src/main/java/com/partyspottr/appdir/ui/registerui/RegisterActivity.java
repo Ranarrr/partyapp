@@ -6,6 +6,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -46,6 +47,8 @@ public class RegisterActivity extends AppCompatActivity {
         TextView birth = findViewById(R.id.textView);
         TextView title = findViewById(R.id.textView3);
         Button continuebtn = findViewById(R.id.button);
+
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE|WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
 
         ArrayAdapter<Integer> mm_adapter = new ArrayAdapter<>(this, R.layout.spinner_mine, Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12));
 

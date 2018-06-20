@@ -1,83 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/colorPrimary"
-    tools:context="com.partyspottr.appdir.ui.registerui.Register3Activity">
-
-    <Button
-        android:id="@+id/fortsettBtn2"
-        style="@android:style/Widget.DeviceDefault.Button.Borderless"
-        android:layout_width="@dimen/_135sdp"
-        android:layout_height="@dimen/_45sdp"
-        android:layout_marginTop="@dimen/_270sdp"
-        android:background="@drawable/rounded_btn_rect"
-        android:onClick="onClickFortsettBtn"
-        android:text="@string/fortsett"
-        android:textColor="@android:color/black"
-        android:textSize="@dimen/_12ssp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <EditText
-        android:id="@+id/brukernavnText"
-        android:layout_width="@dimen/_250sdp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/_15sdp"
-        android:digits="ABCDEFGHIJKLMNOPQRSTUVWZYXabcdefghijklmnopqrstuvywxz0123456789"
-        android:ems="10"
-        android:hint="@string/brukernavn"
-        android:inputType="textPersonName"
-        android:paddingStart="@dimen/_5sdp"
-        android:textColor="@color/white"
-        android:textColorHint="@color/white"
-        android:textSize="@dimen/_12ssp"
-        android:theme="@style/MyEditTextTheme"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView4" />
-
-    <TextView
-        android:id="@+id/textView4"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/_15sdp"
-        android:text="@string/velg_brukernavn"
-        android:textAlignment="center"
-        android:textColor="@color/white"
-        android:textSize="@dimen/_18ssp"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.505"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/seekBar" />
-
-    <android.support.v7.widget.AppCompatSeekBar
-        android:id="@+id/seekBar"
-        style="@style/Widget.AppCompat.SeekBar.Discrete"
-        android:layout_width="@dimen/_270sdp"
-        android:layout_height="@dimen/_20sdp"
-        android:layout_marginTop="@dimen/_8sdp"
-        android:clickable="false"
-        android:max="5"
-        android:progress="3"
-        android:theme="@style/mySeekBarTheme"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/toolbar"
-        app:tickMarkTint="@color/redtint" />
+    android:orientation="vertical">
 
     <android.support.v7.widget.Toolbar
         android:id="@+id/toolbar"
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="@dimen/_40sdp"
         android:background="@drawable/border_bottom_fat"
-        android:minHeight="?attr/actionBarSize"
         android:theme="?attr/actionBarTheme"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -96,37 +31,135 @@
 
     </android.support.v7.widget.Toolbar>
 
-    <TextView
-        android:id="@+id/textView5"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/_25sdp"
-        android:text="@string/velg_passord"
-        android:textAlignment="center"
-        android:textColor="@color/white"
-        android:textSize="@dimen/_18ssp"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/brukernavnText" />
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
-    <EditText
-        android:id="@+id/passordText"
-        android:layout_width="@dimen/_250sdp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/_12sdp"
-        android:digits="ABCDEFGHIJKLMNOPQRSTUVWZYXabcdefghijklmnopqrstuvywxz0123456789"
-        android:ems="10"
-        android:hint="@string/passord"
-        android:inputType="textPassword"
-        android:paddingStart="@dimen/_5sdp"
-        android:textColor="@color/white"
-        android:textColorHint="@color/white"
-        android:textSize="@dimen/_12ssp"
-        android:theme="@style/MyEditTextTheme"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView5" />
+        <android.support.constraint.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            tools:context="com.partyspottr.appdir.ui.registerui.Register3Activity">
 
-</android.support.constraint.ConstraintLayout>
+            <Button
+                android:id="@+id/fortsettBtn2"
+                style="@android:style/Widget.DeviceDefault.Button.Borderless"
+                android:layout_width="@dimen/_135sdp"
+                android:layout_height="@dimen/_45sdp"
+                android:layout_marginBottom="@dimen/_15sdp"
+                android:layout_marginTop="@dimen/_15sdp"
+                android:background="@drawable/rounded_btn_rect"
+                android:onClick="onClickFortsettBtn"
+                android:text="@string/fortsett"
+                android:textColor="@android:color/black"
+                android:textSize="@dimen/_12ssp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.497"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/passordTextRetype" />
+
+            <EditText
+                android:id="@+id/brukernavnText"
+                android:layout_width="@dimen/_250sdp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/_15sdp"
+                android:digits="ABCDEFGHIJKLMNOPQRSTUVWZYXabcdefghijklmnopqrstuvywxz0123456789"
+                android:ems="10"
+                android:hint="@string/brukernavn"
+                android:inputType="textPersonName"
+                android:paddingStart="@dimen/_5sdp"
+                android:textColor="@color/white"
+                android:textColorHint="@color/colorAlpha"
+                android:textSize="@dimen/_12ssp"
+                android:theme="@style/MyEditTextTheme"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/textView4" />
+
+            <TextView
+                android:id="@+id/textView4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/_15sdp"
+                android:text="@string/velg_brukernavn"
+                android:textAlignment="center"
+                android:textColor="@color/white"
+                android:textSize="@dimen/_18ssp"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.505"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/seekBar" />
+
+            <android.support.v7.widget.AppCompatSeekBar
+                android:id="@+id/seekBar"
+                style="@style/Widget.AppCompat.SeekBar.Discrete"
+                android:layout_width="@dimen/_270sdp"
+                android:layout_height="@dimen/_20sdp"
+                android:layout_marginTop="@dimen/_8sdp"
+                android:clickable="false"
+                android:max="5"
+                android:progress="3"
+                android:theme="@style/mySeekBarTheme"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:tickMarkTint="@color/redtint" />
+
+            <TextView
+                android:id="@+id/textView5"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/_25sdp"
+                android:text="@string/velg_passord"
+                android:textAlignment="center"
+                android:textColor="@color/white"
+                android:textSize="@dimen/_18ssp"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/brukernavnText" />
+
+            <EditText
+                android:id="@+id/passordText"
+                android:layout_width="@dimen/_250sdp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/_12sdp"
+                android:digits="ABCDEFGHIJKLMNOPQRSTUVWZYXabcdefghijklmnopqrstuvywxz0123456789"
+                android:ems="10"
+                android:hint="@string/passord"
+                android:inputType="textPassword"
+                android:paddingStart="@dimen/_5sdp"
+                android:textColor="@color/white"
+                android:textColorHint="@color/colorAlpha"
+                android:textSize="@dimen/_12ssp"
+                android:theme="@style/MyEditTextTheme"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/textView5" />
+
+            <EditText
+                android:id="@+id/passordTextRetype"
+                android:layout_width="@dimen/_250sdp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/_10sdp"
+                android:digits="ABCDEFGHIJKLMNOPQRSTUVWZYXabcdefghijklmnopqrstuvywxz0123456789"
+                android:ems="10"
+                android:hint="Re-type password"
+                android:inputType="textPassword"
+                android:paddingStart="@dimen/_5sdp"
+                android:textColor="@color/white"
+                android:textColorHint="@color/colorAlpha"
+                android:textSize="@dimen/_12ssp"
+                android:theme="@style/MyEditTextTheme"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/passordText" />
+
+        </android.support.constraint.ConstraintLayout>
+
+    </ScrollView>
+
+</LinearLayout>

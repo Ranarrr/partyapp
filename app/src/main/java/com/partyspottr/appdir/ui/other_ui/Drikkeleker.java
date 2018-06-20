@@ -8,9 +8,29 @@ import android.view.View;
 import android.widget.Button;
 
 import com.partyspottr.appdir.R;
+import com.partyspottr.appdir.classes.Bruker;
+import com.partyspottr.appdir.classes.Utilities;
 import com.partyspottr.appdir.ui.other_ui.drikkeleker.NeverHaveIEver;
 
 public class Drikkeleker extends AppCompatActivity {
+    @Override
+    protected void onStop() {
+        Utilities.setupOnStop();
+
+        super.onStop();
+    }
+
+    @Override
+    protected void onRestart() {
+        if(!Bruker.get().isConnected()) {
+            super.onRestart();
+            return;
+        }
+
+        Utilities.setupOnRestart(this);
+
+        super.onRestart();
+    }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {

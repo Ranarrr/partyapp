@@ -177,6 +177,7 @@ public class ProfilActivity extends AppCompatActivity {
         Bruker.get().GetAndParseEvents(this);
         Bruker.get().GetAndParseBrukerInfo();
         Bruker.get().GetAndParseChauffeurs();
+
         if(Bruker.get().isHascar())
             Bruker.get().GetAndParseBrukerChauffeur();
 
@@ -228,9 +229,6 @@ public class ProfilActivity extends AppCompatActivity {
         }
 
         Utilities.setupOnRestart(this);
-
-        if(Bruker.get().isConnected())
-            replaceFragment(0);
 
         super.onRestart();
     }

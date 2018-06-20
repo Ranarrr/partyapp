@@ -105,6 +105,7 @@ public class CreateUser extends AsyncTask<Void, Void, Integer> {
                                         ref.child("year").setValue(Bruker.get().getYear());
                                         ref.child("oneliner").setValue(Bruker.get().getOneliner());
 
+                                        Bruker.get().DeleteBruker();
                                         Bruker.get().LagreBruker();
                                         Intent intent = new Intent(progressDialog.getContext(), MainActivity.class);
                                         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);

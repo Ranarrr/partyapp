@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
@@ -15,6 +16,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.gson.Gson;
 import com.partyspottr.appdir.R;
 import com.partyspottr.appdir.classes.adapters.EventAdapter;
+import com.partyspottr.appdir.ui.other_ui.Profile;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -137,6 +139,11 @@ public class Bruker {
         editor.apply();
     }
 
+    public void DeleteBruker() {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.clear().apply();
+    }
+
     private void HentBruker() {
         brukernavn = sharedPreferences.getString(brukernavnElem, "");
         passord = sharedPreferences.getString(passordElem, "");
@@ -176,33 +183,6 @@ public class Bruker {
             requests = new Gson().fromJson(sharedPreferences.getString(requestlistElem, ""), Utilities.listRequestsType);
     }
 
-    public void ParseChauffeurs(JSONArray chauffeurs) {
-        listchauffeurs = new ArrayList<>();
-
-        if(chauffeurs.length() == 0)
-            return;
-
-        try {
-            for(int i = 0; i < chauffeurs.length(); i++) {
-                JSONObject chauffeur = new JSONObject(chauffeurs.getString(i));
-
-                List<Car> cars = new Gson().fromJson(chauffeur.getString("carlistElem"), Chauffeur.listOfCarsType);
-
-                Chauffeur ret = new Chauffeur(chauffeur.getDouble("rating"), chauffeur.getString("brukernavnElem"), chauffeur.getString("fornavn"), chauffeur.getString("etternavn"),
-                        chauffeur.getInt("age"), chauffeur.getInt("capacity"), chauffeur.getLong("timeDrivingFrom"), chauffeur.getLong("timeDrivingTo"), cars, chauffeur.getDouble("longitude"),
-                        chauffeur.getDouble("latitude"));
-
-                if(ret.getChauffeur_time_to() < System.currentTimeMillis())
-                    continue;
-
-                if(!ret.getM_brukernavn().isEmpty())
-                    listchauffeurs.add(ret);
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-    }
-
     public void StopParsingChauffeurs() {
         if(chauffeursref != null)
             chauffeursref.removeEventListener(chauffeurslistener);
@@ -217,7 +197,7 @@ public class Bruker {
                 for(DataSnapshot chauffeurs : dataSnapshot.getChildren()) {
                     Chauffeur chauffeur = Utilities.getChauffeurFromDataSnapshot(chauffeurs);
 
-                    if(chauffeur != null)
+                    if(chauffeur != null && listchauffeurs != null)
                         listchauffeurs.add(chauffeur);
                 }
             }
@@ -260,7 +240,7 @@ public class Bruker {
     }
 
     public void GetAndParseBrukerChauffeur() {
-        brukerchauffeurref = FirebaseDatabase.getInstance().getReference("chauffeurs").child(getBrukernavn());
+        brukerchauffeurref = FirebaseDatabase.getInstance().getReference("chauffeurs").child(lokalBruker.getBrukernavn());
 
         brukerchauffeurlistener = brukerchauffeurref.addChildEventListener(new ChildEventListener() {
             @Override
@@ -418,65 +398,13 @@ public class Bruker {
 
         brukerinfolistener = brukerinforef.addChildEventListener(new ChildEventListener() {
             @Override
-            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {}
+            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                Utilities.parseBrukerInfo(dataSnapshot);
+            }
 
             @Override
             public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-                for(DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                    if(snapshot.getKey() != null) {
-                        switch(snapshot.getKey()) {
-                            case "fornavn":
-                                setFornavn(snapshot.getValue(String.class));
-                                break;
-
-                            case "etternavn":
-                                setEtternavn(snapshot.getValue(String.class));
-                                break;
-
-                            case "premium":
-                                if(snapshot.getValue(Boolean.class) != null)
-                                    setPremium(snapshot.getValue(Boolean.class));
-                                break;
-
-                            case "country":
-                                setCountry(snapshot.getValue(String.class));
-                                break;
-
-                            case "day_of_month":
-                                if(snapshot.getValue(Integer.class) != null)
-                                    setDay_of_month(snapshot.getValue(Integer.class));
-                                break;
-
-                            case "friendlist":
-                                List<Friend> list = new Gson().fromJson(snapshot.getValue(String.class), Utilities.listFriendsType);
-                                setFriendList(list);
-                                break;
-
-                            case "requestlist":
-                                List<Friend> requests = new Gson().fromJson(snapshot.getValue(String.class), Utilities.listFriendsType);
-                                setRequests(requests);
-                                break;
-
-                            case "month":
-                                if(snapshot.getValue(Integer.class) != null)
-                                    setMonth(snapshot.getValue(Integer.class));
-                                break;
-
-                            case "town":
-                                setTown(snapshot.getValue(String.class));
-                                break;
-
-                            case "year":
-                                if(snapshot.getValue(Integer.class) != null)
-                                    setYear(snapshot.getValue(Integer.class));
-                                break;
-
-                            case "oneliner":
-                                setOneliner(snapshot.getValue(String.class));
-                                break;
-                        }
-                    }
-                }
+                Utilities.parseBrukerInfo(dataSnapshot);
             }
 
             @Override
@@ -486,9 +414,7 @@ public class Bruker {
             public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {}
 
             @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
+            public void onCancelled(@NonNull DatabaseError databaseError) {}
         });
     }
 
@@ -518,7 +444,7 @@ public class Bruker {
                 if(event.getHostStr().isEmpty())
                     return;
 
-                if(event.getHostStr().equals(Bruker.get().getBrukernavn()))
+                if(event.getHostStr().toLowerCase().equals(Bruker.get().getBrukernavn()))
                     listOfMyEvents.add(event);
 
                 listOfEvents.add(event);
@@ -603,32 +529,6 @@ public class Bruker {
 
             }
         });
-    }
-
-    public static Bruker retBrukerFromJSON(String str) {
-        try {
-            JSONObject json = new JSONObject(str);
-            Bruker newBruker = new Bruker();
-
-            newBruker.brukernavn = json.getString(brukernavnElem);
-            newBruker.fornavn = json.getString(fornavnElem);
-            newBruker.etternavn = json.getString(etternavnElem);
-            newBruker.premium = Integer.valueOf(json.getString(premiumElem)) > 0;
-            newBruker.email = json.getString(emailElem);
-            newBruker.town = json.getString(townElem);
-            newBruker.userid = Integer.valueOf(json.getString("id"));
-            newBruker.country = json.getString(countryElem);
-            newBruker.day_of_month = Integer.valueOf(json.getString(day_of_monthElem));
-            newBruker.month = Integer.valueOf(json.getString(monthElem));
-            newBruker.year = Integer.valueOf(json.getString(yearElem));
-            newBruker.oneliner = json.getString(onelinerElem);
-
-            return newBruker;
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        return null;
     }
 
     public void JSONToBruker(JSONObject json) {
@@ -718,7 +618,26 @@ public class Bruker {
         LagreBruker();
     }
 
-    public boolean startChat(ChatPreview chatPreview, String otherUser, String message) {
+    private boolean doesChatExist(String brukernavn) {
+        if(chatMessageList == null)
+            return false;
+
+        for(ChatPreview preview : chatMessageList) {
+            for(Chatter chatter : preview.getChatters()) {
+                if(chatter.getBrukernavn().equalsIgnoreCase(brukernavn))
+                    return true;
+            }
+        }
+
+        return false;
+    }
+
+    public void startChat(Activity activity, ChatPreview chatPreview, String otherUser, String message) {
+        if(doesChatExist(otherUser)) {
+            Toast.makeText(activity, "You have already started a conversation with this user!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         if(isConnected()) {
             if(chatMessageList == null)
                 chatMessageList = new ArrayList<>();
@@ -728,17 +647,16 @@ public class Bruker {
             List<ChatMessage> list = new ArrayList<>();
             list.add(new ChatMessage(message, getBrukernavn()));
 
-            FirebaseDatabase.getInstance().getReference("messagepreviews").child(getBrukernavn() + "_" + otherUser).setValue(chatPreview);
-            FirebaseDatabase.getInstance().getReference("messages").child(getBrukernavn() + "_" + otherUser).setValue(list);
+            FirebaseDatabase.getInstance().getReference("messagepreviews").child(getBrukernavn() + "_" + otherUser.toLowerCase()).setValue(chatPreview);
+            FirebaseDatabase.getInstance().getReference("messages").child(getBrukernavn() + "_" + otherUser.toLowerCase()).setValue(list);
             LagreBruker();
-            return true;
-        }
 
-        return false;
+            Toast.makeText(activity, "Started a chat with " + chatPreview.getChatters().get(1).getBrukernavn(), Toast.LENGTH_SHORT).show();
+        }
     }
 
     public String getBrukernavn() {
-        return brukernavn;
+        return brukernavn == null ? null : brukernavn.toLowerCase();
     }
 
     public void setBrukernavn(String brukernavn) {

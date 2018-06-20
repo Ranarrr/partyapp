@@ -80,15 +80,16 @@ public class LoginUser extends AsyncTask<Void, Void, Integer> {
                                 @Override
                                 public void onComplete(@NonNull Task<AuthResult> task) {
                                     if(task.isSuccessful()) {
-                                        Toast.makeText(progressDialog.getContext(), progressDialog.getContext().getResources().getString(R.string.velkommen) + " " + Bruker.get().getBrukernavn() + "!", Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(progressDialog.getContext(), progressDialog.getContext().getResources().getString(R.string.velkommen) + " " + Bruker.get().getBrukernavn().toLowerCase() + "!", Toast.LENGTH_SHORT).show();
 
-                                        DatabaseReference ref = FirebaseDatabase.getInstance().getReference("users").child(Bruker.get().getBrukernavn());
+                                        DatabaseReference ref = FirebaseDatabase.getInstance().getReference("users").child(Bruker.get().getBrukernavn().toLowerCase());
                                         ref.child("loggedon").setValue(true);
                                         Bruker.get().setLoggetpa(true);
                                     } else
                                         Toast.makeText(progressDialog.getContext(), progressDialog.getContext().getResources().getString(R.string.tilkoblingsfeil), Toast.LENGTH_SHORT).show();
                                 }
                             });
+
                     return 1;
                 } else if(json.getInt("success") == 2) {
                     Bruker.get().setLoggetpa(true);
@@ -142,6 +143,7 @@ public class LoginUser extends AsyncTask<Void, Void, Integer> {
         } else {
             Toast.makeText(progressDialog.getContext(), progressDialog.getContext().getResources().getString(R.string.tilkoblingsfeil), Toast.LENGTH_SHORT).show();
         }
+
         progressDialog.hide();
     }
 }

@@ -79,7 +79,7 @@ public class DeleteUser extends AsyncTask<Void, Void, Integer> {
                 Bruker.get().setFornavn("");
                 Bruker.get().setEtternavn("");
 
-                Bruker.get().LagreBruker();
+                Bruker.get().DeleteBruker();
                 Intent intent = new Intent(progressDialog.getOwnerActivity(), MainActivity.class);
                 progressDialog.getOwnerActivity().startActivity(intent);
             } else {
@@ -88,7 +88,7 @@ public class DeleteUser extends AsyncTask<Void, Void, Integer> {
                 Bruker.get().setPassord("");
                 Bruker.get().setFornavn("");
                 Bruker.get().setEtternavn("");
-                Bruker.get().LagreBruker();
+                Bruker.get().DeleteBruker();
                 System.exit(0);
             }
         } else {

@@ -12,7 +12,6 @@ import android.widget.ListView;
 import com.partyspottr.appdir.R;
 import com.partyspottr.appdir.classes.Bruker;
 import com.partyspottr.appdir.classes.adapters.ChauffeurAdapter;
-import com.partyspottr.appdir.classes.networking.GetAllChauffeurs;
 
 /**
  * Created by Ranarrr on 30-Jan-18.
@@ -33,22 +32,20 @@ public class finn_bil_fragment extends Fragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        ListView lv_chauffeurs = getActivity().findViewById(R.id.lv_chauffeurs);
-        SwipeRefreshLayout swipeRefreshLayout = view.findViewById(R.id.swipe_chauffeurs);
+        final ListView lv_chauffeurs = getActivity().findViewById(R.id.lv_chauffeurs);
+        final SwipeRefreshLayout swipeRefreshLayout = view.findViewById(R.id.swipe_chauffeurs);
 
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                GetAllChauffeurs getAllChauffeurs = new GetAllChauffeurs(getActivity());
-                getAllChauffeurs.execute();
+                if(lv_chauffeurs != null)
+                    lv_chauffeurs.setAdapter(new ChauffeurAdapter(getActivity(), Bruker.get().getListchauffeurs()));
+
+                swipeRefreshLayout.setRefreshing(false);
             }
         });
 
-        if(Bruker.get().getListchauffeurs() != null && Bruker.get().getListchauffeurs().size() > 0)
+        if(lv_chauffeurs != null)
             lv_chauffeurs.setAdapter(new ChauffeurAdapter(getActivity(), Bruker.get().getListchauffeurs()));
-        else {
-            GetAllChauffeurs getAllChauffeurs = new GetAllChauffeurs(getActivity());
-            getAllChauffeurs.execute();
-        }
     }
 }

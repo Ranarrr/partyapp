@@ -4,6 +4,7 @@ import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -36,12 +37,14 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.gson.Gson;
 import com.partyspottr.appdir.BuildConfig;
 import com.partyspottr.appdir.R;
 import com.partyspottr.appdir.classes.Bruker;
 import com.partyspottr.appdir.classes.ChatPreview;
 import com.partyspottr.appdir.classes.Chatter;
 import com.partyspottr.appdir.classes.Event;
+import com.partyspottr.appdir.classes.Friend;
 import com.partyspottr.appdir.classes.Utilities;
 import com.partyspottr.appdir.classes.adapters.CountryCodes;
 import com.partyspottr.appdir.classes.customviews.CustomViewPager;
@@ -63,12 +66,31 @@ import static com.partyspottr.appdir.ui.MainActivity.typeface;
 
 public class Profile extends AppCompatActivity {
     @Override
+    protected void onStop() {
+        Utilities.setupOnStop();
+
+        super.onStop();
+    }
+
+    @Override
+    protected void onRestart() {
+        if(!Bruker.get().isConnected()) {
+            super.onRestart();
+            return;
+        }
+
+        Utilities.setupOnRestart(this);
+
+        super.onRestart();
+    }
+
+    @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(1);
         setContentView(R.layout.profil);
 
-        String brukernavn;
+        final String brukernavn;
 
         Bundle extras = getIntent().getExtras();
         if(extras == null) {
@@ -108,17 +130,180 @@ public class Profile extends AppCompatActivity {
         oneliner.setTypeface(MainActivity.typeface);
         title.setTypeface(MainActivity.typeface);
 
-        DatabaseReference brukerref = FirebaseDatabase.getInstance().getReference("users").child(brukernavn);
+        DatabaseReference brukerref = FirebaseDatabase.getInstance().getReference("users");
 
         brukerref.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                if(dataSnapshot.getKey() != null && dataSnapshot.getKey().equals(brukernavn)) {
+                    final Bruker bruker = new Bruker();
+
+                    bruker.setBrukernavn(brukernavn);
+
+                    for(DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                        if(snapshot.getKey() != null) {
+                            switch(snapshot.getKey()) {
+                                case "country":
+                                    bruker.setCountry(snapshot.getValue(String.class));
+                                    break;
+
+                                case "day_of_month":
+                                    if(snapshot.getValue(Integer.class) != null)
+                                        bruker.setDay_of_month(snapshot.getValue(Integer.class));
+                                    break;
+
+                                case "etternavn":
+                                    bruker.setEtternavn(snapshot.getValue(String.class));
+                                    break;
+
+                                case "fornavn":
+                                    bruker.setFornavn(snapshot.getValue(String.class));
+                                    break;
+
+                                case "friendlist":
+                                    List<Friend> friendList = new Gson().fromJson(snapshot.getValue(String.class), Utilities.listFriendsType);
+                                    bruker.setFriendList(friendList);
+                                    break;
+
+                                case "loggedon":
+                                    if(snapshot.getValue(Boolean.class) != null)
+                                        bruker.setLoggetpa(snapshot.getValue(Boolean.class));
+                                    break;
+
+                                case "month":
+                                    if(snapshot.getValue(Integer.class) != null)
+                                        bruker.setMonth(snapshot.getValue(Integer.class));
+                                    break;
+
+                                case "oneliner":
+                                    bruker.setOneliner(snapshot.getValue(String.class));
+                                    break;
+
+                                case "premium":
+                                    if(snapshot.getValue(Boolean.class) != null)
+                                        bruker.setPremium(snapshot.getValue(Boolean.class));
+                                    break;
+
+                                case "town":
+                                    bruker.setTown(snapshot.getValue(String.class));
+                                    break;
+
+                                case "year":
+                                    if(snapshot.getValue(Integer.class) != null)
+                                        bruker.setYear(snapshot.getValue(Integer.class));
+                                    break;
+                            }
+                        }
+                    }
+
+                    if(bruker.getBrukernavn() != null && !bruker.getBrukernavn().isEmpty()) {
+                        ConstraintLayout layout1 = findViewById(R.id.profile_info);
+                        LinearLayout layout = findViewById(R.id.profile_events);
+                        ConstraintLayout layout2 = findViewById(R.id.profile_buttons);
+
+                        Utilities.makeVisible(layout, layout1, layout2);
+
+                        List<Integer> eventids = Bruker.get().getAllEventIDUserGoingTo(bruker.getBrukernavn());
+
+                        if(eventids.size() == 0) {
+                            pager.setVisibility(View.GONE);
+                            skal_paa.setText("Denne brukeren skal ikke på en event.");
+                        } else {
+                            EventSlidePagerAdapter adapter = new EventSlidePagerAdapter(Profile.this, eventids);
+                            pager.setAdapter(adapter);
+                        }
+
+                        send_message.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                final Dialog send_msg = new Dialog(Profile.this);
+                                send_msg.setCancelable(true);
+                                send_msg.setCanceledOnTouchOutside(true);
+                                send_msg.requestWindowFeature(1);
+                                send_msg.setContentView(R.layout.send_message_dialog);
+
+                                if(send_msg.getWindow() != null) {
+                                    WindowManager.LayoutParams layoutParams = send_msg.getWindow().getAttributes();
+
+                                    DisplayMetrics dm = new DisplayMetrics();
+
+                                    Profile.this.getWindowManager().getDefaultDisplay().getMetrics(dm);
+
+                                    send_msg.getWindow().setBackgroundDrawable(null);
+
+                                    layoutParams.width = dm.widthPixels;
+
+                                    send_msg.getWindow().setAttributes(layoutParams);
+                                    send_msg.getWindow().setGravity(Gravity.BOTTOM);
+
+                                }
+
+                                send_msg.setOnShowListener(new DialogInterface.OnShowListener() {
+                                    @Override
+                                    public void onShow(DialogInterface dialog) {
+                                        if (send_msg.getWindow() != null) {
+                                            View view = send_msg.getWindow().getDecorView();
+
+                                            ObjectAnimator.ofFloat(view, "translationY", view.getHeight(), 0.0f).start();
+                                        }
+                                    }
+                                });
+
+                                Button send = send_msg.findViewById(R.id.send_new_msg_btn);
+
+                                send.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        EditText message = send_msg.findViewById(R.id.send_new_msg_text);
+
+                                        List<Chatter> list = new ArrayList<>();
+                                        list.add(new Chatter(Bruker.get().getBrukernavn(), Bruker.get().getFornavn(), Bruker.get().getEtternavn()));
+                                        list.add(new Chatter(bruker.getBrukernavn(), bruker.getFornavn(), bruker.getEtternavn()));
+                                        Bruker.get().startChat(Profile.this, new ChatPreview(message.getText().toString(), "", false, list), bruker.getBrukernavn(), message.getText().toString());
+                                    }
+                                });
+
+                                send_msg.show();
+                            }
+                        });
+
+                        title.setText(bruker.getBrukernavn());
+
+                        if(bruker.getTown() == null || bruker.getTown().isEmpty()) {
+                            by.setText(bruker.getCountry());
+                        } else {
+                            by.setText(String.format(Locale.ENGLISH, "%s, %s", bruker.getCountry(), bruker.getTown()));
+                        }
+
+                        fornavn_etternavn.setText(String.format(Locale.ENGLISH, "%s %s, %d", bruker.getFornavn(), bruker.getEtternavn(),
+                                Utilities.calcAge(new GregorianCalendar(bruker.getYear(),
+                                        bruker.getMonth(), bruker.getDay_of_month()))));
+
+                        if(bruker.getOneliner().isEmpty()) {
+                            oneliner.setVisibility(View.GONE);
+                        } else {
+                            oneliner.setText(bruker.getOneliner());
+                        }
+
+                        if(!Bruker.get().getCountry().equals("Dominican Republic")) { // because android studio reserves the resource name "do"
+                            String identifier = CountryCodes.getCountrySign(bruker.getCountry()).toLowerCase();
+
+                            int resource = Profile.this.getResources().getIdentifier(identifier, "drawable", Profile.this.getPackageName());
+
+                            if(resource > 0) {
+                                Drawable drawable = Profile.this.getResources().getDrawable(resource);
+
+                                countryflag.setImageDrawable(drawable);
+                            }
+                        } else {
+                            countryflag.setImageResource(R.drawable.dominican_republic);
+                        }
+                    }
+                }
             }
 
             @Override
-            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-
-            }
+            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {}
 
             @Override
             public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {}
@@ -127,139 +312,13 @@ public class Profile extends AppCompatActivity {
             public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {}
 
             @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {}
-        });
-
-        StringRequest stringRequest = new StringRequest(Utilities.getGETMethodArgStr("get_user", "socketElem", Base64.encodeToString(BuildConfig.JSONParser_Socket.getBytes(), Base64.DEFAULT), "username", brukernavn), new Response.Listener<String>() { // BuildConfig.DBMS_URL + "?get_user={\"socketElem\":\"" + Base64.encodeToString(BuildConfig.JSONParser_Socket.getBytes(),
-            //Base64.DEFAULT) + "\",\"username\":\"" + brukernavn + "\"}"
-            @Override
-            public void onResponse(String response) {
-                if(response == null || response.isEmpty()) {
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                if(databaseError.getCode() == DatabaseError.OPERATION_FAILED) {
                     Toast.makeText(Profile.this, "Failed to load profile!", Toast.LENGTH_SHORT).show();
-                    onBackPressed();
-                    return;
-                }
-
-                final Bruker fullparticipant = Bruker.retBrukerFromJSON(response);
-
-                if(fullparticipant != null) {
-                    ConstraintLayout layout1 = findViewById(R.id.profile_info);
-                    LinearLayout layout = findViewById(R.id.profile_events);
-                    ConstraintLayout layout2 = findViewById(R.id.profile_buttons);
-
-                    Utilities.makeVisible(layout, layout1, layout2);
-
-                    List<Integer> eventids = Bruker.get().getAllEventIDUserGoingTo(fullparticipant.getBrukernavn());
-
-                    if(eventids.size() == 0) {
-                        pager.setVisibility(View.GONE);
-                        skal_paa.setText("Denne brukeren skal ikke på en event.");
-                    } else {
-                        EventSlidePagerAdapter adapter = new EventSlidePagerAdapter(Profile.this, eventids);
-                        pager.setAdapter(adapter);
-                    }
-
-                    send_message.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            final Dialog send_msg = new Dialog(Profile.this);
-                            send_msg.setCancelable(true);
-                            send_msg.setCanceledOnTouchOutside(true);
-                            send_msg.requestWindowFeature(1);
-                            send_msg.setContentView(R.layout.send_message_dialog);
-
-                            if(send_msg.getWindow() != null) {
-                                WindowManager.LayoutParams layoutParams = send_msg.getWindow().getAttributes();
-
-                                DisplayMetrics dm = new DisplayMetrics();
-
-                                Profile.this.getWindowManager().getDefaultDisplay().getMetrics(dm);
-
-                                send_msg.getWindow().setBackgroundDrawable(null);
-
-                                layoutParams.width = dm.widthPixels;
-
-                                send_msg.getWindow().setAttributes(layoutParams);
-                                send_msg.getWindow().setGravity(Gravity.BOTTOM);
-
-                            }
-
-                            send_msg.setOnShowListener(new DialogInterface.OnShowListener() {
-                                @Override
-                                public void onShow(DialogInterface dialog) {
-                                    if (send_msg.getWindow() != null) {
-                                        View view = send_msg.getWindow().getDecorView();
-
-                                        ObjectAnimator.ofFloat(view, "translationY", view.getHeight(), 0.0f).start();
-                                    }
-                                }
-                            });
-
-                            Button send = send_msg.findViewById(R.id.send_new_msg_btn);
-
-                            send.setOnClickListener(new View.OnClickListener() {
-                                @Override
-                                public void onClick(View v) {
-                                    EditText message = send_msg.findViewById(R.id.send_new_msg_text);
-
-                                    List<Chatter> list = new ArrayList<>();
-                                    list.add(new Chatter(Bruker.get().getBrukernavn(), Bruker.get().getFornavn(), Bruker.get().getEtternavn()));
-                                    list.add(new Chatter(fullparticipant.getBrukernavn(), fullparticipant.getFornavn(), fullparticipant.getEtternavn()));
-                                    if(Bruker.get().startChat(new ChatPreview(message.getText().toString(), "", false, list), fullparticipant.getBrukernavn(), message.getText().toString())) {
-                                        Toast.makeText(Profile.this, "Started a chat with " + fullparticipant.getBrukernavn(), Toast.LENGTH_SHORT).show();
-                                    }
-                                }
-                            });
-
-                            send_msg.show();
-                        }
-                    });
-
-                    title.setText(fullparticipant.getBrukernavn());
-
-                    if(fullparticipant.getTown() == null || fullparticipant.getTown().isEmpty()) {
-                        by.setText(fullparticipant.getCountry());
-                    } else {
-                        by.setText(String.format(Locale.ENGLISH, "%s, %s", fullparticipant.getCountry(), fullparticipant.getTown()));
-                    }
-
-                    fornavn_etternavn.setText(String.format(Locale.ENGLISH, "%s %s, %d", fullparticipant.getFornavn(), fullparticipant.getEtternavn(),
-                            Utilities.calcAge(new GregorianCalendar(fullparticipant.getYear(),
-                                    fullparticipant.getMonth(), fullparticipant.getDay_of_month()))));
-
-                    if(fullparticipant.getOneliner().isEmpty()) {
-                        oneliner.setVisibility(View.GONE);
-                    } else {
-                        oneliner.setText(fullparticipant.getOneliner());
-                    }
-
-                    if(!Bruker.get().getCountry().equals("Dominican Republic")) { // because android studio reserves the resource name "do"
-                        String identifier = CountryCodes.getCountrySign(fullparticipant.getCountry()).toLowerCase();
-
-                        int resource = Profile.this.getResources().getIdentifier(identifier, "drawable", Profile.this.getPackageName());
-
-                        if(resource > 0) {
-                            Drawable drawable = Profile.this.getResources().getDrawable(resource);
-
-                            countryflag.setImageDrawable(drawable);
-                        }
-                    } else {
-                        countryflag.setImageResource(R.drawable.dominican_republic);
-                    }
-                } else {
-                    Toast.makeText(Profile.this, "Failed to load profile!", Toast.LENGTH_SHORT).show();
+                    Profile.this.onBackPressed();
                 }
             }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                error.getCause().printStackTrace();
-                Profile.this.onBackPressed();
-            }
         });
-
-        RequestQueue queue = Volley.newRequestQueue(this);
-        queue.add(stringRequest);
     }
 
     private class EventSlidePagerAdapter extends PagerAdapter {

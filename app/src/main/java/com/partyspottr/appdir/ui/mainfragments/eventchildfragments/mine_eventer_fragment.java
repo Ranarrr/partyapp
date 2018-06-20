@@ -41,10 +41,8 @@ public class mine_eventer_fragment extends Fragment {
             once = true;
         }
 
-        if(Bruker.get().getListOfMyEvents() != null) {
-            if(!Bruker.get().getListOfMyEvents().isEmpty()) {
-                lvmine_eventer.setAdapter(new EventAdapter(getActivity(), Bruker.get().getListOfMyEvents()));
-            }
-        }
+        if(lvmine_eventer != null)
+            lvmine_eventer.setAdapter(new EventAdapter(getActivity(), Bruker.get().getListOfMyEvents()));
+
     }
 }

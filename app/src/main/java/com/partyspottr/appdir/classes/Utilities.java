@@ -2,6 +2,7 @@ package com.partyspottr.appdir.classes;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.ContentUris;
@@ -51,6 +52,7 @@ import com.partyspottr.appdir.R;
 import com.partyspottr.appdir.classes.adapters.ChatPreviewAdapter;
 import com.partyspottr.appdir.classes.adapters.EventAdapter;
 import com.partyspottr.appdir.classes.adapters.FriendListAdapter;
+import com.partyspottr.appdir.classes.application.ApplicationLifecycleMgr;
 import com.partyspottr.appdir.classes.networking.GetLocationInfo;
 import com.partyspottr.appdir.classes.networking.UpdateEvent;
 import com.partyspottr.appdir.classes.networking.UpdateUser;
@@ -311,64 +313,62 @@ public class Utilities {
         });
     }
 
-    public static Chauffeur getChauffeurFromDataSnapshot(DataSnapshot chauffeurs) {
+    public static Chauffeur getChauffeurFromDataSnapshot(DataSnapshot snapshot) {
         Chauffeur ret = new Chauffeur();
 
-        for(DataSnapshot snapshot : chauffeurs.getChildren()) {
-            if(snapshot.getKey() != null) {
-                switch(snapshot.getKey()) {
-                    case "rating":
-                        if(snapshot.getValue() != null)
-                            ret.setM_rating(snapshot.getValue(Double.class));
-                        break;
+        if(snapshot.getKey() != null) {
+            switch (snapshot.getKey()) {
+                case "rating":
+                    if (snapshot.getValue() != null)
+                        ret.setM_rating(snapshot.getValue(Double.class));
+                    break;
 
-                    case "brukernavn":
-                        ret.setM_brukernavn(snapshot.getValue(String.class));
-                        break;
+                case "brukernavn":
+                    ret.setM_brukernavn(snapshot.getValue(String.class));
+                    break;
 
-                    case "fornavn":
-                        ret.setFornavn(snapshot.getValue(String.class));
-                        break;
+                case "fornavn":
+                    ret.setFornavn(snapshot.getValue(String.class));
+                    break;
 
-                    case "etternavn":
-                        ret.setEtternavn(snapshot.getValue(String.class));
-                        break;
+                case "etternavn":
+                    ret.setEtternavn(snapshot.getValue(String.class));
+                    break;
 
-                    case "age":
-                        if(snapshot.getValue(Integer.class) != null)
-                            ret.setM_age(snapshot.getValue(Integer.class));
-                        break;
+                case "age":
+                    if (snapshot.getValue(Integer.class) != null)
+                        ret.setM_age(snapshot.getValue(Integer.class));
+                    break;
 
-                    case "capacity":
-                        if(snapshot.getValue(Integer.class) != null)
-                            ret.setM_capacity(snapshot.getValue(Integer.class));
-                        break;
+                case "capacity":
+                    if (snapshot.getValue(Integer.class) != null)
+                        ret.setM_capacity(snapshot.getValue(Integer.class));
+                    break;
 
-                    case "timefrom":
-                        if(snapshot.getValue(Long.class) != null)
-                            ret.setChauffeur_time_from(snapshot.getValue(Long.class));
-                        break;
+                case "timefrom":
+                    if (snapshot.getValue(Long.class) != null)
+                        ret.setChauffeur_time_from(snapshot.getValue(Long.class));
+                    break;
 
-                    case "timeto":
-                        if(snapshot.getValue(Long.class) != null)
-                            ret.setChauffeur_time_to(snapshot.getValue(Long.class));
-                        break;
+                case "timeto":
+                    if (snapshot.getValue(Long.class) != null)
+                        ret.setChauffeur_time_to(snapshot.getValue(Long.class));
+                    break;
 
-                    case "listcars":
-                        List<Car> list = new Gson().fromJson(snapshot.getValue(String.class), Utilities.listCarsType);
-                        ret.setListOfCars(list);
-                        break;
+                case "listcars":
+                    List<Car> list = new Gson().fromJson(snapshot.getValue(String.class), Utilities.listCarsType);
+                    ret.setListOfCars(list);
+                    break;
 
-                    case "longitude":
-                        if(snapshot.getValue(Double.class) != null)
-                            ret.setLongitude(snapshot.getValue(Double.class));
-                        break;
+                case "longitude":
+                    if (snapshot.getValue(Double.class) != null)
+                        ret.setLongitude(snapshot.getValue(Double.class));
+                    break;
 
-                    case "latitude":
-                        if(snapshot.getValue(Double.class) != null)
-                            ret.setLatitude(snapshot.getValue(Double.class));
-                        break;
-                }
+                case "latitude":
+                    if (snapshot.getValue(Double.class) != null)
+                        ret.setLatitude(snapshot.getValue(Double.class));
+                    break;
             }
         }
 
@@ -553,6 +553,62 @@ public class Utilities {
         });
     }
 
+    public static void parseBrukerInfo(DataSnapshot snapshot) {
+        if (snapshot.getKey() != null) {
+            switch (snapshot.getKey()) {
+                case "fornavn":
+                    Bruker.get().setFornavn(snapshot.getValue(String.class));
+                    break;
+
+                case "etternavn":
+                    Bruker.get().setEtternavn(snapshot.getValue(String.class));
+                    break;
+
+                case "premium":
+                    if (snapshot.getValue(Boolean.class) != null)
+                        Bruker.get().setPremium(snapshot.getValue(Boolean.class));
+                    break;
+
+                case "country":
+                    Bruker.get().setCountry(snapshot.getValue(String.class));
+                    break;
+
+                case "day_of_month":
+                    if (snapshot.getValue(Integer.class) != null)
+                        Bruker.get().setDay_of_month(snapshot.getValue(Integer.class));
+                    break;
+
+                case "friendlist":
+                    List<Friend> list = new Gson().fromJson(snapshot.getValue(String.class), Utilities.listFriendsType);
+                    Bruker.get().setFriendList(list);
+                    break;
+
+                case "requestlist":
+                    List<Friend> requests = new Gson().fromJson(snapshot.getValue(String.class), Utilities.listFriendsType);
+                    Bruker.get().setRequests(requests);
+                    break;
+
+                case "month":
+                    if (snapshot.getValue(Integer.class) != null)
+                        Bruker.get().setMonth(snapshot.getValue(Integer.class));
+                    break;
+
+                case "town":
+                    Bruker.get().setTown(snapshot.getValue(String.class));
+                    break;
+
+                case "year":
+                    if (snapshot.getValue(Integer.class) != null)
+                        Bruker.get().setYear(snapshot.getValue(Integer.class));
+                    break;
+
+                case "oneliner":
+                    Bruker.get().setOneliner(snapshot.getValue(String.class));
+                    break;
+            }
+        }
+    }
+
     public static void setupOnRestart(final Activity activity) {
         if(SplashActivity.mAuth.getCurrentUser() == null && Bruker.get().getEmail() != null && !Bruker.get().getEmail().isEmpty()
                 && Bruker.get().getPassord() != null && !Bruker.get().getPassord().isEmpty())
@@ -586,6 +642,9 @@ public class Utilities {
     }
 
     public static void setupOnStop() {
+        if(ApplicationLifecycleMgr.isAppVisible())
+            return;
+
         Bruker.get().StopParsingBrukerInfo();
         Bruker.get().StopParsingEvents();
         Bruker.get().StopParsingChauffeurs();
@@ -1107,4 +1166,6 @@ public class Utilities {
         options.inJustDecodeBounds = false;
         return BitmapFactory.decodeResource(res, resId, options);
     }*/
+
+
 }

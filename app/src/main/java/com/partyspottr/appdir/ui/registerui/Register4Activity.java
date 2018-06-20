@@ -27,7 +27,6 @@ public class Register4Activity extends AppCompatActivity {
 
         TextView nameText = findViewById(R.id.nameTextVal);
         TextView DOBText = findViewById(R.id.DOBTextVal);
-        TextView phoneText = findViewById(R.id.phoneTextVal);
         TextView emailText = findViewById(R.id.emailTextVal);
         TextView usernameText = findViewById(R.id.usernameTextVal);
         TextView passwordText = findViewById(R.id.passwordTextVal);
@@ -46,7 +45,6 @@ public class Register4Activity extends AppCompatActivity {
         Button changename = findViewById(R.id.changeName);
         Button changedob = findViewById(R.id.changeDOB);
         Button changeemail = findViewById(R.id.changeEmail);
-        Button changephone = findViewById(R.id.changePhone);
         Button changeuser = findViewById(R.id.changeUsername);
         Button changepass = findViewById(R.id.changePassword);
 
@@ -77,15 +75,6 @@ public class Register4Activity extends AppCompatActivity {
             }
         });
 
-        changephone.setTypeface(MainActivity.typeface);
-        changephone.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(Register4Activity.this, Register2Activity.class);
-                startActivity(intent);
-            }
-        });
-
         changeuser.setTypeface(MainActivity.typeface);
         changeuser.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -106,7 +95,6 @@ public class Register4Activity extends AppCompatActivity {
 
         nameText.setTypeface(MainActivity.typeface);
         DOBText.setTypeface(MainActivity.typeface);
-        phoneText.setTypeface(MainActivity.typeface);
         emailText.setTypeface(MainActivity.typeface);
         usernameText.setTypeface(MainActivity.typeface);
         passwordText.setTypeface(MainActivity.typeface);

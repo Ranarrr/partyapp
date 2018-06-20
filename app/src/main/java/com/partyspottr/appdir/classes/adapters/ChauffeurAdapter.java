@@ -24,6 +24,7 @@ import com.partyspottr.appdir.classes.Chatter;
 import com.partyspottr.appdir.classes.Chauffeur;
 import com.partyspottr.appdir.classes.Utilities;
 import com.partyspottr.appdir.ui.MainActivity;
+import com.partyspottr.appdir.ui.other_ui.Profile;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -135,9 +136,7 @@ public class ChauffeurAdapter extends BaseAdapter {
                                     List<Chatter> list = new ArrayList<>();
                                     list.add(new Chatter(Bruker.get().getBrukernavn(), Bruker.get().getFornavn(), Bruker.get().getEtternavn()));
                                     list.add(new Chatter(chauffeur.getM_brukernavn(), chauffeur.getFornavn(), chauffeur.getEtternavn()));
-                                    if(Bruker.get().startChat(new ChatPreview(message.getText().toString(), "", false, list), chauffeur.getM_brukernavn(), message.getText().toString())) {
-                                        Toast.makeText(thisActivity, "Started a chat with " + chauffeur.getM_brukernavn(), Toast.LENGTH_SHORT).show();
-                                    }
+                                    Bruker.get().startChat(thisActivity, new ChatPreview(message.getText().toString(), "", false, list), chauffeur.getM_brukernavn(), message.getText().toString());
                                 }
                             });
 

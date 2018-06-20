@@ -1,6 +1,7 @@
 package com.partyspottr.appdir.ui.mainfragments.eventchildfragments;
 
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -27,20 +28,26 @@ public class alle_eventer_fragment extends Fragment {
         final ListView listView = view.findViewById(R.id.lvalle_eventer);
         final SwipeRefreshLayout swipeRefreshLayout = view.findViewById(R.id.swipe_layout_events);
 
+        swipeRefreshLayout.setRefreshing(true);
+
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                if(Bruker.get().getListOfEvents() != null)
-                    if(!Bruker.get().getListOfEvents().isEmpty())
-                        listView.setAdapter(new EventAdapter(getActivity(), Bruker.get().getListOfEvents()));
+                if(listView != null)
+                    listView.setAdapter(new EventAdapter(getActivity(), Bruker.get().getListOfEvents()));
 
                 swipeRefreshLayout.setRefreshing(false);
             }
         });
 
-        if(Bruker.get().getListOfEvents() != null) {
-            if(!Bruker.get().getListOfEvents().isEmpty())
-                listView.setAdapter(new EventAdapter(getActivity(), Bruker.get().getListOfEvents()));
-        }
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if(listView != null)
+                    listView.setAdapter(new EventAdapter(getActivity(), Bruker.get().getListOfEvents()));
+
+                swipeRefreshLayout.setRefreshing(false);
+            }
+        }, 1000);
     }
 }

@@ -71,9 +71,5 @@
 
     <string name="facebook_app_id">176818486443991</string>
     <string name="fb_login_protocol_scheme">fb176818486443991</string>
-    <string name="nhie_1">shoplifted</string>
-    <string name="nhie_2">been part of a fight</string>
-    <string name="nhie_3">borrowed my parents car without their permission</string>
-    <string name="nhie_4">been drunk</string>
 
 </resources>

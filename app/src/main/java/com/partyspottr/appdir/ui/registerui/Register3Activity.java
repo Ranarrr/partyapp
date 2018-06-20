@@ -22,7 +22,6 @@ import com.partyspottr.appdir.ui.MainActivity;
  */
 
 public class Register3Activity extends AppCompatActivity {
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -51,6 +50,12 @@ public class Register3Activity extends AppCompatActivity {
     public void onClickFortsettBtn(View v) {
         final EditText brukerNavn = findViewById(R.id.brukernavnText);
         final EditText passord = findViewById(R.id.passordText);
+        final EditText retypepass = findViewById(R.id.passordTextRetype);
+
+        if(!retypepass.getText().toString().equals(passord.getText().toString())) {
+            Toast.makeText(this, "The passwords do not match.", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
         if(passord.length() > 6) {
             Bruker.get().setPassord(passord.getText().toString());

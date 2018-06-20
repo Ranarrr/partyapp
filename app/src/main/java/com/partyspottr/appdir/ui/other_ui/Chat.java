@@ -315,7 +315,7 @@ public class Chat extends AppCompatActivity {
         if(layout == null)
             return;
 
-        if(chatMessage.getBruker().equals(Bruker.get().getBrukernavn()))
+        if(chatMessage.getBruker().equalsIgnoreCase(Bruker.get().getBrukernavn()))
             v = inflater.inflate(R.layout.chatmessageitem_you, layout, false);
         else
             v = inflater.inflate(R.layout.chatmessageitem, layout, false);
