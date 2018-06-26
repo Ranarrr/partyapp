@@ -3,6 +3,7 @@ package com.partyspottr.appdir.classes;
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.widget.ListView;
@@ -24,7 +25,9 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by Ranarrr on 26-Jan-18.
@@ -39,7 +42,6 @@ import java.util.List;
  */
 
 public class Bruker {
-    private long userid;
     private String brukernavn;
     private String passord;
     private String fornavn;
@@ -88,6 +90,8 @@ public class Bruker {
     private static Bruker lokalBruker;
     private Chauffeur chauffeur;
 
+    private static Map<String, Bitmap> eventImages;
+
     public DatabaseReference eventsref;
     public ChildEventListener eventschildlistener;
 
@@ -112,9 +116,22 @@ public class Bruker {
         return lokalBruker;
     }
 
+    public static void AddEventImage(String key, Bitmap value) {
+        eventImages.put(key, value);
+    }
+
+    public static Map<String, Bitmap> getEventImages() {
+        return eventImages;
+    }
+
+    public static void setEventImages(Map<String, Bitmap> eventImages) {
+        Bruker.eventImages = eventImages;
+    }
+
     public void Init(Context c) {
         sharedPreferences = c.getSharedPreferences("Bruker", Context.MODE_PRIVATE);
         chauffeur = new Chauffeur(sharedPreferences);
+        eventImages = new HashMap<>();
         HentBruker();
     }
 
@@ -461,18 +478,11 @@ public class Bruker {
 
             @Override
             public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-                Event event = new Event();
+                if(dataSnapshot.getKey() != null)
+                    if(dataSnapshot.getKey().equals("eventidCounter") && dataSnapshot.getValue() != null)
+                        Bruker.get().setEventIdCounter(dataSnapshot.getValue(Long.class));
 
-                for(DataSnapshot snap : dataSnapshot.getChildren()) {
-                    if(snap.getKey() != null)
-                        if(snap.getKey().equals("eventidCounter") && snap.getValue() != null)
-                            Bruker.get().setEventIdCounter(snap.getValue(Long.class));
-
-                    event = Utilities.getEventFromDataSnapshot(snap);
-                }
-
-                if(event == null)
-                    return;
+                Event event = Utilities.getEventFromDataSnapshot(dataSnapshot);
 
                 if(event.getEventId() == 0)
                     return;
@@ -494,22 +504,8 @@ public class Bruker {
 
             @Override
             public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
-                Event event = new Event();
-
-                for(DataSnapshot snap : dataSnapshot.getChildren()) {
-                    event = Utilities.getEventFromDataSnapshot(snap);
-                }
-
-                if(event == null)
-                    return;
-
-                if(event.getEventId() == 0)
-                    return;
-
-                if(event.getHostStr().isEmpty())
-                    return;
-
-                removeEventByID(event.getEventId());
+                if(dataSnapshot.getKey() != null)
+                    removeEventByID(Long.valueOf(dataSnapshot.getKey()));
 
                 ListView lv_alle_eventer = activity.findViewById(R.id.lvalle_eventer);
                 ListView lv_mine_eventer = activity.findViewById(R.id.lvmine_eventer);
@@ -525,15 +521,12 @@ public class Bruker {
             public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {}
 
             @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
+            public void onCancelled(@NonNull DatabaseError databaseError) {}
         });
     }
 
     public void JSONToBruker(JSONObject json) {
         try {
-            userid = json.getLong(idElem);
             brukernavn = json.getString(brukernavnElem);
             email = json.getString(emailElem);
 
@@ -656,7 +649,10 @@ public class Bruker {
     }
 
     public String getBrukernavn() {
-        return brukernavn == null ? null : brukernavn.toLowerCase();
+        if(brukernavn == null)
+            brukernavn = sharedPreferences.getString(brukernavnElem, "");
+
+        return brukernavn.toLowerCase();
     }
 
     public void setBrukernavn(String brukernavn) {
@@ -813,14 +809,6 @@ public class Bruker {
 
     public void setChatMessageList(List<ChatPreview> chatMessageList) {
         this.chatMessageList = chatMessageList;
-    }
-
-    public long getUserid() {
-        return userid;
-    }
-
-    public void setUserid(long userid) {
-        this.userid = userid;
     }
 
     public boolean isHascar() {

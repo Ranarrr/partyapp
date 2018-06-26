@@ -3,23 +3,28 @@ package com.partyspottr.appdir.classes.networking;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.os.AsyncTask;
-import android.util.Base64;
-import android.widget.ImageButton;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.v7.widget.AppCompatButton;
+import android.view.View;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.gson.Gson;
-import com.partyspottr.appdir.BuildConfig;
 import com.partyspottr.appdir.R;
 import com.partyspottr.appdir.classes.Bruker;
 import com.partyspottr.appdir.classes.Event;
 import com.partyspottr.appdir.classes.Requester;
+import com.partyspottr.appdir.classes.Utilities;
 
-import org.apache.http.NameValuePair;
-import org.apache.http.message.BasicNameValuePair;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -28,22 +33,14 @@ import java.util.List;
  * @author Ranarrr
  */
 
-public class AddEventRequest extends AsyncTask<Void, Void, Integer> {
-
-    private JSONObject eventidanduser;
+public class AddEventRequest extends AsyncTask<Void, Void, Void> {
     private ProgressDialog progressDialog;
+    private long eventId;
 
     public AddEventRequest(Activity activity, long eventid) {
         progressDialog = new ProgressDialog(activity);
         progressDialog.setOwnerActivity(activity);
-        try {
-            eventidanduser = new JSONObject();
-            eventidanduser.put("user", new Gson().toJson(Requester.convertBrukerRequester(Bruker.get())));
-            eventidanduser.put("eventId", eventid);
-            eventidanduser.put("socketElem", Base64.encodeToString(BuildConfig.JSONParser_Socket.getBytes(), Base64.DEFAULT));
-        } catch(JSONException e) {
-            e.printStackTrace();
-        }
+        eventId = eventid;
     }
 
     @Override
@@ -55,49 +52,59 @@ public class AddEventRequest extends AsyncTask<Void, Void, Integer> {
     }
 
     @Override
-    protected Integer doInBackground(Void... voids) {
-        try {
-            List<NameValuePair> params = new ArrayList<>();
-            params.add(new BasicNameValuePair("add_request", eventidanduser.toString()));
-            JSONObject json = new JSONParser().get_jsonobject(params);
-            if(json != null) {
-                if(json.getInt("success") == 1) {
-                    return 1;
-                } else {
-                    return -1;
-                }
-            }
-        } catch(JSONException e) {
-            e.printStackTrace();
-        }
+    protected Void doInBackground(Void... voids) {
+        final Event event = Bruker.get().getEventFromID(eventId);
 
-        return 0;
-    }
+        final DatabaseReference ref = FirebaseDatabase.getInstance().getReference("events").child(event.getHostStr() + "_" + event.getNameofevent()).child("requests");
 
-    @Override
-    protected void onPostExecute(Integer integer) {
-        progressDialog.hide();
-        if(integer == 1) {
-            if(progressDialog.getOwnerActivity() != null) {
-                ImageButton deltarBtn = progressDialog.getOwnerActivity().findViewById(R.id.details_delta_btn);
-                deltarBtn.setEnabled(false);
-                deltarBtn.setImageDrawable(progressDialog.getOwnerActivity().getResources().getDrawable(R.drawable.request_waiting));
+        ref.addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                List<Requester> requesters = new Gson().fromJson(dataSnapshot.getValue(String.class), Utilities.listRequestsType);
+                requesters.add(Requester.convertBrukerRequester(Bruker.get()));
+                ref.child("requests").setValue(new Gson().toJson(requesters)).addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Activity a = progressDialog.getOwnerActivity();
+                        if(a != null) {
+                            AppCompatButton details_deltaforesprsler = a.findViewById(R.id.details_delta_btn);
 
-                try {
-                    Event eventtoChange = Bruker.get().getEventFromID(eventidanduser.getLong("eventId"));
+                            details_deltaforesprsler.setEnabled(true);
+                            details_deltaforesprsler.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    Utilities.OnClickDetails(progressDialog.getOwnerActivity(), event);
+                                }
+                            });
+                        }
 
-                    if(eventtoChange != null) {
-                        Requester requester = new Gson().fromJson(eventidanduser.getString("user"), Requester.type);
-                        eventtoChange.addRequest(requester);
-                        Bruker.get().setEventByID(eventtoChange.getEventId(), eventtoChange);
+                        Toast.makeText(progressDialog.getContext(), "Requested to join!", Toast.LENGTH_SHORT).show();
+                        ref.onDisconnect();
                     }
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Toast.makeText(progressDialog.getContext(), "Failed to send request!", Toast.LENGTH_SHORT).show();
+                        ref.onDisconnect();
+                    }
+                }).addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        progressDialog.hide();
+                    }
+                });
             }
-            Toast.makeText(progressDialog.getContext(), "Requested to join!", Toast.LENGTH_SHORT).show();
-        } else {
-            Toast.makeText(progressDialog.getContext(), "Klarte ikke å sende forespørsel.", Toast.LENGTH_SHORT).show();
-        }
+
+            @Override
+            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {}
+            @Override
+            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {}
+            @Override
+            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {}
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {}
+        });
+
+        return null;
     }
 }

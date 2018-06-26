@@ -75,6 +75,18 @@ public class LoginUser extends AsyncTask<Void, Void, Integer> {
                 if(json.getInt("success") == 1) {
                     SplashActivity.hasSwitched = true;
 
+                    try {
+                        if(!info.getString("username").equalsIgnoreCase(Bruker.get().getBrukernavn())) {
+                            Bruker.get().DeleteBruker();
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
+                    Bruker.get().setEmail(json.getString("email"));
+                    Bruker.get().setBrukernavn(info.getString("username"));
+                    Bruker.get().setPassord(info.getString("pass"));
+
                     SplashActivity.mAuth.signInWithEmailAndPassword(json.getString("email"), password)
                             .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                                 @Override
@@ -85,6 +97,12 @@ public class LoginUser extends AsyncTask<Void, Void, Integer> {
                                         DatabaseReference ref = FirebaseDatabase.getInstance().getReference("users").child(Bruker.get().getBrukernavn().toLowerCase());
                                         ref.child("loggedon").setValue(true);
                                         Bruker.get().setLoggetpa(true);
+
+                                        Bruker.get().GetAndParseBrukerInfo();
+                                        Bruker.get().GetAndParseChauffeurs();
+
+                                        if(Bruker.get().isHascar())
+                                            Bruker.get().GetAndParseBrukerChauffeur();
                                     } else
                                         Toast.makeText(progressDialog.getContext(), progressDialog.getContext().getResources().getString(R.string.tilkoblingsfeil), Toast.LENGTH_SHORT).show();
                                 }
@@ -110,14 +128,6 @@ public class LoginUser extends AsyncTask<Void, Void, Integer> {
     @Override
     protected void onPostExecute(Integer integer) {
         if(integer == 1) {
-            try {
-                Bruker.get().setBrukernavn(info.getString("username"));
-                Bruker.get().setPassord(info.getString("pass"));
-                Bruker.get().LagreBruker();
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-
             if(progressDialog.getOwnerActivity() != null) {
                 Intent intent = new Intent(progressDialog.getOwnerActivity(), ProfilActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -138,7 +148,6 @@ public class LoginUser extends AsyncTask<Void, Void, Integer> {
             progressDialog.dismiss();
         } else if(integer == -1) { // wrong password
             Toast.makeText(progressDialog.getContext(), progressDialog.getContext().getResources().getString(R.string.feil_passord), Toast.LENGTH_SHORT).show();
-            Bruker.get().setBrukernavn("");
             Bruker.get().setPassord("");
         } else {
             Toast.makeText(progressDialog.getContext(), progressDialog.getContext().getResources().getString(R.string.tilkoblingsfeil), Toast.LENGTH_SHORT).show();

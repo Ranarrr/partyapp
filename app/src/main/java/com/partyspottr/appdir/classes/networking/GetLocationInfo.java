@@ -22,38 +22,27 @@ import java.io.File;
 
 public class GetLocationInfo extends AsyncTask<Void, Void, Integer> {
     private String addressToUse;
-    private int PostalCode;
-    private File bitmap;
+    private String PostalCode;
     private Event eventToUse;
     ProgressDialog progressDialog;
-    private boolean addEvent;
     private Dialog dilog;
 
-    public GetLocationInfo(Dialog dialog, String address, int postal_code, Event event, File bmp, boolean addevent) {
+    public GetLocationInfo(Dialog dialog, String address, String postal_code) {
         if(dialog.getOwnerActivity() != null) {
             progressDialog = new ProgressDialog(dialog.getContext());
             progressDialog.setOwnerActivity(dialog.getOwnerActivity());
             dilog = dialog;
         }
 
-        bitmap = bmp;
-        addEvent = addevent;
         addressToUse = address;
         PostalCode = postal_code;
-        eventToUse = event;
+        eventToUse = new Event();
     }
 
     @Override
     protected void onPreExecute() {
-        if(addEvent) {
-            progressDialog.setMessage(progressDialog.getContext().getResources().getString(R.string.legger_til_event));
-            progressDialog.setCanceledOnTouchOutside(false);
-            progressDialog.show();
-        } else {
-            if(PostalCode == 0 || addressToUse.isEmpty()) {
-                cancel(true);
-            }
-        }
+        if(PostalCode == null || addressToUse.isEmpty())
+            cancel(true);
 
         super.onPreExecute();
     }
@@ -78,21 +67,10 @@ public class GetLocationInfo extends AsyncTask<Void, Void, Integer> {
     @Override
     protected void onPostExecute(Integer integer) {
         if(integer == 1) {
-            if(addEvent) {
-                AddEvent addEvent = new AddEvent(dilog, progressDialog, eventToUse, bitmap);
-                addEvent.execute();
-            } else {
-                if(dilog != null) {
-                    ((TextView) dilog.findViewById(R.id.by_textview)).setText(eventToUse.getTown());
-                }
-
-            }
-        } else {
-            if(addEvent)
-                Toast.makeText(progressDialog.getContext(), "Failed to retreive location info for the event!", Toast.LENGTH_LONG).show();
-
+            if (dilog != null)
+                ((TextView) dilog.findViewById(R.id.by_textview)).setText(eventToUse.getTown());
+        } else
             if(dilog != null)
                 ((TextView) dilog.findViewById(R.id.by_textview)).setText("By"); // TODO : translation
-        }
     }
 }

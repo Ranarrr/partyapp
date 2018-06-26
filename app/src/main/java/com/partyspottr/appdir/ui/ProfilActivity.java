@@ -9,6 +9,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Paint;
 import android.graphics.Point;
 import android.net.Uri;
@@ -26,12 +27,14 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatButton;
+import android.support.v7.widget.AppCompatSpinner;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
@@ -39,22 +42,19 @@ import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthResult;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.partyspottr.appdir.R;
 import com.partyspottr.appdir.classes.Bruker;
 import com.partyspottr.appdir.classes.Event;
 import com.partyspottr.appdir.classes.ImageChange;
+import com.partyspottr.appdir.classes.OnSwipeGestureListener;
 import com.partyspottr.appdir.classes.Utilities;
 import com.partyspottr.appdir.classes.networking.GetLocationInfo;
 import com.partyspottr.appdir.ui.mainfragments.bilfragment;
@@ -65,12 +65,14 @@ import com.partyspottr.appdir.ui.mainfragments.eventchildfragments.alle_eventer_
 import com.partyspottr.appdir.ui.mainfragments.eventchildfragments.mine_eventer_fragment;
 import com.partyspottr.appdir.ui.mainfragments.eventfragment;
 import com.partyspottr.appdir.ui.mainfragments.profilfragment;
+import com.partyspottr.appdir.ui.other_ui.CropImage;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
@@ -143,6 +145,8 @@ public class ProfilActivity extends AppCompatActivity {
             }
         }
 
+        // TODO : Check what fragment we are on and set search event onclicklistener accordingly
+
         if (count <= 1) {
             finish();
             System.exit(0);
@@ -173,13 +177,6 @@ public class ProfilActivity extends AppCompatActivity {
         childfragmentsinstack = new ArrayList<>();
         childfragmentsinstackChat = new ArrayList<>();
         childfragmentsinstack.add(alle_eventer_fragment.class.getName());
-
-        Bruker.get().GetAndParseEvents(this);
-        Bruker.get().GetAndParseBrukerInfo();
-        Bruker.get().GetAndParseChauffeurs();
-
-        if(Bruker.get().isHascar())
-            Bruker.get().GetAndParseBrukerChauffeur();
 
         ctd.start();
 
@@ -215,6 +212,8 @@ public class ProfilActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
         ctd.cancel();
+
+        // TODO : possible fix for when choosing picture?
 
         Utilities.setupOnStop();
 
@@ -348,7 +347,7 @@ public class ProfilActivity extends AppCompatActivity {
         ObjectAnimator.ofFloat(arrow_eventfragment, "translationX", 0.0f).start();
 
         viewPager.setCurrentItem(0, true);
-        }
+    }
 
     public void onMineEventerClick(View v) {
         AppCompatButton alle_eventer_btn = findViewById(R.id.alle_eventer_btn);
@@ -462,6 +461,7 @@ public class ProfilActivity extends AppCompatActivity {
         final CheckBox vis_adresse = dialog.findViewById(R.id.vis_adresse);
         final ImageButton legg_til_bilde = dialog.findViewById(R.id.imageButton6);
         final EditText maks_deltakere = dialog.findViewById(R.id.maks_deltakere);
+        final AppCompatSpinner kategorier = dialog.findViewById(R.id.kategori_spinner);
         final EditText titletext = dialog.findViewById(R.id.create_eventText);
         final EditText beskrivelse = dialog.findViewById(R.id.beskrivelse_create);
         final EditText aldersgrense = dialog.findViewById(R.id.aldersgrense);
@@ -470,6 +470,17 @@ public class ProfilActivity extends AppCompatActivity {
         Toolbar create_event_toolbar = dialog.findViewById(R.id.toolbar2);
         final EditText postnr = dialog.findViewById(R.id.create_postnr);
         final EditText gate = dialog.findViewById(R.id.create_gate);
+        RelativeLayout content = dialog.findViewById(R.id.legg_til_event_content);
+
+        //noinspection AndroidLintClickableViewAccessibility
+        content.setOnTouchListener(new OnSwipeGestureListener(this) {
+            @Override
+            public void onSwipeBottom() {
+                ProfilActivity.this.onBackPressed();
+            }
+        });
+
+        kategorier.setAdapter(new ArrayAdapter<>(this, R.layout.spinner_mine, Arrays.asList("Narch", "Vors", "Party", "Concert", "Nightclub", "Birthday", "Festival"))); // TODO : OVERSETTE
 
         final Handler textchangedHandler = new Handler();
 
@@ -484,7 +495,7 @@ public class ProfilActivity extends AppCompatActivity {
                     @Override
                     public void run() {
                         if(postnr.getText().toString().length() > 3 && gate.getText().toString().length() > 4) {
-                            GetLocationInfo getLocationInfo = new GetLocationInfo(dialog, gate.getText().toString(), Integer.valueOf(s.toString()), new Event(""),null, false);
+                            GetLocationInfo getLocationInfo = new GetLocationInfo(dialog, gate.getText().toString(), s.toString());
                             getLocationInfo.execute();
                         }
                     }
@@ -506,7 +517,7 @@ public class ProfilActivity extends AppCompatActivity {
                     @Override
                     public void run() {
                         if(postnr.getText().toString().length() > 3 && gate.getText().toString().length() > 4) {
-                            GetLocationInfo getLocationInfo = new GetLocationInfo(dialog, s.toString(), Integer.valueOf(postnr.getText().toString()), new Event(""), null, false);
+                            GetLocationInfo getLocationInfo = new GetLocationInfo(dialog, s.toString(), postnr.getText().toString());
                             getLocationInfo.execute();
                         }
                     }
@@ -530,10 +541,12 @@ public class ProfilActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if(ActivityCompat.checkSelfPermission(ProfilActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-                    Intent intent = new Intent();
+                    Intent intent = new Intent(ProfilActivity.this, CropImage.class);
+                    startActivity(intent);
+                    /*Intent intent = new Intent();
                     intent.setType("image/*");
                     intent.setAction(Intent.ACTION_GET_CONTENT);
-                    startActivityForResult(Intent.createChooser(intent, "Select Picture"), Utilities.SELECT_IMAGE_CODE);
+                    startActivityForResult(Intent.createChooser(intent, "Select Picture"), Utilities.SELECT_IMAGE_CODE);*/
                 } else {
                     ActivityCompat.requestPermissions(ProfilActivity.this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, Utilities.READ_EXTERNAL_STORAGE_CODE);
                 }
@@ -624,6 +637,7 @@ public class ProfilActivity extends AppCompatActivity {
                     timePickerDialog.show();
                     return true;
                 }
+
                 return false;
             }
         });
@@ -726,14 +740,14 @@ public class ProfilActivity extends AppCompatActivity {
                 }
 
                 if(imageChange.getImage() == null) {
-                    new AlertDialog.Builder(ProfilActivity.this)
+                    new AlertDialog.Builder(ProfilActivity.this, R.style.mydatepickerdialog)
                             .setTitle("Image")
                             .setMessage("Are you sure you do not want to add an image?")
                             .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface somedialog, int which) {
                                     Utilities.CheckAddEvent(dato, time, datotil, timetil, titletext, gate, aldersgrense, maks_deltakere, postnr, by, beskrivelse, dialog, vis_gjesteliste, alle_deltakere, vis_adresse,
-                                            false);
+                                            kategorier,false, null);
                                 }
                             })
                             .setNegativeButton("No", new DialogInterface.OnClickListener() {
@@ -741,7 +755,8 @@ public class ProfilActivity extends AppCompatActivity {
                                 public void onClick(DialogInterface dialog, int which) {}})
                             .show();
                 } else
-                    Utilities.CheckAddEvent(dato, time, datotil, timetil, titletext, gate, aldersgrense, maks_deltakere, postnr, by, beskrivelse, dialog, vis_gjesteliste, alle_deltakere, vis_adresse, false);
+                    Utilities.CheckAddEvent(dato, time, datotil, timetil, titletext, gate, aldersgrense, maks_deltakere, postnr, by, beskrivelse, dialog, vis_gjesteliste, alle_deltakere, vis_adresse,
+                            kategorier,false, null);
             }
         });
 
@@ -777,10 +792,18 @@ public class ProfilActivity extends AppCompatActivity {
         if(requestCode == Utilities.SELECT_IMAGE_CODE && resultCode == RESULT_OK && data.getData() != null) {
             Uri image = data.getData();
 
-            imageChange.setUri(image);
-            String str = Utilities.getPathFromUri(this, image);
-            if(str != null)
-                imageChange.setImage(new File(str));
+            /*String str = Utilities.getPathFromUri(this, image);
+
+            if(str != null) {
+                File file = new File(str);
+                if(!(file.length() > (1024 * 1024))) {
+                    imageChange.setUri(image);
+                    imageChange.setImage(file);
+                } else {
+                    Toast.makeText(this, "This image is to big! Max 1 Mb.", Toast.LENGTH_SHORT).show();
+                }
+            } else
+                Toast.makeText(this, "Failed to get image path!", Toast.LENGTH_SHORT).show();*/
         }
     }
 }

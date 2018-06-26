@@ -1,9 +1,6 @@
 package com.partyspottr.appdir.classes;
 
-import android.util.Base64;
-
-import com.google.gson.Gson;
-import com.partyspottr.appdir.BuildConfig;
+import com.partyspottr.appdir.enums.Categories;
 import com.partyspottr.appdir.enums.EventStilling;
 
 import org.json.JSONException;
@@ -39,75 +36,24 @@ public class Event {
     private boolean showguestlist;
     private boolean showaddress;
     private boolean hasimage;
-
-    private static final String nameofeventElem = "nameofevent";
-    private static final String addressElem = "address";
-    private static final String townElem = "town";
-    private static final String countryElem = "country";
-    private static final String privateEventElem = "privateEvent";
-    private static final String longitudeElem = "longitude";
-    private static final String latitudeElem = "latitude";
-    private static final String datefromElem = "datefrom";
-    private static final String datetoElem = "dateto";
-    private static final String agerestrictionElem = "agerestriction";
-    private static final String hostStrElem = "hostStr";
-    private static final String participantsElem = "participants";
-    private static final String requestsElem = "requests";
-    private static final String maxparticipantsElem = "maxparticipants";
-    private static final String postalcodeElem = "postalcode";
-    private static final String descriptionElem = "description";
-    private static final String showguestlistElem = "showguestlist";
-    private static final String showaddressElem = "showaddress";
-    private static final String hasimageElem = "hasimage";
-
-    public String EventToJSON() {
-        try {
-            JSONObject ret = new JSONObject();
-            ret.put("eventId", eventId);
-            ret.put(nameofeventElem, nameofevent);
-            ret.put(addressElem, address);
-            ret.put(townElem, town);
-            ret.put(countryElem, country);
-            ret.put(privateEventElem, privateEvent);
-            ret.put(longitudeElem, longitude);
-            ret.put(latitudeElem, latitude);
-            ret.put(datefromElem, datefrom);
-            ret.put(datetoElem, dateto);
-            ret.put(agerestrictionElem, agerestriction);
-            ret.put(hostStrElem, hostStr);
-            ret.put(participantsElem, new Gson().toJson(participants));
-            ret.put(requestsElem, requests);
-            ret.put(maxparticipantsElem, maxparticipants);
-            ret.put(postalcodeElem, postalcode);
-            ret.put(descriptionElem, description);
-            ret.put(showguestlistElem, showguestlist);
-            ret.put(showaddressElem, showaddress);
-            ret.put(hasimageElem, hasimage);
-            ret.put("socketElem", Base64.encodeToString(BuildConfig.JSONParser_Socket.getBytes(), Base64.DEFAULT));
-            return ret.toString();
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        return "";
-    }
+    private Categories category;
 
     public Event() {
-        this(0, "", "", "", "", false, 0.0, 0.0, 0, 0, 0, new ArrayList<Participant>(), 0, "", "", "", false, false, new ArrayList<Requester>(), false);
+        this(0, "", "", "", "", false, 0.0, 0.0, 0, 0, 0, new ArrayList<Participant>(), 0, "", "", "", false, false, new ArrayList<Requester>(), false, Categories.PARTY);
     }
 
     public Event(String name) {
         this(0, name, "", "", "", false, 0.0, 0.0, 0, 0, 0, new ArrayList<Participant>(), 0,
-                "0", "", "", false, false, new ArrayList<Requester>(), false);
+                "0", "", "", false, false, new ArrayList<Requester>(), false, Categories.PARTY);
     }
 
     public Event(String name, String adress, String cntry, String host) {
         this(0, name, adress, cntry, host, false, 0.0, 0.0, 0, 0, 0, new ArrayList<Participant>(), 0,
-                "0", "", "", false, false, new ArrayList<Requester>(), false);
+                "0", "", "", false, false, new ArrayList<Requester>(), false, Categories.PARTY);
     }
 
     public Event(long eventid, String name, String adress, String cntry, String host, boolean privateevent, double longtude, double latude, long datfrom, long datto, int agerestr,
-                 List<Participant> particpants, int maxparticpants, String postcode, String twn, String desc, boolean showgstlist, boolean showadress, List<Requester> foresprsler, boolean hsimage) {
+                 List<Participant> particpants, int maxparticpants, String postcode, String twn, String desc, boolean showgstlist, boolean showadress, List<Requester> foresprsler, boolean hsimage, Categories catgory) {
         eventId = eventid;
         nameofevent = name;
         address = adress;
@@ -128,6 +74,30 @@ public class Event {
         showaddress = showadress;
         requests = foresprsler;
         hasimage = hsimage;
+        category = catgory;
+    }
+
+    public void CopyEvent(Event otherEvent) {
+        setEventId(otherEvent.getEventId());
+        setTown(otherEvent.getTown());
+        setShowguestlist(otherEvent.isShowguestlist());
+        setShowaddress(otherEvent.isShowaddress());
+        setParticipants(otherEvent.getParticipants());
+        setRequests(otherEvent.getRequests());
+        setPostalcode(otherEvent.getPostalcode());
+        setMaxparticipants(otherEvent.getMaxparticipants());
+        setLongitude(otherEvent.getLongitude());
+        setLatitude(otherEvent.getLatitude());
+        setPrivateEvent(otherEvent.isPrivateEvent());
+        setHasimage(otherEvent.isHasimage());
+        setDescription(otherEvent.getDescription());
+        setDateto(otherEvent.getDateto());
+        setDatefrom(otherEvent.getDatefrom());
+        setCountry(otherEvent.getCountry());
+        setAgerestriction(otherEvent.getAgerestriction());
+        setAddress(otherEvent.getAddress());
+        setNameofevent(otherEvent.getNameofevent());
+        setCategory(otherEvent.getCategory());
     }
 
     public void ParseFromGoogleReq(JSONObject jsonObject) {
@@ -170,15 +140,6 @@ public class Event {
 
     public void addRequestToParticipant(Requester requester) {
         participants.add(new Participant(requester.getBrukernavn(), requester.getCountry(), requester.getTown(), requester.isPremium() ? EventStilling.PREMIUM : EventStilling.GJEST));
-    }
-
-    public void removeRequest(String brukernavn) {
-        for(int i = 0; i < requests.size(); i++) {
-            if(requests.get(i).getBrukernavn().equals(brukernavn)) {
-                requests.remove(i);
-                return;
-            }
-        }
     }
 
     public Requester getRequesterByUsername(String username) {
@@ -359,5 +320,13 @@ public class Event {
 
     public void setHasimage(boolean hasimage) {
         this.hasimage = hasimage;
+    }
+
+    public Categories getCategory() {
+        return category;
+    }
+
+    public void setCategory(Categories category) {
+        this.category = category;
     }
 }

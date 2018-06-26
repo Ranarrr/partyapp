@@ -87,7 +87,7 @@ public class RemoveEventRequest extends AsyncTask<Void, Void, Integer> {
                             Requester requester = eventtochange.getRequesterByUsername(user);
                             if(requester != null) {
                                 eventtochange.addRequestToParticipant(requester);
-                                eventtochange.removeRequest(user);
+                                Requester.removeRequest(eventtochange.getRequests(), user);
                                 if(lv_requests != null)
                                     lv_requests.setAdapter(new RequestAdapter(progressDialog.getOwnerActivity(), eventtochange.getRequests(), eventid));
                                 Bruker.get().setEventByID(eventid, eventtochange);
@@ -106,7 +106,7 @@ public class RemoveEventRequest extends AsyncTask<Void, Void, Integer> {
                         ListView lv_requests = progressDialog.getOwnerActivity().findViewById(R.id.lv_foresporsler);
 
                         if(eventtochange != null) {
-                            eventtochange.removeRequest(eventidanduser.getString("user"));
+                            Requester.removeRequest(eventtochange.getRequests(), eventidanduser.getString("user"));
                             if(lv_requests != null)
                                 lv_requests.setAdapter(new RequestAdapter(progressDialog.getOwnerActivity(), eventtochange.getRequests(), eventid));
 

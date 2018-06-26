@@ -23,7 +23,7 @@ public class OnSwipeGestureListener implements OnTouchListener {
 
     @Override
     public boolean onTouch(View v, MotionEvent event) {
-        return v.performClick();
+        return gestureDetector.onTouchEvent(event);
     }
 
     private final class GestureListener extends SimpleOnGestureListener {

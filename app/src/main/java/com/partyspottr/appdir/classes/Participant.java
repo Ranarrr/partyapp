@@ -71,7 +71,7 @@ public class Participant {
 
     public static Participant getBrukerInList(List<Participant> list) {
         for(Participant temp : list) {
-            if(temp.getBrukernavn().equals(Bruker.get().getBrukernavn())) {
+            if(temp.getBrukernavn().equalsIgnoreCase(Bruker.get().getBrukernavn())) {
                 return temp;
             }
         }

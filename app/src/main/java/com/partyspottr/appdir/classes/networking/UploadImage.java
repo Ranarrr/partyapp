@@ -16,6 +16,7 @@ import com.partyspottr.appdir.R;
 import com.partyspottr.appdir.classes.Event;
 import com.partyspottr.appdir.classes.ImageChange;
 import com.partyspottr.appdir.ui.ProfilActivity;
+import com.partyspottr.appdir.ui.other_ui.EventDetails;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -71,12 +72,13 @@ public class UploadImage extends AsyncTask<Void, Void, Void> {
         }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
             @Override
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                Toast.makeText(progressDialog.getContext(), progressDialog.getContext().getResources().getString(R.string.event_lagt_til), Toast.LENGTH_SHORT).show();
+                Toast.makeText(progressDialog.getContext(), "Uploaded image!", Toast.LENGTH_SHORT).show();
                 progressDialog.hide();
             }
         });
 
         ProfilActivity.imageChange = new ImageChange();
+        EventDetails.edit_event_imagechange = new ImageChange();
 
         return null;
     }

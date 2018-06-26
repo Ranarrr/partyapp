@@ -33,6 +33,9 @@ public class alle_eventer_fragment extends Fragment {
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
+                Bruker.get().StopParsingEvents();
+                Bruker.get().GetAndParseEvents(getActivity());
+
                 if(listView != null)
                     listView.setAdapter(new EventAdapter(getActivity(), Bruker.get().getListOfEvents()));
 

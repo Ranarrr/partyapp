@@ -7,4 +7,10 @@
     <item
         android:id="@+id/edit_event"
         android:title="Edit" />
+    <item
+        android:id="@+id/check_requests_event"
+        android:title="Requests" />
+    <item
+        android:id="@+id/check_guestlist_event"
+        android:title="Guestlist" />
 </menu>

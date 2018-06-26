@@ -66,6 +66,8 @@
         <activity android:name=".ui.other_ui.Profile" />
         <activity android:name=".ui.other_ui.drikkeleker.NeverHaveIEver" />
         <activity android:name=".ui.other_ui.Drikkeleker" />
+        <activity android:name=".ui.other_ui.SearchEvents" />
+        <activity android:name=".ui.other_ui.CropImage" />
 
         <meta-data android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyB6Fo7mLIATG1VK4_o8W2aW-NJpse-bVd0" />

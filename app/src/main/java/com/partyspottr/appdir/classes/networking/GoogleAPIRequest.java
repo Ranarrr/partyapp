@@ -23,13 +23,13 @@ import java.util.Locale;
 
 public class GoogleAPIRequest {
 
-    public static JSONObject makeHTTPReq(Context c, String address, int postal_code) {
+    public static JSONObject makeHTTPReq(Context c, String address, String postal_code) {
         InputStream is = null;
         JSONObject json = null;
         StringBuilder url = new StringBuilder("https://maps.googleapis.com/maps/api/geocode/json?");
         URL urll;
 
-        url.append(String.format(Locale.ENGLISH, "address=%s&components=postal_code:%d|key=%s", address, postal_code, "AIzaSyAwrHRK0OTkTj_o0bhAbAUDvqdGv9LwrxQ"));
+        url.append(String.format(Locale.ENGLISH, "address=%s&components=postal_code:%s|key=%s", address, postal_code, "AIzaSyAwrHRK0OTkTj_o0bhAbAUDvqdGv9LwrxQ"));
 
         try {
             urll = new URL(url.toString());

@@ -3,13 +3,17 @@ package com.partyspottr.appdir.classes;
 import android.Manifest;
 import android.app.Activity;
 import android.app.ActivityManager;
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.ContentUris;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.location.Address;
 import android.location.Criteria;
 import android.location.Geocoder;
@@ -25,7 +29,9 @@ import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
+import android.support.v7.widget.AppCompatSpinner;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
@@ -38,8 +44,10 @@ import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -53,18 +61,22 @@ import com.partyspottr.appdir.classes.adapters.ChatPreviewAdapter;
 import com.partyspottr.appdir.classes.adapters.EventAdapter;
 import com.partyspottr.appdir.classes.adapters.FriendListAdapter;
 import com.partyspottr.appdir.classes.application.ApplicationLifecycleMgr;
+import com.partyspottr.appdir.classes.networking.AddEvent;
 import com.partyspottr.appdir.classes.networking.GetLocationInfo;
 import com.partyspottr.appdir.classes.networking.UpdateEvent;
 import com.partyspottr.appdir.classes.networking.UpdateUser;
 import com.partyspottr.appdir.classes.networking.UploadImage;
+import com.partyspottr.appdir.enums.Categories;
 import com.partyspottr.appdir.enums.EventStilling;
 import com.partyspottr.appdir.ui.MainActivity;
 import com.partyspottr.appdir.ui.ProfilActivity;
 import com.partyspottr.appdir.ui.SplashActivity;
+import com.partyspottr.appdir.ui.other_ui.EventDetails;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.text.ParseException;
@@ -89,6 +101,7 @@ public class Utilities {
     public static final int READ_EXTERNAL_STORAGE_CODE = 1001;
     public static final int SELECT_IMAGE_CODE = 1003;
     public static final int SELECT_PROFILE_IMAGE_CODE = 1004;
+    public static final int CROP_PICTURE = 1005;
 
     public static final Type listFriendsType = new TypeToken<List<Friend>>(){}.getType();
     public static final Type listParticipantsType = new TypeToken<List<Participant>>(){}.getType();
@@ -250,6 +263,80 @@ public class Utilities {
         }
     }
 
+    public static void OnClickDetails(final Activity activity, final Event event) {
+        new AlertDialog.Builder(activity, R.style.mydatepickerdialog)
+                .setTitle("Remove")
+                .setMessage("Do you want to remove your request?")
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        // REMOVE REQUEST
+                        final DatabaseReference ref = FirebaseDatabase.getInstance().getReference("events").child(event.getHostStr() + "_" + event.getNameofevent());
+
+                        ref.addChildEventListener(new ChildEventListener() {
+                            @Override
+                            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                                if(dataSnapshot.getKey() != null) {
+                                    if(dataSnapshot.getKey().equals("requests")) {
+                                        List<Requester> requesters = new Gson().fromJson(dataSnapshot.getValue(String.class), Utilities.listRequestsType);
+                                        Requester.removeRequest(requesters, Bruker.get().getBrukernavn());
+                                        ref.child("requests").setValue(new Gson().toJson(requesters)).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                            @Override
+                                            public void onSuccess(Void aVoid) {
+                                                Toast.makeText(activity, "Removed request!", Toast.LENGTH_SHORT).show();
+                                            }
+                                        });
+                                    }
+                                }
+                            }
+
+                            @Override
+                            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {}
+                            @Override
+                            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {}
+                            @Override
+                            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {}
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError databaseError) {}
+                        });
+                    }
+                })
+                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {}
+                })
+                .show();
+    }
+
+    // Narch", "Vors", "Party", "Concert", "Nightclub", "Birthday", "Festival"
+    public static Categories getCategoryFromString(String category) {
+        switch (category.toUpperCase()) {
+            case "NARCH":
+                return Categories.NARCHSPIEL;
+
+            case "VORS":
+                return Categories.VORSPIEL;
+
+            case "PARTY":
+                return Categories.PARTY;
+
+            case "CONCERT":
+                return Categories.CONCERT;
+
+            case "NIGHTCLUB":
+                return Categories.NIGHTCLUB;
+
+            case "BIRTHDAY":
+                return Categories.BIRTHDAY;
+
+            case "FESTIVAL":
+                return Categories.FESTIVAL;
+
+            default:
+                return Categories.PARTY;
+        }
+    }
+
     public static void onSearchEventsClickAlle(final Activity activity) {
         final ListView listView = activity.findViewById(R.id.lvalle_eventer);
         ImageButton searchevents = activity.findViewById(R.id.search_events);
@@ -378,10 +465,10 @@ public class Utilities {
         return ret;
     }
 
-    public static Event getEventFromDataSnapshot(DataSnapshot events) {
+    public static Event getEventFromDataSnapshot(DataSnapshot eventData) {
         Event event = new Event();
 
-        for(DataSnapshot eventinfo : events.getChildren()) {
+        for(DataSnapshot eventinfo : eventData.getChildren()) {
             if(eventinfo.getKey() != null) {
                 switch(eventinfo.getKey()) {
                     case "nameofevent":
@@ -478,14 +565,15 @@ public class Utilities {
                         event.setTown(eventinfo.getValue(String.class));
                         break;
 
-                    case "eventId":
-                        if(eventinfo.getValue(Long.class) != null) {
-                            event.setEventId(eventinfo.getValue(Long.class));
-                        }
+                    case "category":
+                        event.setCategory(getCategoryFromString(eventinfo.getValue(String.class)));
                         break;
                 }
             }
         }
+
+        if(eventData.getKey() != null && !eventData.getKey().equals("eventidCounter"))
+            event.setEventId(Long.valueOf(eventData.getKey()));
 
         return event;
     }
@@ -808,7 +896,7 @@ public class Utilities {
     }
 
     public static void CheckAddEvent(EditText dato, EditText time, EditText datotil, EditText timetil, EditText titletext, EditText gate, EditText aldersgrense, EditText maks_deltakere, EditText postnr, TextView by,
-                              EditText beskrivelse, Dialog dialog, CheckBox vis_gjesteliste, CheckBox alle_deltakere, CheckBox vis_adresse, boolean shouldupdate) {
+                                     EditText beskrivelse, Dialog dialog, CheckBox vis_gjesteliste, CheckBox alle_deltakere, CheckBox vis_adresse, AppCompatSpinner kategorier, boolean shouldupdate, @Nullable Long eventid) {
         if(!datotil.getText().toString().isEmpty() && !timetil.getText().toString().isEmpty()) {
             GregorianCalendar datefrom, dateto;
 
@@ -826,62 +914,51 @@ public class Utilities {
 
             if(dateto != null && datefrom != null && !dateto.before(datefrom)) {
 
-                Event creating_event = new Event(0, titletext.getText().toString(), gate.getText().toString(), "", Bruker.get().getBrukernavn(),
+                Event creating_event = new Event(shouldupdate ? eventid : 0, titletext.getText().toString(), gate.getText().toString(), "", Bruker.get().getBrukernavn(),
                         alle_deltakere.isChecked(),0.0, 0.0, datefrom.getTimeInMillis(), dateto.getTimeInMillis(), Integer.valueOf(aldersgrense.getText().toString()),
                         new ArrayList<>(Collections.singletonList(Participant.convertBrukerParticipant(Bruker.get(), EventStilling.VERT))), Integer.valueOf(maks_deltakere.getText().toString()),
                         postnr.getText().toString(), by.getText().toString(), beskrivelse.getText().toString(), vis_gjesteliste.isChecked(), vis_adresse.isChecked(), new ArrayList<Requester>(),
-                        ProfilActivity.imageChange.getImage() != null);
+                        ProfilActivity.imageChange.getImage() != null, getCategoryFromString((String) kategorier.getSelectedItem()));
 
                 if(shouldupdate) {
-                    if(ProfilActivity.imageChange.getBmp() != null)
+                    if(EventDetails.edit_event_imagechange.getImage() != null)
                         creating_event.setHasimage(true);
                     else
                         creating_event.setHasimage(false);
 
-                    UpdateEvent updateEvent = new UpdateEvent(dialog.getOwnerActivity(), creating_event);
+                    UpdateEvent updateEvent = new UpdateEvent(dialog.getOwnerActivity(), creating_event, EventDetails.edit_event_imagechange.getImage());
                     updateEvent.execute();
-                    if(ProfilActivity.imageChange.getBmp() != null) {
-                        UploadImage uploadImage = new UploadImage(new ProgressDialog(dialog.getOwnerActivity()), creating_event, null, ProfilActivity.imageChange.getBmp());
-                        uploadImage.execute();
-                    }
                 } else {
-                    GetLocationInfo getLocationInfo = new GetLocationInfo(dialog, gate.getText().toString(), Integer.valueOf(postnr.getText().toString()), creating_event,
-                            ProfilActivity.imageChange.getImage(), true);
-                    getLocationInfo.execute();
+                    AddEvent addEvent = new AddEvent(dialog, creating_event, ProfilActivity.imageChange.getImage());
+                    addEvent.execute();
                 }
             }
         } else if(datotil.getText().toString().isEmpty() && timetil.getText().toString().isEmpty()) {
             GregorianCalendar datefrom;
 
-            if(dato.getText().toString().contains(".")) {
+            if(dato.getText().toString().contains("."))
                 datefrom = Utilities.getDateFromString(String.format(Locale.ENGLISH, "%s %s", dato.getText().toString(), time.getText().toString()), "dd MMM. yyyy HH:mm");
-            } else {
+            else
                 datefrom = Utilities.getDateFromString(String.format(Locale.ENGLISH, "%s %s", dato.getText().toString(), time.getText().toString()), "dd MMM yyyy HH:mm");
-            }
 
             if(datefrom != null) {
-                Event creating_event = new Event(0, titletext.getText().toString(), gate.getText().toString(), "", Bruker.get().getBrukernavn(),
+                Event creating_event = new Event(shouldupdate ? eventid : 0, titletext.getText().toString(), gate.getText().toString(), "", Bruker.get().getBrukernavn(),
                         alle_deltakere.isChecked(),0.0, 0.0, datefrom.getTimeInMillis(), 0, Integer.valueOf(aldersgrense.getText().toString()),
                         new ArrayList<>(Collections.singletonList(Participant.convertBrukerParticipant(Bruker.get(), EventStilling.VERT))), Integer.valueOf(maks_deltakere.getText().toString()),
                         postnr.getText().toString(), by.getText().toString(), beskrivelse.getText().toString(), vis_gjesteliste.isChecked(), vis_adresse.isChecked(), new ArrayList<Requester>(),
-                        ProfilActivity.imageChange.getImage() != null);
+                        ProfilActivity.imageChange.getImage() != null, getCategoryFromString((String) kategorier.getSelectedItem()));
 
                 if(shouldupdate) {
-                    if(ProfilActivity.imageChange.getBmp() != null)
+                    if(EventDetails.edit_event_imagechange.getImage() != null)
                         creating_event.setHasimage(true);
                     else
                         creating_event.setHasimage(false);
 
-                    UpdateEvent updateEvent = new UpdateEvent(dialog.getOwnerActivity(), creating_event);
+                    UpdateEvent updateEvent = new UpdateEvent(dialog.getOwnerActivity(), creating_event, EventDetails.edit_event_imagechange.getImage());
                     updateEvent.execute();
-                    if(ProfilActivity.imageChange.getBmp() != null) {
-                        UploadImage uploadImage = new UploadImage(new ProgressDialog(dialog.getOwnerActivity()), creating_event, null, ProfilActivity.imageChange.getBmp());
-                        uploadImage.execute();
-                    }
                 } else {
-                    GetLocationInfo getLocationInfo = new GetLocationInfo(dialog, gate.getText().toString(), Integer.valueOf(postnr.getText().toString()), creating_event,
-                            ProfilActivity.imageChange.getImage(), true);
-                    getLocationInfo.execute();
+                    AddEvent addEvent = new AddEvent(dialog, creating_event, ProfilActivity.imageChange.getImage());
+                    addEvent.execute();
                 }
             }
         }

@@ -13,7 +13,7 @@ public class ApplicationLifecycleMgr implements Application.ActivityLifecycleCal
     }
 
     public static boolean isAppVisible() {
-        return visibleActivityCount > 0;
+        return visibleActivityCount > 1;
     }
 
     public void onActivityCreated(Activity activity, Bundle bundle) {

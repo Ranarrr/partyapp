@@ -9,8 +9,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.TextView;
 
 import com.partyspottr.appdir.R;
+import com.partyspottr.appdir.ui.MainActivity;
 
 public class nhie_help_fragment extends Fragment {
     @Override
@@ -24,6 +26,13 @@ public class nhie_help_fragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         Button nhie_help_continue = view.findViewById(R.id.nhie_help_continue);
+
+        TextView rules_title = view.findViewById(R.id.nhie_help_title);
+        TextView rules = view.findViewById(R.id.nhie_help_rules);
+
+        nhie_help_continue.setTypeface(MainActivity.typeface);
+        rules_title.setTypeface(MainActivity.typeface);
+        rules.setTypeface(MainActivity.typeface);
 
         nhie_help_continue.setOnClickListener(new View.OnClickListener() {
             @Override

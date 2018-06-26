@@ -23,6 +23,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
@@ -186,11 +188,17 @@ public class GuestListAdapter extends BaseAdapter {
                                                     event.getParticipants().set(Participant.getParticipantPos(event.getParticipants(), participant), new Participant(participant.getBrukernavn(),
                                                             participant.getCountry(), participant.getTown(), EventStilling.VERT));
 
-                                                    if(ref.child("participants").setValue(new Gson().toJson(event.getParticipants())).isComplete()) {
-                                                        Toast.makeText(thisActivity, "Made participant a host!", Toast.LENGTH_SHORT).show();
-                                                    } else {
-                                                        Toast.makeText(thisActivity, "Failed to make this participant a host.", Toast.LENGTH_SHORT).show();
-                                                    }
+                                                    ref.child("participants").setValue(new Gson().toJson(event.getParticipants())).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                        @Override
+                                                        public void onSuccess(Void aVoid) {
+                                                            Toast.makeText(thisActivity, "Made participant a host!", Toast.LENGTH_SHORT).show();
+                                                        }
+                                                    }).addOnFailureListener(new OnFailureListener() {
+                                                        @Override
+                                                        public void onFailure(@NonNull Exception e) {
+                                                            Toast.makeText(thisActivity, "Failed to make this participant a host.", Toast.LENGTH_SHORT).show();
+                                                        }
+                                                    });
                                                 }})
                                             .setNegativeButton("No", new DialogInterface.OnClickListener() {
                                                 @Override
@@ -212,6 +220,11 @@ public class GuestListAdapter extends BaseAdapter {
                                                         event.getParticipants().remove(Participant.getParticipantPos(event.getParticipants(), participant));
 
                                                         if(ref.child("participants").setValue(new Gson().toJson(event.getParticipants())).isComplete()) {
+                                                            ListView lv_guestlist = thisActivity.findViewById(R.id.lv_gjesteliste);
+
+                                                            if(lv_guestlist != null)
+                                                                lv_guestlist.setAdapter(new GuestListAdapter(thisActivity, eventId, event.getParticipants()));
+
                                                             Toast.makeText(thisActivity, "Removed participant!", Toast.LENGTH_SHORT).show();
                                                         } else {
                                                             Toast.makeText(thisActivity, "Failed to remove participant.", Toast.LENGTH_SHORT).show();

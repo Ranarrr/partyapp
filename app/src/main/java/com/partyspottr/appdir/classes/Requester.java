@@ -3,6 +3,7 @@ package com.partyspottr.appdir.classes;
 import com.google.gson.reflect.TypeToken;
 
 import java.lang.reflect.Type;
+import java.util.List;
 
 /**
  * Created by Ranarrr on 24-Feb-18.
@@ -38,6 +39,15 @@ public class Requester {
     public static Requester convertBrukerRequester(Bruker bruker) {
         return new Requester(bruker.getBrukernavn(), bruker.getFornavn(), bruker.getEtternavn(), bruker.getCountry(), bruker.getTown() == null ? "" : bruker.getTown(), bruker.isPremium(),
                 bruker.getDay_of_month(), bruker.getMonth(), bruker.getYear());
+    }
+
+    public static void removeRequest(List<Requester> requests, String brukernavn) {
+        for(int i = 0; i < requests.size(); i++) {
+            if(requests.get(i).getBrukernavn().equals(brukernavn)) {
+                requests.remove(i);
+                return;
+            }
+        }
     }
 
     public String getBrukernavn() {
