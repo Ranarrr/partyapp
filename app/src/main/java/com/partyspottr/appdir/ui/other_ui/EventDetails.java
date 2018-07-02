@@ -50,10 +50,13 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.storage.StorageMetadata;
 import com.google.firebase.storage.StorageReference;
 import com.partyspottr.appdir.R;
 import com.partyspottr.appdir.classes.Bruker;
@@ -68,6 +71,8 @@ import com.partyspottr.appdir.classes.networking.AddEventRequest;
 import com.partyspottr.appdir.classes.networking.AddParticipant;
 import com.partyspottr.appdir.classes.networking.GetLocationInfo;
 import com.partyspottr.appdir.enums.EventStilling;
+import com.partyspottr.appdir.enums.ReturnWhere;
+import com.partyspottr.appdir.ui.MainActivity;
 import com.partyspottr.appdir.ui.ProfilActivity;
 
 import java.beans.PropertyChangeEvent;
@@ -136,16 +141,17 @@ public class EventDetails extends AppCompatActivity {
         final TextView host = findViewById(R.id.details_host);
         final ImageButton more_options = findViewById(R.id.event_details_options);
         final TextView datotil = findViewById(R.id.details_dato_til);
-        final AppCompatSpinner kategorier = findViewById(R.id.kategori_spinner);
         final TextView beskrivelse = findViewById(R.id.beskrivelse_details);
         final SwipeRefreshLayout swipeRefreshLayout = findViewById(R.id.event_details_swipe);
         final TextView antall_deltakere = findViewById(R.id.details_antall_deltakere);
         final Toolbar toolbar = findViewById(R.id.toolbar5);
         final ImageView bilde = findViewById(R.id.imageView);
         toolbar.setNavigationIcon(getResources().getDrawable(R.drawable.left_arrow));
+        TextView kategori = findViewById(R.id.event_details_kategori);
 
-        if(kategorier != null)
-            kategorier.setAdapter(new ArrayAdapter<>(this, R.layout.spinner_mine, Arrays.asList("Narch", "Vors", "Party", "Concert", "Nightclub", "Birthday", "Festival")));
+        kategori.setTypeface(MainActivity.typeface);
+        String firstletter = event.getCategory().toString().substring(0, 1).toUpperCase();
+        kategori.setText(String.format(Locale.ENGLISH, "%s%s", firstletter, event.getCategory().toString().toLowerCase().substring(1, event.getCategory().toString().length())));
 
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
@@ -265,16 +271,42 @@ public class EventDetails extends AppCompatActivity {
                 }
 
                 if(event.isHasimage()) {
-                    if(Bruker.getEventImages().containsKey(event.getHostStr() + "_" + event.getNameofevent()))
-                        bilde.setImageBitmap(Bruker.getEventImages().get(event.getHostStr() + "_" + event.getNameofevent()));
-                    else {
-                        StorageReference picRef = ProfilActivity.storage.getReference().child(event.getHostStr() + "_" + event.getNameofevent());
+                    final StorageReference picRef = ProfilActivity.storage.getReference().child(event.getHostStr() + "_" + event.getNameofevent());
 
-                        picRef.getBytes(1024 * 1024).addOnSuccessListener(new OnSuccessListener<byte[]>() {
+                    if (Bruker.getEventImageSizeByName(event.getHostStr(), event.getNameofevent()) > 0) {
+                        picRef.getMetadata().addOnSuccessListener(new OnSuccessListener<StorageMetadata>() {
+                            @Override
+                            public void onSuccess(StorageMetadata storageMetadata) {
+                                if (storageMetadata.getSizeBytes() == Bruker.getEventImageSizeByName(event.getHostStr(), event.getNameofevent())) {
+                                    bilde.setImageBitmap(Bruker.getEventImages().get(event.getHostStr() + "_" + event.getNameofevent() + "_" + String.valueOf(storageMetadata.getSizeBytes())));
+                                } else {
+                                    picRef.getBytes(2048 * 2048).addOnSuccessListener(new OnSuccessListener<byte[]>() {
+                                        @Override
+                                        public void onSuccess(byte[] bytes) {
+                                            bilde.setImageBitmap(BitmapFactory.decodeByteArray(bytes, 0, bytes.length));
+                                            Bruker.RemoveEventImage(event.getHostStr(), event.getNameofevent());
+                                            Bruker.AddEventImage(event.getHostStr() + "_" + event.getNameofevent() + "_" + String.valueOf(bytes.length), BitmapFactory.decodeByteArray(bytes, 0, bytes.length));
+                                        }
+                                    }).addOnFailureListener(new OnFailureListener() {
+                                        @Override
+                                        public void onFailure(@NonNull Exception e) {
+                                            bilde.setImageDrawable(EventDetails.this.getResources().getDrawable(R.drawable.error_loading_image));
+                                        }
+                                    });
+                                }
+                            }
+                        }).addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                bilde.setImageBitmap(Bruker.getEventImages().get(event.getHostStr() + "_" + event.getNameofevent()));
+                            }
+                        });
+                    } else {
+                        picRef.getBytes(2048 * 2048).addOnSuccessListener(new OnSuccessListener<byte[]>() {
                             @Override
                             public void onSuccess(byte[] bytes) {
                                 bilde.setImageBitmap(BitmapFactory.decodeByteArray(bytes, 0, bytes.length));
-                                Bruker.AddEventImage(event.getHostStr() + "_" + event.getNameofevent(), BitmapFactory.decodeByteArray(bytes, 0, bytes.length));
+                                Bruker.AddEventImage(event.getHostStr() + "_" + event.getNameofevent() + "_" + String.valueOf(bytes.length), BitmapFactory.decodeByteArray(bytes, 0, bytes.length));
                             }
                         }).addOnFailureListener(new OnFailureListener() {
                             @Override
@@ -284,7 +316,7 @@ public class EventDetails extends AppCompatActivity {
                         });
                     }
                 } else
-                    bilde.setBackgroundColor(getResources().getColor(R.color.verylightgrey));
+                    bilde.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
 
                 swipeRefreshLayout.setRefreshing(false);
             }
@@ -328,9 +360,9 @@ public class EventDetails extends AppCompatActivity {
                                             // TODO : REMOVE EVENT
                                             if(event.isHasimage()) {
                                                 StorageReference asfafa = ProfilActivity.storage.getReference().child(event.getHostStr() + "_" + event.getNameofevent());
-                                                asfafa.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                asfafa.delete().addOnCompleteListener(new OnCompleteListener<Void>() {
                                                     @Override
-                                                    public void onSuccess(Void aVoid) {
+                                                    public void onComplete(@NonNull Task<Void> task) {
                                                         final DatabaseReference ref = FirebaseDatabase.getInstance().getReference("events").child(String.valueOf(event.getEventId()));
                                                         ref.removeValue();
                                                         Toast.makeText(EventDetails.this, "Deleted event!", Toast.LENGTH_SHORT).show();
@@ -417,64 +449,7 @@ public class EventDetails extends AppCompatActivity {
                                 return true;
 
                             case R.id.check_requests_event:
-                                final Dialog requestdialog = new Dialog(EventDetails.this);
-                                requestdialog.requestWindowFeature(1);
-                                requestdialog.setContentView(R.layout.foresporsler);
-                                requestdialog.setCancelable(true);
-                                requestdialog.setCanceledOnTouchOutside(true);
-
-                                Toolbar toolbarrequests = requestdialog.findViewById(R.id.toolbar_foresporsler);
-                                TextView toolbar_title = requestdialog.findViewById(R.id.foresporsel_TB_text);
-                                ImageButton search = requestdialog.findViewById(R.id.foresporsel_search);
-                                final EditText foresporsel_search = requestdialog.findViewById(R.id.foresporsel_search_field);
-                                final ListView foresporsel_list = requestdialog.findViewById(R.id.lv_foresporsler);
-
-                                foresporsel_list.setAdapter(new RequestAdapter(EventDetails.this, event.getRequests(), event.getEventId()));
-
-                                search.setOnClickListener(new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View v) {
-                                        foresporsel_search.setVisibility(foresporsel_search.getVisibility() == View.VISIBLE ? View.GONE : View.VISIBLE);
-
-                                        foresporsel_search.addTextChangedListener(new TextWatcher() {
-                                            @Override
-                                            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-
-                                            @Override
-                                            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                                                if(s.toString().isEmpty()) {
-                                                    foresporsel_list.setAdapter(new RequestAdapter(EventDetails.this, event.getRequests(), event.getEventId()));
-                                                    return;
-                                                }
-
-                                                List<Requester> list = new ArrayList<>();
-                                                for(Requester requester : event.getRequests()) {
-                                                    if(requester.getBrukernavn().contains(s)) {
-                                                        list.add(requester);
-                                                    }
-                                                }
-
-                                                foresporsel_list.setAdapter(new RequestAdapter(EventDetails.this, list, event.getEventId()));
-                                            }
-
-                                            @Override
-                                            public void afterTextChanged(Editable s) {}
-                                        });
-                                    }
-                                });
-
-                                toolbar_title.setTypeface(typeface);
-
-                                toolbarrequests.setNavigationIcon(getResources().getDrawable(R.drawable.left_arrow));
-
-                                toolbarrequests.setNavigationOnClickListener(new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View v) {
-                                        requestdialog.onBackPressed();
-                                    }
-                                });
-
-                                requestdialog.show();
+                                Utilities.showEventDetailRequests(EventDetails.this, event);
                                 return true;
 
                             case R.id.edit_event:
@@ -515,10 +490,21 @@ public class EventDetails extends AppCompatActivity {
                                 final TextView sluttidspunkt = edit_event.findViewById(R.id.legg_til_sluttidspunkt);
                                 sluttidspunkt.setPaintFlags(sluttidspunkt.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
                                 Toolbar create_event_toolbar = edit_event.findViewById(R.id.toolbar2);
+                                final AppCompatSpinner kategorier = edit_event.findViewById(R.id.kategori_spinner);
                                 final EditText postnr = edit_event.findViewById(R.id.create_postnr);
                                 final EditText gate = edit_event.findViewById(R.id.create_gate);
                                 final CheckBox vis_gjesteliste = edit_event.findViewById(R.id.vis_gjesteliste);
                                 final TextView by = edit_event.findViewById(R.id.by_textview);
+                                TextView title = edit_event.findViewById(R.id.create_event_title);
+
+                                title.setTypeface(MainActivity.typeface);
+                                title.setText("Edit event");
+
+                                if(kategorier != null) {
+                                    kategorier.setAdapter(new ArrayAdapter<>(EventDetails.this, R.layout.spinner_mine, Arrays.asList("Narch", "Vors", "Party", "Concert", "Nightclub", "Birthday", "Festival"))); // TODO : OVERSETTE
+
+                                    kategorier.setSelection(Utilities.getCategoryFromString(event.getCategory().toString()).ordinal());
+                                }
 
                                 final Handler textchangedHandler = new Handler();
 
@@ -579,26 +565,18 @@ public class EventDetails extends AppCompatActivity {
                                     @Override
                                     public void onClick(View v) {
                                         if(ActivityCompat.checkSelfPermission(EventDetails.this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-                                            Intent intent = new Intent();
-                                            intent.setType("image/*");
-                                            intent.setAction(Intent.ACTION_GET_CONTENT);
-                                            startActivityForResult(Intent.createChooser(intent, "Select Picture"), Utilities.SELECT_IMAGE_CODE);
-                                        } else {
+                                            Intent intent = new Intent(EventDetails.this, CropImage.class);
+                                            intent.putExtra("returnwhere", ReturnWhere.EDIT_EVENT.ordinal());
+                                            startActivity(intent);
+                                        } else
                                             ActivityCompat.requestPermissions(EventDetails.this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, Utilities.READ_EXTERNAL_STORAGE_CODE);
-                                        }
                                     }
                                 });
 
                                 edit_event_imagechange.addChangeListener(new PropertyChangeListener() {
                                     @Override
                                     public void propertyChange(PropertyChangeEvent evt) {
-                                        try {
-                                            legg_til_bilde.setImageBitmap(Bitmap.createScaledBitmap(MediaStore.Images.Media.getBitmap(getContentResolver(), edit_event_imagechange.getUri()), (int) getResources().getDimension(R.dimen._150sdp), (int) getResources().getDimension(R.dimen._75sdp), true));
-                                            legg_til_bilde.setScaleX(1.0f);
-                                            legg_til_bilde.setScaleY(1.0f);
-                                        } catch (IOException e) {
-                                            e.printStackTrace();
-                                        }
+                                        legg_til_bilde.setImageBitmap(edit_event_imagechange.getBmp());
                                     }
                                 });
 
@@ -848,16 +826,42 @@ public class EventDetails extends AppCompatActivity {
         });
 
         if(event.isHasimage()) {
-            if(Bruker.getEventImages().containsKey(event.getHostStr() + "_" + event.getNameofevent()))
-                bilde.setImageBitmap(Bruker.getEventImages().get(event.getHostStr() + "_" + event.getNameofevent()));
-            else {
-                StorageReference picRef = ProfilActivity.storage.getReference().child(event.getHostStr() + "_" + event.getNameofevent());
+            final StorageReference picRef = ProfilActivity.storage.getReference().child(event.getHostStr() + "_" + event.getNameofevent());
 
-                picRef.getBytes(1024 * 1024).addOnSuccessListener(new OnSuccessListener<byte[]>() {
+            if(Bruker.getEventImageSizeByName(event.getHostStr(), event.getNameofevent()) > 0) {
+                picRef.getMetadata().addOnSuccessListener(new OnSuccessListener<StorageMetadata>() {
+                    @Override
+                    public void onSuccess(StorageMetadata storageMetadata) {
+                        if (storageMetadata.getSizeBytes() == Bruker.getEventImageSizeByName(event.getHostStr(), event.getNameofevent())) {
+                            bilde.setImageBitmap(Bruker.getEventImages().get(event.getHostStr() + "_" + event.getNameofevent() + "_" + String.valueOf(storageMetadata.getSizeBytes())));
+                        } else {
+                            picRef.getBytes(2048 * 2048).addOnSuccessListener(new OnSuccessListener<byte[]>() {
+                                @Override
+                                public void onSuccess(byte[] bytes) {
+                                    bilde.setImageBitmap(BitmapFactory.decodeByteArray(bytes, 0, bytes.length));
+                                    Bruker.RemoveEventImage(event.getHostStr(), event.getNameofevent());
+                                    Bruker.AddEventImage(event.getHostStr() + "_" + event.getNameofevent() + "_" + String.valueOf(bytes.length), BitmapFactory.decodeByteArray(bytes, 0, bytes.length));
+                                }
+                            }).addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    bilde.setImageDrawable(EventDetails.this.getResources().getDrawable(R.drawable.error_loading_image));
+                                }
+                            });
+                        }
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        bilde.setImageBitmap(Bruker.getEventImages().get(event.getHostStr() + "_" + event.getNameofevent()));
+                    }
+                });
+            } else {
+                picRef.getBytes(2048 * 2048).addOnSuccessListener(new OnSuccessListener<byte[]>() {
                     @Override
                     public void onSuccess(byte[] bytes) {
                         bilde.setImageBitmap(BitmapFactory.decodeByteArray(bytes, 0, bytes.length));
-                        Bruker.AddEventImage(event.getHostStr() + "_" + event.getNameofevent(), BitmapFactory.decodeByteArray(bytes, 0, bytes.length));
+                        Bruker.AddEventImage(event.getHostStr() + "_" + event.getNameofevent() + "_" + String.valueOf(bytes.length), BitmapFactory.decodeByteArray(bytes, 0, bytes.length));
                     }
                 }).addOnFailureListener(new OnFailureListener() {
                     @Override
@@ -1005,9 +1009,18 @@ public class EventDetails extends AppCompatActivity {
 
         if(event.isBrukerInList(Bruker.get().getBrukernavn()) && !event.getHostStr().equals(Bruker.get().getBrukernavn())) {
             // BRUKER HAS ALREADY JOINED
+            details_deltaforesprsler.setCompoundDrawablesWithIntrinsicBounds(R.drawable.check_full, 0, 0, 0);
+            details_deltaforesprsler.setText("Joined!");
         } else if(event.getHostStr().equals(Bruker.get().getBrukernavn())) {
             // BRUKER IS HOST
-            // SHOW FORESPORSLER
+            details_deltaforesprsler.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
+            details_deltaforesprsler.setText("You are the host.");
+            details_deltaforesprsler.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Utilities.showEventDetailRequests(EventDetails.this, event);
+                }
+            });
         } else if(event.isBrukerRequesting(Bruker.get().getBrukernavn())) {
             // BRUKER IS REQUESTING
             details_deltaforesprsler.setOnClickListener(new View.OnClickListener() {
@@ -1041,36 +1054,12 @@ public class EventDetails extends AppCompatActivity {
                                 .show();
                     } else {
                         // JOIN
-
+                        AddParticipant addParticipant = new AddParticipant(EventDetails.this, event.getEventId(), null, event.getParticipants());
+                        addParticipant.execute();
                     }
                 }
             });
         }
-
-        details_deltaforesprsler.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // TODO : FIX JOINING AND REQUESTING!
-
-                if(event.getHostStr().equals(Bruker.get().getBrukernavn())) {
-
-                } else {
-                    if(event.isPrivateEvent()) {
-                        if(!event.isBrukerRequesting(Bruker.get().getBrukernavn()) && !event.isBrukerInList(Bruker.get().getBrukernavn())) {
-
-                            AddEventRequest addRequest = new AddEventRequest(EventDetails.this, event.getEventId());
-                            addRequest.execute();
-                        } else
-                            Toast.makeText(EventDetails.this, "You have already requested to join! Wait for the host to accept or deny you.", Toast.LENGTH_LONG).show();
-                    } else {
-                        if(!event.isBrukerInList(Bruker.get().getBrukernavn())) {
-                            AddParticipant addParticipant = new AddParticipant(EventDetails.this, event.getEventId(), null, event.getParticipants());
-                            addParticipant.execute();
-                        }
-                    }
-                }
-            }
-        });
 
         if(event.getHostStr().equals(Bruker.get().getBrukernavn()))
             host.setText(String.format(Locale.ENGLISH, "Host: %s (deg)", event.getHostStr()));

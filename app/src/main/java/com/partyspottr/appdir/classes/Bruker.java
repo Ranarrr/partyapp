@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.widget.ListView;
@@ -28,6 +29,7 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.BiConsumer;
 
 /**
  * Created by Ranarrr on 26-Jan-18.
@@ -90,6 +92,8 @@ public class Bruker {
     private static Bruker lokalBruker;
     private Chauffeur chauffeur;
 
+    private Bitmap profilepic;
+
     private static Map<String, Bitmap> eventImages;
 
     public DatabaseReference eventsref;
@@ -120,12 +124,27 @@ public class Bruker {
         eventImages.put(key, value);
     }
 
+    public static void RemoveEventImage(String hoststr, String eventname) {
+        for(String key : eventImages.keySet()) {
+            if(key.contains(hoststr + "_" + eventname)) {
+                eventImages.remove(key);
+                break;
+            }
+        }
+    }
+
     public static Map<String, Bitmap> getEventImages() {
         return eventImages;
     }
 
-    public static void setEventImages(Map<String, Bitmap> eventImages) {
-        Bruker.eventImages = eventImages;
+    public static long getEventImageSizeByName(String hoststr, String eventname) {
+        for(String key : eventImages.keySet()) {
+            if(key.contains(hoststr + "_" + eventname)) {
+                return Long.valueOf(key.split("_")[2]);
+            }
+        }
+
+        return 0;
     }
 
     public void Init(Context c) {
@@ -849,5 +868,13 @@ public class Bruker {
 
     public void setEventIdCounter(long eventIdCounter) {
         this.eventIdCounter = eventIdCounter;
+    }
+
+    public Bitmap getProfilepic() {
+        return profilepic;
+    }
+
+    public void setProfilepic(Bitmap profilepic) {
+        this.profilepic = profilepic;
     }
 }

@@ -18,16 +18,14 @@ import com.partyspottr.appdir.R;
 import com.partyspottr.appdir.classes.Bruker;
 import com.partyspottr.appdir.classes.Utilities;
 import com.partyspottr.appdir.classes.adapters.ImageAdapter;
-import com.partyspottr.appdir.enums.ReturnWhere;
-import com.partyspottr.appdir.ui.ProfilActivity;
+import com.partyspottr.appdir.ui.mainfragments.profilfragment;
 import com.takusemba.cropme.CropView;
 import com.takusemba.cropme.OnCropListener;
 
 import java.io.File;
 
-public class CropImage extends AppCompatActivity {
+public class CropProfileImg extends AppCompatActivity {
     private String selectedUri = null;
-    private int returnwhere;
 
     @Override
     protected void onStop() {
@@ -51,22 +49,12 @@ public class CropImage extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.crop_image);
+        setContentView(R.layout.crop_profile_img);
 
-        Bundle extras = getIntent().getExtras();
-        if(extras == null) {
-            return;
-        } else {
-            returnwhere = extras.getInt("returnwhere");
-
-            if(returnwhere == -1)
-                return;
-        }
-
-        GridView gridView = findViewById(R.id.gridview);
-        final CropView cropView = findViewById(R.id.cropView);
-        ImageButton delete = findViewById(R.id.crop_img_delete);
-        ImageButton accept = findViewById(R.id.crop_img_accept);
+        GridView gridView = findViewById(R.id.gridview_profile);
+        final CropView cropView = findViewById(R.id.cropView_profile);
+        ImageButton delete = findViewById(R.id.crop_profile_img_delete);
+        ImageButton accept = findViewById(R.id.crop_profile_img_accept);
 
         delete.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -89,39 +77,25 @@ public class CropImage extends AppCompatActivity {
                         @Override
                         public void onSuccess(Bitmap bitmap) {
                             if(bitmap.getByteCount() > (2048 * 2048))
-                                Toast.makeText(CropImage.this, "This image is too big! Max 4Mb.", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(CropProfileImg.this, "This image is too big! Max 4Mb.", Toast.LENGTH_SHORT).show();
                             else {
-                                if(returnwhere == ReturnWhere.LEGG_TIL_EVENT.ordinal()) {
-                                    ProfilActivity.imageChange.setBmp(bitmap);
-                                    ProfilActivity.imageChange.setUri(Uri.parse(selectedUri));
-                                    ProfilActivity.imageChange.setImage(new File(selectedUri));
-                                } else {
-                                    EventDetails.edit_event_imagechange.setBmp(bitmap);
-                                    EventDetails.edit_event_imagechange.setUri(Uri.parse(selectedUri));
-                                    EventDetails.edit_event_imagechange.setImage(new File(selectedUri));
-                                }
-
+                                profilfragment.profile_imagechange.setUri(Uri.parse(selectedUri));
+                                profilfragment.profile_imagechange.setBmp(bitmap);
+                                profilfragment.profile_imagechange.setImage(new File(selectedUri));
                                 onBackPressed();
                             }
                         }
 
                         @Override
                         public void onFailure() {
-                            Toast.makeText(CropImage.this, "Failed to crop this image!", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(CropProfileImg.this, "Failed to crop this image!", Toast.LENGTH_SHORT).show();
                         }
                     });
                 } else {
                     // TODO : CHECK IF CORRECT
-                    if(returnwhere == ReturnWhere.LEGG_TIL_EVENT.ordinal()) {
-                        ProfilActivity.imageChange.setBmp(null);
-                        ProfilActivity.imageChange.setImage(null);
-                        ProfilActivity.imageChange.setUri(null);
-                    } else {
-                        EventDetails.edit_event_imagechange.setBmp(null);
-                        EventDetails.edit_event_imagechange.setImage(null);
-                        EventDetails.edit_event_imagechange.setUri(null);
-                    }
-
+                    profilfragment.profile_imagechange.setBmp(null);
+                    profilfragment.profile_imagechange.setImage(null);
+                    profilfragment.profile_imagechange.setUri(null);
                     onBackPressed();
                 }
             }
@@ -142,7 +116,7 @@ public class CropImage extends AppCompatActivity {
             cursor.close();
 
             if(urls.length == 0) {
-                TextView empty_list = findViewById(R.id.crop_img_empty_list);
+                TextView empty_list = findViewById(R.id.crop_profile_img_empty_list);
                 empty_list.setVisibility(View.VISIBLE);
             } else {
                 gridView.setAdapter(new ImageAdapter(this, urls));

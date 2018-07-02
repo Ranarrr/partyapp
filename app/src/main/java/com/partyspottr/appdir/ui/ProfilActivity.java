@@ -47,9 +47,12 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 import com.partyspottr.appdir.R;
 import com.partyspottr.appdir.classes.Bruker;
 import com.partyspottr.appdir.classes.Event;
@@ -57,6 +60,7 @@ import com.partyspottr.appdir.classes.ImageChange;
 import com.partyspottr.appdir.classes.OnSwipeGestureListener;
 import com.partyspottr.appdir.classes.Utilities;
 import com.partyspottr.appdir.classes.networking.GetLocationInfo;
+import com.partyspottr.appdir.enums.ReturnWhere;
 import com.partyspottr.appdir.ui.mainfragments.bilfragment;
 import com.partyspottr.appdir.ui.mainfragments.chatchildfragments.mine_chats_fragment;
 import com.partyspottr.appdir.ui.mainfragments.chatchildfragments.venner_fragment;
@@ -182,6 +186,18 @@ public class ProfilActivity extends AppCompatActivity {
 
         storage = FirebaseStorage.getInstance();
 
+        storage.getReference().child(Bruker.get().getBrukernavn()).getBytes(2048 * 2048).addOnSuccessListener(new OnSuccessListener<byte[]>() {
+            @Override
+            public void onSuccess(byte[] bytes) {
+                Bruker.get().setProfilepic(BitmapFactory.decodeByteArray(bytes, 0, bytes.length));
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Bruker.get().setProfilepic(null);
+            }
+        });
+
         Utilities.startChatListener(this);
 
         if(!Utilities.hasNetwork(getApplicationContext())) {
@@ -212,8 +228,6 @@ public class ProfilActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
         ctd.cancel();
-
-        // TODO : possible fix for when choosing picture?
 
         Utilities.setupOnStop();
 
@@ -289,50 +303,22 @@ public class ProfilActivity extends AppCompatActivity {
 
     public void onBilMenyClick(View v) {
         replaceFragment(1);
-        ((TextView) findViewById(R.id.title_toolbar)).setText("Ride");
-        ImageButton search_events = findViewById(R.id.search_events);
-        search_events.setImageDrawable(getResources().getDrawable(R.drawable.search));
-
-        search_events.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-            }
-        });
     }
 
     public void onKalenderMenyClick(View v) {
         replaceFragment(0);
-        ((TextView) findViewById(R.id.title_toolbar)).setText(getResources().getString(R.string.arrangementer));
-        findViewById(R.id.search_events).setVisibility(View.VISIBLE);
-        ImageButton search_events = findViewById(R.id.search_events);
-        search_events.setImageDrawable(getResources().getDrawable(R.drawable.search));
 
         mine_eventer_fragment.once = false;
-
-        findViewById(R.id.add_event).setVisibility(View.VISIBLE);
     }
 
     public void onChatMenyClick(View v) {
         replaceFragment(3);
-        ImageButton search_chat = findViewById(R.id.search_events);
-
-        if(search_chat == null)
-            return;
 
         venner_fragment.once = false;
-
-        search_chat.setImageDrawable(getResources().getDrawable(R.drawable.search));
-
-        ((TextView) findViewById(R.id.title_toolbar)).setText("Messages"); // TODO : Translation
     }
 
     public void onProfilMenyClick(View v) {
         replaceFragment(2);
-        ((TextView) findViewById(R.id.title_toolbar)).setText(Bruker.get().getBrukernavn());
-
-        findViewById(R.id.search_events).setVisibility(View.INVISIBLE);
-        findViewById(R.id.add_event).setVisibility(View.INVISIBLE);
     }
 
     public void onAlleEventerClick(View v) {
@@ -471,6 +457,25 @@ public class ProfilActivity extends AppCompatActivity {
         final EditText postnr = dialog.findViewById(R.id.create_postnr);
         final EditText gate = dialog.findViewById(R.id.create_gate);
         RelativeLayout content = dialog.findViewById(R.id.legg_til_event_content);
+        TextView title = dialog.findViewById(R.id.create_event_title);
+
+        title.setTypeface(MainActivity.typeface);
+        til_label.setTypeface(MainActivity.typeface);
+        button.setTypeface(MainActivity.typeface);
+        dato.setTypeface(MainActivity.typeface);
+        time.setTypeface(MainActivity.typeface);
+        datotil.setTypeface(MainActivity.typeface);
+        timetil.setTypeface(MainActivity.typeface);
+        alle_deltakere.setTypeface(MainActivity.typeface);
+        fjern_sluttidspunkt.setTypeface(MainActivity.typeface);
+        vis_adresse.setTypeface(MainActivity.typeface);
+        maks_deltakere.setTypeface(MainActivity.typeface);
+        titletext.setTypeface(MainActivity.typeface);
+        beskrivelse.setTypeface(MainActivity.typeface);
+        aldersgrense.setTypeface(MainActivity.typeface);
+        sluttidspunkt.setTypeface(MainActivity.typeface);
+        postnr.setTypeface(MainActivity.typeface);
+        gate.setTypeface(MainActivity.typeface);
 
         //noinspection AndroidLintClickableViewAccessibility
         content.setOnTouchListener(new OnSwipeGestureListener(this) {
@@ -542,27 +547,17 @@ public class ProfilActivity extends AppCompatActivity {
             public void onClick(View v) {
                 if(ActivityCompat.checkSelfPermission(ProfilActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
                     Intent intent = new Intent(ProfilActivity.this, CropImage.class);
+                    intent.putExtra("returnwhere", ReturnWhere.LEGG_TIL_EVENT.ordinal());
                     startActivity(intent);
-                    /*Intent intent = new Intent();
-                    intent.setType("image/*");
-                    intent.setAction(Intent.ACTION_GET_CONTENT);
-                    startActivityForResult(Intent.createChooser(intent, "Select Picture"), Utilities.SELECT_IMAGE_CODE);*/
-                } else {
+                } else
                     ActivityCompat.requestPermissions(ProfilActivity.this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, Utilities.READ_EXTERNAL_STORAGE_CODE);
-                }
             }
         });
 
         imageChange.addChangeListener(new PropertyChangeListener() {
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
-                try {
-                    legg_til_bilde.setImageBitmap(Bitmap.createScaledBitmap(MediaStore.Images.Media.getBitmap(getContentResolver(), imageChange.getUri()), (int) getResources().getDimension(R.dimen._150sdp), (int) getResources().getDimension(R.dimen._75sdp), true));
-                    legg_til_bilde.setScaleX(1.0f);
-                    legg_til_bilde.setScaleY(1.0f);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                    legg_til_bilde.setImageBitmap(imageChange.getBmp());
             }
         });
 
@@ -783,27 +778,5 @@ public class ProfilActivity extends AppCompatActivity {
         }
 
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if(requestCode == Utilities.SELECT_IMAGE_CODE && resultCode == RESULT_OK && data.getData() != null) {
-            Uri image = data.getData();
-
-            /*String str = Utilities.getPathFromUri(this, image);
-
-            if(str != null) {
-                File file = new File(str);
-                if(!(file.length() > (1024 * 1024))) {
-                    imageChange.setUri(image);
-                    imageChange.setImage(file);
-                } else {
-                    Toast.makeText(this, "This image is to big! Max 1 Mb.", Toast.LENGTH_SHORT).show();
-                }
-            } else
-                Toast.makeText(this, "Failed to get image path!", Toast.LENGTH_SHORT).show();*/
-        }
     }
 }

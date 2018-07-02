@@ -2,6 +2,7 @@ package com.partyspottr.appdir.ui.mainfragments;
 
 import android.animation.ObjectAnimator;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
@@ -11,7 +12,9 @@ import android.support.v7.widget.AppCompatButton;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.partyspottr.appdir.R;
 import com.partyspottr.appdir.ui.mainfragments.bilchildfragments.finn_bil_fragment;
@@ -27,16 +30,23 @@ import static com.partyspottr.appdir.ui.MainActivity.typeface;
 
 public class bilfragment extends Fragment {
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.bilfragment, container, false);
     }
 
     @Override
-    public void onViewCreated(final View view, Bundle savedInstanceState) {
-        AppCompatButton finn_bil_btn = getActivity().findViewById(R.id.finn_bil_btn);
-        AppCompatButton min_bil_btn = getActivity().findViewById(R.id.min_bil_btn);
+    public void onViewCreated(@NonNull final View view, Bundle savedInstanceState) {
+        AppCompatButton finn_bil_btn = view.findViewById(R.id.finn_bil_btn);
+        AppCompatButton min_bil_btn = view.findViewById(R.id.min_bil_btn);
+
+        if(getActivity() == null)
+            return;
+
+        ((TextView) getActivity().findViewById(R.id.title_toolbar)).setText("Ride");
+        ImageButton search_events = getActivity().findViewById(R.id.search_events);
+        search_events.setImageDrawable(getResources().getDrawable(R.drawable.search));
 
         finn_bil_btn.setTypeface(typeface);
         min_bil_btn.setTypeface(typeface);

@@ -5,10 +5,12 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
@@ -20,19 +22,31 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.storage.StorageMetadata;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 import com.partyspottr.appdir.R;
 import com.partyspottr.appdir.classes.Bruker;
 import com.partyspottr.appdir.classes.ImageChange;
 import com.partyspottr.appdir.classes.Utilities;
 import com.partyspottr.appdir.classes.adapters.CountryCodes;
+import com.partyspottr.appdir.classes.application.GlideApp;
 import com.partyspottr.appdir.classes.networking.LogoutUser;
+import com.partyspottr.appdir.enums.ReturnWhere;
 import com.partyspottr.appdir.ui.MainActivity;
+import com.partyspottr.appdir.ui.ProfilActivity;
+import com.partyspottr.appdir.ui.other_ui.CropImage;
+import com.partyspottr.appdir.ui.other_ui.CropProfileImg;
 import com.partyspottr.appdir.ui.other_ui.Drikkeleker;
 import com.partyspottr.appdir.ui.other_ui.SettingActivity;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.GregorianCalendar;
@@ -47,27 +61,35 @@ import static android.app.Activity.RESULT_OK;
  */
 
 public class profilfragment extends Fragment {
-    private ImageChange imageChange = new ImageChange();
+    public static ImageChange profile_imagechange = new ImageChange();
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.profilfragment, container, false);
     }
 
     @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         TextView fornavn_etternavn = view.findViewById(R.id.fornavn_etternavn);
         TextView by = view.findViewById(R.id.profil_by);
         ImageView countryflag = view.findViewById(R.id.countryflag_profil);
         TextView oneliner = view.findViewById(R.id.profil_oneliner);
-        TextView title = getActivity().findViewById(R.id.title_toolbar);
         Button instillinger = view.findViewById(R.id.profil_instillinger);
         final Button logout = view.findViewById(R.id.log_out_btn);
         final ImageButton profilbilde = view.findViewById(R.id.profilbilde);
         Button drikkeleker = view.findViewById(R.id.profil_drikkeleker);
         Button hjelp = view.findViewById(R.id.profil_hjelp);
         Button oppgrader = view.findViewById(R.id.profil_premium);
+
+        if(getActivity() == null)
+            return;
+
+        ((TextView) getActivity().findViewById(R.id.title_toolbar)).setText(Bruker.get().getBrukernavn());
+        getActivity().findViewById(R.id.search_events).setVisibility(View.INVISIBLE);
+        getActivity().findViewById(R.id.add_event).setVisibility(View.INVISIBLE);
+
+        TextView title = getActivity().findViewById(R.id.title_toolbar);
 
         drikkeleker.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -77,29 +99,61 @@ public class profilfragment extends Fragment {
             }
         });
 
+        if(Bruker.get().getProfilepic() == null) {
+            StorageReference ref = ProfilActivity.storage.getReference().child(Bruker.get().getBrukernavn());
+            ref.getBytes(2048 * 2048).addOnSuccessListener(new OnSuccessListener<byte[]>() {
+                @Override
+                public void onSuccess(byte[] bytes) {
+                    profilbilde.setImageBitmap(BitmapFactory.decodeByteArray(bytes, 0, bytes.length));
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    profilbilde.setImageDrawable(getResources().getDrawable(R.drawable.mannmeny));
+                }
+            });
+        } else
+            profilbilde.setImageBitmap(Bruker.get().getProfilepic());
+
         profilbilde.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if(ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-                    Intent intent = new Intent();
-                    intent.setType("image/*");
-                    intent.setAction(Intent.ACTION_GET_CONTENT);
-                    startActivityForResult(Intent.createChooser(intent, "Select Picture"), 1003);
-                } else {
+                    Intent intent = new Intent(getActivity(), CropProfileImg.class);
+                    startActivity(intent);
+                } else
                     ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, Utilities.READ_EXTERNAL_STORAGE_CODE);
-                }
             }
         });
 
-        imageChange.addChangeListener(new PropertyChangeListener() {
+        profile_imagechange.addChangeListener(new PropertyChangeListener() {
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
-                try {
-                    profilbilde.setImageBitmap(Bitmap.createScaledBitmap(MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), imageChange.getUri()),
-                            (int) getResources().getDimension(R.dimen._150sdp), (int) getResources().getDimension(R.dimen._75sdp), true));
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                profilbilde.setImageBitmap(profile_imagechange.getBmp());
+                Bruker.get().setProfilepic(profile_imagechange.getBmp());
+                Bruker.get().LagreBruker();
+
+                StorageMetadata metadata = new StorageMetadata.Builder()
+                        .setContentType("image/jpg")
+                        .build();
+
+                ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                profile_imagechange.getBmp().compress(Bitmap.CompressFormat.PNG, 100, stream);
+                UploadTask uploadTask = ProfilActivity.storage.getReference().child(Bruker.get().getBrukernavn()).putBytes(stream.toByteArray(), metadata);
+
+                uploadTask.addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        if(getActivity() != null)
+                            Toast.makeText(getActivity(), "Failed to change profile picture.", Toast.LENGTH_SHORT).show();
+                    }
+                }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                    @Override
+                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                        if(getActivity() != null)
+                            Toast.makeText(getActivity(), "Changed profile picture!", Toast.LENGTH_SHORT).show();
+                    }
+                });
             }
         });
 
@@ -177,20 +231,6 @@ public class profilfragment extends Fragment {
             } else {
                 countryflag.setImageResource(R.drawable.dominican_republic);
             }
-        }
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if(requestCode == Utilities.SELECT_PROFILE_IMAGE_CODE && resultCode == RESULT_OK && data.getData() != null) {
-            Uri image = data.getData();
-
-            imageChange.setUri(image);
-            String str = Utilities.getPathFromUri(getContext(), image);
-            if(str != null)
-                imageChange.setImage(new File(str));
         }
     }
 }

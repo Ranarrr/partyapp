@@ -2,6 +2,7 @@ package com.partyspottr.appdir.ui.mainfragments;
 
 import android.animation.ObjectAnimator;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
@@ -13,6 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.partyspottr.appdir.R;
 import com.partyspottr.appdir.classes.Utilities;
@@ -33,16 +35,25 @@ public class eventfragment extends Fragment {
     private boolean firsttimepagechanged;
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.eventfragment, container, false);
     }
 
     @Override
-    public void onViewCreated(final View view, Bundle savedInstanceState) {
-        AppCompatButton alle_eventer_btn = getActivity().findViewById(R.id.alle_eventer_btn);
-        AppCompatButton mine_eventer_btn = getActivity().findViewById(R.id.mine_eventer_btn);
-        AppCompatButton mitt_arkiv_btn = getActivity().findViewById(R.id.arkiv_btn);
+    public void onViewCreated(@NonNull final View view, Bundle savedInstanceState) {
+        AppCompatButton alle_eventer_btn = view.findViewById(R.id.alle_eventer_btn);
+        AppCompatButton mine_eventer_btn = view.findViewById(R.id.mine_eventer_btn);
+        AppCompatButton mitt_arkiv_btn = view.findViewById(R.id.arkiv_btn);
+
+        if(getActivity() == null)
+            return;
+
+        ((TextView) getActivity().findViewById(R.id.title_toolbar)).setText(getResources().getString(R.string.arrangementer));
+        ImageButton search_events = getActivity().findViewById(R.id.search_events);
+        search_events.setVisibility(View.VISIBLE);
+        search_events.setImageDrawable(getResources().getDrawable(R.drawable.search));
+        getActivity().findViewById(R.id.add_event).setVisibility(View.VISIBLE);
 
         mine_eventer_btn.setTypeface(typeface);
         mitt_arkiv_btn.setTypeface(typeface);

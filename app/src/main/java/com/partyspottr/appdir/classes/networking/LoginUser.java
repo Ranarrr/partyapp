@@ -100,6 +100,7 @@ public class LoginUser extends AsyncTask<Void, Void, Integer> {
 
                                         Bruker.get().GetAndParseBrukerInfo();
                                         Bruker.get().GetAndParseChauffeurs();
+                                        Bruker.get().GetAndParseEvents(progressDialog.getOwnerActivity());
 
                                         if(Bruker.get().isHascar())
                                             Bruker.get().GetAndParseBrukerChauffeur();

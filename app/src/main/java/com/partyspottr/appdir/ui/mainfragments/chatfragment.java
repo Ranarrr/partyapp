@@ -2,6 +2,7 @@ package com.partyspottr.appdir.ui.mainfragments;
 
 import android.animation.ObjectAnimator;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -14,6 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.partyspottr.appdir.R;
 import com.partyspottr.appdir.classes.Utilities;
@@ -31,17 +33,24 @@ import static com.partyspottr.appdir.ui.MainActivity.typeface;
 
 public class chatfragment extends Fragment {
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         return inflater.inflate(R.layout.chatfragment, container, false);
     }
 
     @Override
-    public void onViewCreated(final View view, @Nullable Bundle savedInstanceState) {
+    public void onViewCreated(@NonNull final View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        final AppCompatButton mine_chats = getActivity().findViewById(R.id.mine_chats);
+        final AppCompatButton mine_chats = view.findViewById(R.id.mine_chats);
+        final AppCompatButton venner = view.findViewById(R.id.venner);
 
-        final AppCompatButton venner = getActivity().findViewById(R.id.venner);
+        if(getActivity() == null)
+            return;
+
+        ImageButton search_chat = getActivity().findViewById(R.id.search_events);
+        search_chat.setImageDrawable(getResources().getDrawable(R.drawable.search));
+
+        ((TextView) getActivity().findViewById(R.id.title_toolbar)).setText("Messages"); // TODO : Translation
 
         venner.setTypeface(typeface);
         mine_chats.setTypeface(typeface);

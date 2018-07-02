@@ -2,6 +2,7 @@ package com.partyspottr.appdir.classes.networking;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.widget.Toast;
@@ -25,9 +26,9 @@ import java.util.List;
 public class UpdateEvent extends AsyncTask<Void, Void, Boolean> {
     ProgressDialog progressDialog;
     private Event eventToUpdate;
-    private File bitmap;
+    private Bitmap bitmap;
 
-    public UpdateEvent(Activity activity, Event event, File bmp) {
+    public UpdateEvent(Activity activity, Event event, Bitmap bmp) {
         progressDialog = new ProgressDialog(activity);
         progressDialog.setOwnerActivity(activity);
 
@@ -90,11 +91,10 @@ public class UpdateEvent extends AsyncTask<Void, Void, Boolean> {
             Toast.makeText(progressDialog.getContext(), "Updated event!", Toast.LENGTH_SHORT).show();
 
             if(bitmap != null) {
-                UploadImage uploadImage = new UploadImage(progressDialog, eventToUpdate, bitmap, null);
+                UploadImage uploadImage = new UploadImage(progressDialog, eventToUpdate, null, bitmap);
                 uploadImage.execute();
             }
-        } else {
+        } else
             Toast.makeText(progressDialog.getContext(), "Failed to update event.", Toast.LENGTH_SHORT).show();
-        }
     }
 }

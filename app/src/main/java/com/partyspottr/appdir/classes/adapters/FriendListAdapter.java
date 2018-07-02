@@ -10,6 +10,7 @@ import android.widget.TextView;
 
 import com.partyspottr.appdir.R;
 import com.partyspottr.appdir.classes.Friend;
+import com.partyspottr.appdir.ui.MainActivity;
 import com.partyspottr.appdir.ui.other_ui.Profile;
 
 import java.util.ArrayList;
@@ -65,6 +66,9 @@ public class FriendListAdapter extends BaseAdapter {
         if(convertView != null) {
             TextView bruker = convertView.findViewById(R.id.venn_brukernavn);
             TextView fullt_navn = convertView.findViewById(R.id.venn_fullt_navn);
+
+            bruker.setTypeface(MainActivity.typeface);
+            fullt_navn.setTypeface(MainActivity.typeface);
 
             bruker.setText(friend.getBrukernavn());
             fullt_navn.setText(String.format(Locale.ENGLISH, "%s %s", friend.getFornavn(), friend.getEtternavn()));

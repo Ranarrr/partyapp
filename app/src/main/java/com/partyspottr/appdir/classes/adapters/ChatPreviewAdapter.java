@@ -24,8 +24,6 @@ import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Locale;
 
-import static com.partyspottr.appdir.ui.MainActivity.typeface;
-
 /**
  * Created by Ranarrr on 20-Mar-18.
  *
@@ -72,7 +70,7 @@ public class ChatPreviewAdapter extends BaseAdapter {
             if(layoutInflater != null) {
                 convertView = layoutInflater.inflate(R.layout.empty_eventlist, parent, false);
                 TextView tom_liste = convertView.findViewById(R.id.empty_list);
-                tom_liste.setTypeface(typeface);
+                tom_liste.setTypeface(MainActivity.typeface);
                 tom_liste.setText("You have no recent chats."); // TODO : Translation
                 return convertView;
             }

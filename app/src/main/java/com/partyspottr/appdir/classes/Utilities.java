@@ -6,6 +6,7 @@ import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -32,6 +33,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.widget.AppCompatSpinner;
+import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
@@ -53,6 +55,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.StorageReference;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.partyspottr.appdir.BuildConfig;
@@ -60,6 +63,7 @@ import com.partyspottr.appdir.R;
 import com.partyspottr.appdir.classes.adapters.ChatPreviewAdapter;
 import com.partyspottr.appdir.classes.adapters.EventAdapter;
 import com.partyspottr.appdir.classes.adapters.FriendListAdapter;
+import com.partyspottr.appdir.classes.adapters.RequestAdapter;
 import com.partyspottr.appdir.classes.application.ApplicationLifecycleMgr;
 import com.partyspottr.appdir.classes.networking.AddEvent;
 import com.partyspottr.appdir.classes.networking.GetLocationInfo;
@@ -88,6 +92,8 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Locale;
+
+import static com.partyspottr.appdir.ui.MainActivity.typeface;
 
 /**
  * Created by Ranarrr on 02-Feb-18.
@@ -923,10 +929,17 @@ public class Utilities {
                 if(shouldupdate) {
                     if(EventDetails.edit_event_imagechange.getImage() != null)
                         creating_event.setHasimage(true);
-                    else
-                        creating_event.setHasimage(false);
+                    else {
+                        Event event = Bruker.get().getEventFromID(eventid);
+                        if(event.isHasimage()) {
+                            StorageReference ref = ProfilActivity.storage.getReference().child(event.getHostStr() + "_" + event.getNameofevent());
+                            ref.delete();
+                        }
 
-                    UpdateEvent updateEvent = new UpdateEvent(dialog.getOwnerActivity(), creating_event, EventDetails.edit_event_imagechange.getImage());
+                        creating_event.setHasimage(false);
+                    }
+
+                    UpdateEvent updateEvent = new UpdateEvent(dialog.getOwnerActivity(), creating_event, EventDetails.edit_event_imagechange.getBmp());
                     updateEvent.execute();
                 } else {
                     AddEvent addEvent = new AddEvent(dialog, creating_event, ProfilActivity.imageChange.getImage());
@@ -951,10 +964,17 @@ public class Utilities {
                 if(shouldupdate) {
                     if(EventDetails.edit_event_imagechange.getImage() != null)
                         creating_event.setHasimage(true);
-                    else
-                        creating_event.setHasimage(false);
+                    else {
+                        Event event = Bruker.get().getEventFromID(eventid);
+                        if(event.isHasimage()) {
+                            StorageReference ref = ProfilActivity.storage.getReference().child(event.getHostStr() + "_" + event.getNameofevent());
+                            ref.delete();
+                        }
 
-                    UpdateEvent updateEvent = new UpdateEvent(dialog.getOwnerActivity(), creating_event, EventDetails.edit_event_imagechange.getImage());
+                        creating_event.setHasimage(false);
+                    }
+
+                    UpdateEvent updateEvent = new UpdateEvent(dialog.getOwnerActivity(), creating_event, EventDetails.edit_event_imagechange.getBmp());
                     updateEvent.execute();
                 } else {
                     AddEvent addEvent = new AddEvent(dialog, creating_event, ProfilActivity.imageChange.getImage());
@@ -1068,6 +1088,67 @@ public class Utilities {
         }
 
         return BuildConfig.DBMS_URL + "?" + name + "=" + json.toString();
+    }
+
+    public static void showEventDetailRequests(final Activity activity, final Event event) {
+        final Dialog requestdialog = new Dialog(activity);
+        requestdialog.requestWindowFeature(1);
+        requestdialog.setContentView(R.layout.foresporsler);
+        requestdialog.setCancelable(true);
+        requestdialog.setCanceledOnTouchOutside(true);
+
+        Toolbar toolbarrequests = requestdialog.findViewById(R.id.toolbar_foresporsler);
+        TextView toolbar_title = requestdialog.findViewById(R.id.foresporsel_TB_text);
+        ImageButton search = requestdialog.findViewById(R.id.foresporsel_search);
+        final EditText foresporsel_search = requestdialog.findViewById(R.id.foresporsel_search_field);
+        final ListView foresporsel_list = requestdialog.findViewById(R.id.lv_foresporsler);
+
+        foresporsel_list.setAdapter(new RequestAdapter(activity, event.getRequests(), event.getEventId()));
+
+        search.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                foresporsel_search.setVisibility(foresporsel_search.getVisibility() == View.VISIBLE ? View.GONE : View.VISIBLE);
+
+                foresporsel_search.addTextChangedListener(new TextWatcher() {
+                    @Override
+                    public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+                    @Override
+                    public void onTextChanged(CharSequence s, int start, int before, int count) {
+                        if(s.toString().isEmpty()) {
+                            foresporsel_list.setAdapter(new RequestAdapter(activity, event.getRequests(), event.getEventId()));
+                            return;
+                        }
+
+                        List<Requester> list = new ArrayList<>();
+                        for(Requester requester : event.getRequests()) {
+                            if(requester.getBrukernavn().contains(s)) {
+                                list.add(requester);
+                            }
+                        }
+
+                        foresporsel_list.setAdapter(new RequestAdapter(activity, list, event.getEventId()));
+                    }
+
+                    @Override
+                    public void afterTextChanged(Editable s) {}
+                });
+            }
+        });
+
+        toolbar_title.setTypeface(typeface);
+
+        toolbarrequests.setNavigationIcon(activity.getResources().getDrawable(R.drawable.left_arrow));
+
+        toolbarrequests.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                requestdialog.onBackPressed();
+            }
+        });
+
+        requestdialog.show();
     }
 
     public static String getPathFromUri(final Context context, final Uri uri) {
@@ -1191,8 +1272,7 @@ public class Utilities {
         return "com.google.android.apps.photos.content".equals(uri.getAuthority());
     }
 
-    /*private static int calculateInSampleSize(
-            BitmapFactory.Options options, int reqWidth, int reqHeight) {
+    private static int calculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight) {
         // Raw height and width of image
         final int height = options.outHeight;
         final int width = options.outWidth;
@@ -1214,22 +1294,22 @@ public class Utilities {
         return inSampleSize;
     }
 
-    public static Bitmap decodeSampledBitmapFromResource(byte[] bmp, int reqWidth, int reqHeight) {
+    public static Bitmap decodeSampledBitmapFromResource(String path, int reqWidth, int reqHeight) {
 
         // First decode with inJustDecodeBounds=true to check dimensions
         final BitmapFactory.Options options = new BitmapFactory.Options();
         options.inJustDecodeBounds = true;
-        BitmapFactory.decodeByteArray(bmp, 0, bmp.length, options);
+        BitmapFactory.decodeFile(path, options);
 
         // Calculate inSampleSize
         options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight);
 
         // Decode bitmap with inSampleSize set
         options.inJustDecodeBounds = false;
-        return BitmapFactory.decodeByteArray(bmp, 0, bmp.length, options);
+        return BitmapFactory.decodeFile(path, options);
     }
 
-    public static Bitmap decodeSampledBitmapFromResource(Resources res, int resId, int reqWidth, int reqHeight) {
+    /*public static Bitmap decodeSampledBitmapFromResource(Resources res, int resId, int reqWidth, int reqHeight) {
 
         // First decode with inJustDecodeBounds=true to check dimensions
         final BitmapFactory.Options options = new BitmapFactory.Options();

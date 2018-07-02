@@ -7,6 +7,5 @@ public enum Categories {
     CONCERT,
     NIGHTCLUB,
     BIRTHDAY,
-    FESTIVAL,
-    LANPARTY
+    FESTIVAL
 }

@@ -18,4 +18,8 @@
         android:id="@+id/remove"
         android:title="Fjern fra event" />
 
+    <item
+        android:id="@+id/remove_host"
+        android:title="Fjern vert" />
+
 </menu>

@@ -2,6 +2,7 @@ package com.partyspottr.appdir.ui.mainfragments.eventchildfragments;
 
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -16,17 +17,20 @@ import com.partyspottr.appdir.classes.adapters.EventAdapter;
 
 public class alle_eventer_fragment extends Fragment {
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.alle_eventer_fragment, container, false);
     }
 
     @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         final ListView listView = view.findViewById(R.id.lvalle_eventer);
         final SwipeRefreshLayout swipeRefreshLayout = view.findViewById(R.id.swipe_layout_events);
+
+        if(getActivity() == null)
+            return;
 
         swipeRefreshLayout.setRefreshing(true);
 

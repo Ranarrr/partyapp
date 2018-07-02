@@ -175,41 +175,70 @@ public class GuestListAdapter extends BaseAdapter {
                                     return true;
 
                                 case R.id.make_host:
-                                    new AlertDialog.Builder(thisActivity)
-                                            .setTitle("Confirmation")
-                                            .setMessage("Are you sure you want to make this person a host?")
-                                            .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                                                @Override
-                                                public void onClick(DialogInterface dialog, int which) {
-                                                    Event event = Bruker.get().getEventFromID(eventId);
+                                    if(!participant.getStilling().equals(EventStilling.VERT)) {
+                                        new AlertDialog.Builder(thisActivity, R.style.mydatepickerdialog)
+                                                .setTitle("Confirmation")
+                                                .setMessage("Are you sure you want to make this person a host?")
+                                                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                                    @Override
+                                                    public void onClick(DialogInterface dialog, int which) {
+                                                        Event event = Bruker.get().getEventFromID(eventId);
 
-                                                    DatabaseReference ref = FirebaseDatabase.getInstance().getReference("events").child(String.valueOf(eventId));
+                                                        DatabaseReference ref = FirebaseDatabase.getInstance().getReference("events").child(String.valueOf(eventId));
 
-                                                    event.getParticipants().set(Participant.getParticipantPos(event.getParticipants(), participant), new Participant(participant.getBrukernavn(),
-                                                            participant.getCountry(), participant.getTown(), EventStilling.VERT));
+                                                        event.getParticipants().set(Participant.getParticipantPos(event.getParticipants(), participant), new Participant(participant.getBrukernavn(),
+                                                                participant.getCountry(), participant.getTown(), EventStilling.VERT));
 
-                                                    ref.child("participants").setValue(new Gson().toJson(event.getParticipants())).addOnSuccessListener(new OnSuccessListener<Void>() {
-                                                        @Override
-                                                        public void onSuccess(Void aVoid) {
-                                                            Toast.makeText(thisActivity, "Made participant a host!", Toast.LENGTH_SHORT).show();
-                                                        }
-                                                    }).addOnFailureListener(new OnFailureListener() {
-                                                        @Override
-                                                        public void onFailure(@NonNull Exception e) {
-                                                            Toast.makeText(thisActivity, "Failed to make this participant a host.", Toast.LENGTH_SHORT).show();
-                                                        }
-                                                    });
-                                                }})
-                                            .setNegativeButton("No", new DialogInterface.OnClickListener() {
-                                                @Override
-                                                public void onClick(DialogInterface dialog, int which) {}})
-                                            .show();
+                                                        ref.child("participants").setValue(new Gson().toJson(event.getParticipants())).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                            @Override
+                                                            public void onSuccess(Void aVoid) {
+                                                                Toast.makeText(thisActivity, "Made participant a host!", Toast.LENGTH_SHORT).show();
+                                                            }
+                                                        }).addOnFailureListener(new OnFailureListener() {
+                                                            @Override
+                                                            public void onFailure(@NonNull Exception e) {
+                                                                Toast.makeText(thisActivity, "Failed to make this participant a host.", Toast.LENGTH_SHORT).show();
+                                                            }
+                                                        });
+                                                    }})
+                                                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                                                    @Override
+                                                    public void onClick(DialogInterface dialog, int which) {}})
+                                                .show();
+                                    }
+
+                                    return true;
+
+                                case R.id.remove_host:
+                                    if(participant.getBrukernavn().equals(Bruker.get().getEventFromID(eventId).getHostStr())) {
+                                        Toast.makeText(thisActivity, "You cannot remove the original host.", Toast.LENGTH_SHORT).show();
+                                        return true;
+                                    } else {
+                                        Event event = Bruker.get().getEventFromID(eventId);
+
+                                        DatabaseReference ref = FirebaseDatabase.getInstance().getReference("events").child(String.valueOf(eventId));
+
+                                        event.getParticipants().set(Participant.getParticipantPos(event.getParticipants(), participant), new Participant(participant.getBrukernavn(),
+                                                participant.getCountry(), participant.getTown(), EventStilling.GJEST));
+
+                                        ref.child("participants").setValue(new Gson().toJson(event.getParticipants())).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                            @Override
+                                            public void onSuccess(Void aVoid) {
+                                                Toast.makeText(thisActivity, "Made participant a host!", Toast.LENGTH_SHORT).show();
+                                            }
+                                        }).addOnFailureListener(new OnFailureListener() {
+                                            @Override
+                                            public void onFailure(@NonNull Exception e) {
+                                                Toast.makeText(thisActivity, "Failed to make this participant a host.", Toast.LENGTH_SHORT).show();
+                                            }
+                                        });
+                                    }
 
                                     return true;
 
                                 case R.id.remove:
                                     if(!participant.getBrukernavn().equals(Bruker.get().getBrukernavn())) {
-                                        new AlertDialog.Builder(thisActivity).setTitle("Confirmation").setMessage("Are you sure you want to make this person a host?")
+                                        new AlertDialog.Builder(thisActivity, R.style.mydatepickerdialog).setTitle("Confirmation").setMessage("Are you sure you want to remove this user?")
                                                 .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                                                     @Override
                                                     public void onClick(DialogInterface dialog, int which) {
@@ -226,17 +255,16 @@ public class GuestListAdapter extends BaseAdapter {
                                                                 lv_guestlist.setAdapter(new GuestListAdapter(thisActivity, eventId, event.getParticipants()));
 
                                                             Toast.makeText(thisActivity, "Removed participant!", Toast.LENGTH_SHORT).show();
-                                                        } else {
+                                                        } else
                                                             Toast.makeText(thisActivity, "Failed to remove participant.", Toast.LENGTH_SHORT).show();
-                                                        }
+
                                                     }})
                                                 .setNegativeButton("No", new DialogInterface.OnClickListener() {
                                                     @Override
                                                     public void onClick(DialogInterface dialog, int which) {}})
                                                 .show();
-                                    } else {
+                                    } else
                                         Toast.makeText(thisActivity, "You can't remove yourself!", Toast.LENGTH_SHORT).show();
-                                    }
 
                                     return true;
 
@@ -253,6 +281,10 @@ public class GuestListAdapter extends BaseAdapter {
                     if((bruker != null && bruker.getStilling() != EventStilling.VERT) || bruker == null) {
                         popupMenu.getMenu().removeItem(R.id.remove);
                         popupMenu.getMenu().removeItem(R.id.make_host);
+                    }
+
+                    if(participant.getBrukernavn().equals(Bruker.get().getEventFromID(eventId).getHostStr())) {
+                        popupMenu.getMenu().removeItem(R.id.remove_host);
                     }
 
                     popupMenu.show();
