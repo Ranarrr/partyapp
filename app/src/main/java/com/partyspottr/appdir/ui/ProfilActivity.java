@@ -149,11 +149,18 @@ public class ProfilActivity extends AppCompatActivity {
             }
         }
 
-        // TODO : Check what fragment we are on and set search event onclicklistener accordingly
-
         if (count <= 1) {
-            finish();
-            System.exit(0);
+            new AlertDialog.Builder(this, R.style.mydatepickerdialog)
+                    .setTitle("Exit")
+                    .setMessage("Are you sure you want to exit the application?")
+                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            finish();
+                            System.exit(0);
+                        }
+                    }).setNegativeButton("No", null)
+                    .show();
         } else {
             getSupportFragmentManager().popBackStack();
         }
@@ -186,20 +193,6 @@ public class ProfilActivity extends AppCompatActivity {
 
         storage = FirebaseStorage.getInstance();
 
-        storage.getReference().child(Bruker.get().getBrukernavn()).getBytes(2048 * 2048).addOnSuccessListener(new OnSuccessListener<byte[]>() {
-            @Override
-            public void onSuccess(byte[] bytes) {
-                Bruker.get().setProfilepic(BitmapFactory.decodeByteArray(bytes, 0, bytes.length));
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Bruker.get().setProfilepic(null);
-            }
-        });
-
-        Utilities.startChatListener(this);
-
         if(!Utilities.hasNetwork(getApplicationContext())) {
             Bruker.get().setConnected(false);
             Toast.makeText(this, "You are not connected.", Toast.LENGTH_SHORT).show();
@@ -211,13 +204,32 @@ public class ProfilActivity extends AppCompatActivity {
             Bruker.get().setConnected(true);
         }
 
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                Bruker.get().GetAndParseBrukerInfo();
+                Bruker.get().GetAndParseChauffeurs();
+                Bruker.get().GetAndParseEvents(ProfilActivity.this);
+                Utilities.startChatListener(ProfilActivity.this);
+
+                storage.getReference().child(Bruker.get().getBrukernavn()).getBytes(2048 * 2048).addOnSuccessListener(new OnSuccessListener<byte[]>() {
+                    @Override
+                    public void onSuccess(byte[] bytes) {
+                        Bruker.get().setProfilepic(BitmapFactory.decodeByteArray(bytes, 0, bytes.length));
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Bruker.get().setProfilepic(null);
+                    }
+                });
+
+                if(Bruker.get().isHascar())
+                    Bruker.get().GetAndParseBrukerChauffeur();
+            }
+        }, 500);
+
         TextView tittel = findViewById(R.id.title_toolbar);
-
-        ConstraintLayout main_content = findViewById(R.id.main_content);
-        Point size = new Point();
-        getWindowManager().getDefaultDisplay().getSize(size);
-        main_content.setBackgroundColor(getResources().getColor(R.color.colorAlpha)); // new BitmapDrawable(getResources(), Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.forsidebilde), size.x, size.y, true))
-
         tittel.setTypeface(typeface);
 
         replaceFragment(0);
@@ -302,13 +314,18 @@ public class ProfilActivity extends AppCompatActivity {
     }
 
     public void onBilMenyClick(View v) {
-        replaceFragment(1);
+        Toast.makeText(this, "Not ready.. JUUUST YET", Toast.LENGTH_SHORT).show();
+        //replaceFragment(1);
     }
 
     public void onKalenderMenyClick(View v) {
         replaceFragment(0);
 
         mine_eventer_fragment.once = false;
+    }
+
+    public void onAlarmClick(View v) {
+        Toast.makeText(this, "Not ready.. JUUUST YET", Toast.LENGTH_SHORT).show();
     }
 
     public void onChatMenyClick(View v) {

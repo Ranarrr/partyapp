@@ -28,23 +28,14 @@ import java.io.File;
  */
 
 public class UploadImage extends AsyncTask<Void, Void, Void> {
-    private File bitmapfile;
     private Bitmap bitmap;
-    private boolean isfile;
     private Event eventPriv;
     private ProgressDialog progressDialog;
 
-    public UploadImage(ProgressDialog pD, Event event, @Nullable File file, @Nullable Bitmap bmp) {
+    UploadImage(ProgressDialog pD, Event event, @Nullable Bitmap bmp) {
         progressDialog = pD;
         eventPriv = event;
-
-        isfile = true;
-
-        if(file == null) {
-            bitmap = bmp;
-            isfile = false;
-        } else
-            bitmapfile = file;
+        bitmap = bmp;
     }
 
     @Override
@@ -55,13 +46,9 @@ public class UploadImage extends AsyncTask<Void, Void, Void> {
 
         UploadTask uploadTask;
 
-        if(isfile)
-            uploadTask = ProfilActivity.storage.getReference().child(eventPriv.getHostStr() + "_" + eventPriv.getNameofevent()).putFile(Uri.fromFile(bitmapfile), metadata);
-        else {
-            ByteArrayOutputStream stream = new ByteArrayOutputStream();
-            bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
-            uploadTask = ProfilActivity.storage.getReference().child(eventPriv.getHostStr() + "_" + eventPriv.getNameofevent()).putBytes(stream.toByteArray(), metadata);
-        }
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+        uploadTask = ProfilActivity.storage.getReference().child(eventPriv.getHostStr() + "_" + eventPriv.getNameofevent()).putBytes(stream.toByteArray(), metadata);
 
         uploadTask.addOnFailureListener(new OnFailureListener() {
             @Override

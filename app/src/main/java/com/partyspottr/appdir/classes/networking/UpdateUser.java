@@ -14,8 +14,14 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Created by Ranarrr on 30-Mar-18.
+ *
+ * @author Ranarrr
+ */
+
 public class UpdateUser extends AsyncTask<Void, Void, Void> {
-    JSONObject info;
+    private JSONObject info;
 
     public UpdateUser() {
         try {

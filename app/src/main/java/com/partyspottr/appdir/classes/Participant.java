@@ -49,6 +49,17 @@ public class Participant {
         return result;
     }
 
+    public static Participant convertRequesterParticipant(Requester requester) {
+        Participant ret = new Participant();
+
+        ret.setBrukernavn(requester.getBrukernavn());
+        ret.setCountry(requester.getCountry());
+        ret.setStilling(requester.isPremium() ? EventStilling.PREMIUM : EventStilling.GJEST);
+        ret.setTown(requester.getTown());
+
+        return ret;
+    }
+
     public static Participant getParticipantByUsername(List<Participant> list, String username) {
         for (Participant temp : list) {
             if (temp.getBrukernavn().equals(username)) {
@@ -59,9 +70,9 @@ public class Participant {
         return null;
     }
 
-    public static int getParticipantPos(List<Participant> list, Participant participant) {
+    public static int getParticipantPos(List<Participant> list, String participantUser) {
         for(int i = 0; i < list.size(); i++) {
-            if (list.get(i).equals(participant)) {
+            if(list.get(i).getBrukernavn().equalsIgnoreCase(participantUser)) {
                 return i;
             }
         }

@@ -34,7 +34,7 @@ public class CheckEmail extends AsyncTask<Void, Void, Integer> {
     private ProgressDialog progressDialog;
 
     public CheckEmail(Activity activity, String e_mail) {
-        progressDialog = new ProgressDialog(activity);
+        progressDialog = new ProgressDialog(activity, R.style.mydatepickerdialog);
         progressDialog.setOwnerActivity(activity);
         try {
             info = new JSONObject();
@@ -47,7 +47,7 @@ public class CheckEmail extends AsyncTask<Void, Void, Integer> {
 
     @Override
     protected void onPreExecute() {
-        progressDialog.setMessage("Checking email.."); // TODO: fix translation
+        progressDialog.setMessage(progressDialog.getContext().getResources().getString(R.string.sjekker_email));
         progressDialog.setCanceledOnTouchOutside(false);
         progressDialog.show();
         super.onPreExecute();
@@ -76,7 +76,7 @@ public class CheckEmail extends AsyncTask<Void, Void, Integer> {
     @Override
     protected void onPostExecute(Integer integer) {
         if(integer == -1) {
-            Toast.makeText(progressDialog.getContext(), "This email is already in use!", Toast.LENGTH_SHORT).show(); // TODO: Fix translation
+            Toast.makeText(progressDialog.getContext(), progressDialog.getContext().getResources().getString(R.string.email_already_in_use), Toast.LENGTH_SHORT).show();
 
             if(progressDialog.getOwnerActivity() != null) {
                 EditText emailtext = progressDialog.getOwnerActivity().findViewById(R.id.emailText);

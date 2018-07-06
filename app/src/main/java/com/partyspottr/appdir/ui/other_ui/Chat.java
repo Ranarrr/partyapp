@@ -274,7 +274,7 @@ public class Chat extends AppCompatActivity {
         send_msg_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(write_msg.getText().length() <= 0)
+                if(write_msg.getText().length() <= 0 || write_msg.getText().toString().isEmpty())
                     return;
 
                 m_list.add(new ChatMessage(write_msg.getText().toString(), Bruker.get().getBrukernavn()));

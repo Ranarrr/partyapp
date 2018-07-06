@@ -4,6 +4,7 @@ apply plugin: 'io.fabric'
 android {
     compileSdkVersion 27
     useLibrary 'org.apache.http.legacy'
+    buildToolsVersion("27.0.3")
     defaultConfig {
         applicationId 'com.partyspottr.partyspottr'
         minSdkVersion 19
@@ -14,12 +15,15 @@ android {
         vectorDrawables.useSupportLibrary = true
         multiDexEnabled true
     }
+
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            debuggable false
         }
     }
+
     buildTypes.each {
         it.buildConfigField("String", "Google_Maps_API_Key", GoogleMapsAPIKey)
         it.buildConfigField("String", "JSONParser_Socket", JSONParserSocket)
@@ -48,7 +52,7 @@ dependencies {
     implementation 'com.android.support:support-v4:27.1.1'
     implementation 'com.facebook.android:facebook-android-sdk:4.0.0'
     implementation 'com.google.firebase:firebase-core:16.0.1'
-    implementation 'com.google.firebase:firebase-messaging:17.0.0'
+    implementation 'com.google.firebase:firebase-messaging:17.1.0'
     implementation 'com.google.firebase:firebase-auth:16.0.2'
     implementation 'com.google.firebase:firebase-storage:16.0.1'
     implementation 'com.google.firebase:firebase-database:16.0.1'

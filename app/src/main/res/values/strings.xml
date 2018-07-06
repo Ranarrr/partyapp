@@ -28,9 +28,6 @@
     <string name="vennligst_6_minimum_passord">Please use a password 7 letters/numbers or longer.</string>
     <string name="draweråpnet">Opened</string>
     <string name="drawerlukket">Closed</string>
-
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="logg_ut_melding">Do you want to log out?</string>
     <string name="logg_ut">Log out</string>
     <string name="nei">No</string>
@@ -67,9 +64,52 @@
     <string name="til">to</string>
     <string name="gjesteliste">Guestlist</string>
     <string name="profil">Profile</string>
-    <string name="title_activity_setting">SettingActivity</string>
+    <string name="title_activity_setting" translatable="false">SettingActivity</string>
 
-    <string name="facebook_app_id">176818486443991</string>
-    <string name="fb_login_protocol_scheme">fb176818486443991</string>
+    <string name="facebook_app_id" translatable="false">176818486443991</string>
+    <string name="fb_login_protocol_scheme" translatable="false">fb176818486443991</string>
+    <string name="no_recent_chats">You have no recent chats.</string>
+    <string name="i_går">Yesterday</string>
+    <string name="requesting">Requesting..</string>
+    <string name="requested_to_join">Requested to join!</string>
+    <string name="failed_to_request_to_join">Failed to send request!</string>
+    <string name="sjekker_email">Checking email..</string>
+    <string name="updated_event">Updated event.</string>
+    <string name="failed_to_update">Failed to update event.</string>
+    <string name="email_already_in_use">This email is already in use!</string>
+    <string name="could_not_find_chats">Could not find chats.</string>
+    <string name="please_allow">Please allow Partyspottr to find your location.</string>
+    <string name="try_again_later">Please try again later..</string>
+    <string name="town">Town</string>
+    <string name="logging_out">Logging out..</string>
+    <string name="failed_logout">Failed to logout.</string>
+    <string name="you_dont_have_events">You don\'t have any events!</string>
+    <string name="register_car">Register car</string>
+    <string name="failed_registrating_car">Failed to registrate new car.</string>
+    <string name="my_car">My car</string>
+    <string name="start_new_time">Start new session</string>
+    <string name="your_session">Your session</string>
+    <string name="drikkeleker">Drinking games</string>
+    <string name="upgrade_to_premium">Upgrade to premium</string>
+    <string name="innstillinger">Settings</string>
+    <string name="help">Help</string>
+    <string name="my_profile">My profile</string>
+    <string name="my_cars">My cars</string>
+    <string name="varsler">Notifications</string>
+    <string name="language">Language</string>
+    <string name="delete_account">Delete account</string>
+    <string name="my_chats">My chats</string>
+    <string name="friends">Friends</string>
+    <string name="all_events">All events</string>
+    <string name="my_events">My events</string>
+    <string name="my_archive">My archive</string>
+    <string name="passasjer">Passenger</string>
+    <string name="spots">Spots</string>
+    <string name="send_request">Send request</string>
+    <string name="zero_out_of_zero_going">%d out of %d is going</string>
+    <string name="join_event">Join event</string>
+    <string name="agerestriction">Age limit: %d</string>
+    <string name="host_deg">Host: %s (you)</string>
+    <string name="host">Host: %s</string>
 
 </resources>

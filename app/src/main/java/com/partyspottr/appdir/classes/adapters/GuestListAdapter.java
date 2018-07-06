@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
@@ -31,6 +32,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.storage.StorageReference;
 import com.google.gson.Gson;
 import com.partyspottr.appdir.R;
 import com.partyspottr.appdir.classes.Bruker;
@@ -38,8 +40,9 @@ import com.partyspottr.appdir.classes.Event;
 import com.partyspottr.appdir.classes.Friend;
 import com.partyspottr.appdir.classes.Participant;
 import com.partyspottr.appdir.classes.Utilities;
-import com.partyspottr.appdir.classes.networking.AddFriendRequest;
 import com.partyspottr.appdir.enums.EventStilling;
+import com.partyspottr.appdir.ui.ProfilActivity;
+import com.partyspottr.appdir.ui.other_ui.EventDetails;
 import com.partyspottr.appdir.ui.other_ui.Profile;
 
 import java.util.List;
@@ -110,9 +113,8 @@ public class GuestListAdapter extends BaseAdapter {
 
                     countryflag.setImageDrawable(drawable);
                 }
-            } else {
+            } else
                 countryflag.setImageResource(R.drawable.dominican_republic);
-            }
 
             more_options.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -186,7 +188,7 @@ public class GuestListAdapter extends BaseAdapter {
 
                                                         DatabaseReference ref = FirebaseDatabase.getInstance().getReference("events").child(String.valueOf(eventId));
 
-                                                        event.getParticipants().set(Participant.getParticipantPos(event.getParticipants(), participant), new Participant(participant.getBrukernavn(),
+                                                        event.getParticipants().set(Participant.getParticipantPos(event.getParticipants(), participant.getBrukernavn()), new Participant(participant.getBrukernavn(),
                                                                 participant.getCountry(), participant.getTown(), EventStilling.VERT));
 
                                                         ref.child("participants").setValue(new Gson().toJson(event.getParticipants())).addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -218,7 +220,7 @@ public class GuestListAdapter extends BaseAdapter {
 
                                         DatabaseReference ref = FirebaseDatabase.getInstance().getReference("events").child(String.valueOf(eventId));
 
-                                        event.getParticipants().set(Participant.getParticipantPos(event.getParticipants(), participant), new Participant(participant.getBrukernavn(),
+                                        event.getParticipants().set(Participant.getParticipantPos(event.getParticipants(), participant.getBrukernavn()), new Participant(participant.getBrukernavn(),
                                                 participant.getCountry(), participant.getTown(), EventStilling.GJEST));
 
                                         ref.child("participants").setValue(new Gson().toJson(event.getParticipants())).addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -238,33 +240,125 @@ public class GuestListAdapter extends BaseAdapter {
 
                                 case R.id.remove:
                                     if(!participant.getBrukernavn().equals(Bruker.get().getBrukernavn())) {
-                                        new AlertDialog.Builder(thisActivity, R.style.mydatepickerdialog).setTitle("Confirmation").setMessage("Are you sure you want to remove this user?")
+                                        new AlertDialog.Builder(thisActivity, R.style.mydatepickerdialog).setTitle("Remove user").setMessage("Are you sure you want to remove this user?")
                                                 .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                                                     @Override
                                                     public void onClick(DialogInterface dialog, int which) {
-                                                        Event event = Bruker.get().getEventFromID(eventId);
+                                                        final Event event = Bruker.get().getEventFromID(eventId);
 
                                                         DatabaseReference ref = FirebaseDatabase.getInstance().getReference("events").child(String.valueOf(eventId));
 
-                                                        event.getParticipants().remove(Participant.getParticipantPos(event.getParticipants(), participant));
+                                                        event.getParticipants().remove(Participant.getParticipantPos(event.getParticipants(), participant.getBrukernavn()));
 
-                                                        if(ref.child("participants").setValue(new Gson().toJson(event.getParticipants())).isComplete()) {
-                                                            ListView lv_guestlist = thisActivity.findViewById(R.id.lv_gjesteliste);
+                                                        ref.child("participants").setValue(new Gson().toJson(event.getParticipants())).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                            @Override
+                                                            public void onSuccess(Void aVoid) {
+                                                                ListView lv_guestlist = thisActivity.findViewById(R.id.lv_gjesteliste);
 
-                                                            if(lv_guestlist != null)
-                                                                lv_guestlist.setAdapter(new GuestListAdapter(thisActivity, eventId, event.getParticipants()));
+                                                                if(lv_guestlist != null)
+                                                                    lv_guestlist.setAdapter(new GuestListAdapter(thisActivity, eventId, event.getParticipants()));
 
-                                                            Toast.makeText(thisActivity, "Removed participant!", Toast.LENGTH_SHORT).show();
-                                                        } else
-                                                            Toast.makeText(thisActivity, "Failed to remove participant.", Toast.LENGTH_SHORT).show();
-
+                                                                Toast.makeText(thisActivity, "Removed participant!", Toast.LENGTH_SHORT).show();
+                                                            }
+                                                        }).addOnFailureListener(new OnFailureListener() {
+                                                            @Override
+                                                            public void onFailure(@NonNull Exception e) {
+                                                                Toast.makeText(thisActivity, "Failed to remove participant.", Toast.LENGTH_SHORT).show();
+                                                            }
+                                                        });
                                                     }})
                                                 .setNegativeButton("No", new DialogInterface.OnClickListener() {
                                                     @Override
                                                     public void onClick(DialogInterface dialog, int which) {}})
                                                 .show();
-                                    } else
-                                        Toast.makeText(thisActivity, "You can't remove yourself!", Toast.LENGTH_SHORT).show();
+                                    } else {
+                                        if(Bruker.get().getEventFromID(eventId).getHostStr().equalsIgnoreCase(Bruker.get().getBrukernavn())) {
+                                            new android.app.AlertDialog.Builder(thisActivity, R.style.mydatepickerdialog)
+                                                    .setTitle("Confirmation")
+                                                    .setMessage("Are you sure you want to delete this event?")
+                                                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                                        @Override
+                                                        public void onClick(DialogInterface dialog, int which) {
+                                                            final Event event = Bruker.get().getEventFromID(eventId);
+                                                            if(event.isHasimage()) {
+                                                                StorageReference asfafa = ProfilActivity.storage.getReference().child(event.getHostStr() + "_" + event.getNameofevent());
+                                                                asfafa.delete().addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                                    @Override
+                                                                    public void onComplete(@NonNull Task<Void> task) {
+                                                                        final DatabaseReference ref = FirebaseDatabase.getInstance().getReference("events").child(String.valueOf(event.getEventId()));
+                                                                        ref.removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                                            @Override
+                                                                            public void onSuccess(Void aVoid) {
+                                                                                Toast.makeText(thisActivity, "Deleted event!", Toast.LENGTH_SHORT).show();
+                                                                                thisActivity.onBackPressed();
+                                                                                thisActivity.onBackPressed();
+                                                                            }
+                                                                        }).addOnFailureListener(new OnFailureListener() {
+                                                                            @Override
+                                                                            public void onFailure(@NonNull Exception e) {
+                                                                                Toast.makeText(thisActivity, "Failed to delete event!", Toast.LENGTH_SHORT).show();
+                                                                            }
+                                                                        });
+                                                                    }
+                                                                });
+                                                            } else {
+                                                                final DatabaseReference ref = FirebaseDatabase.getInstance().getReference("events").child(String.valueOf(event.getEventId()));
+                                                                ref.removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                                    @Override
+                                                                    public void onSuccess(Void aVoid) {
+                                                                        Toast.makeText(thisActivity, "Deleted event!", Toast.LENGTH_SHORT).show();
+                                                                        thisActivity.onBackPressed();
+                                                                        thisActivity.onBackPressed();
+                                                                    }
+                                                                }).addOnFailureListener(new OnFailureListener() {
+                                                                    @Override
+                                                                    public void onFailure(@NonNull Exception e) {
+                                                                        Toast.makeText(thisActivity, "Failed to delete event!", Toast.LENGTH_SHORT).show();
+                                                                    }
+                                                                });
+                                                            }
+                                                        }
+                                                    })
+                                                    .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                                                        @Override
+                                                        public void onClick(DialogInterface dialog, int which) {}
+                                                    })
+                                                    .show();
+                                        } else {
+                                            new AlertDialog.Builder(thisActivity, R.style.mydatepickerdialog)
+                                                    .setTitle("Leave event")
+                                                    .setMessage("Are you sure you want to leave the event?")
+                                                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                                        @Override
+                                                        public void onClick(DialogInterface dialogInterface, int i) {
+                                                            final Event event = Bruker.get().getEventFromID(eventId);
+
+                                                            DatabaseReference ref = FirebaseDatabase.getInstance().getReference("events").child(String.valueOf(eventId)).child("participants");
+
+                                                            event.getParticipants().remove(Participant.getParticipantPos(event.getParticipants(), participant.getBrukernavn()));
+
+                                                            ref.setValue(new Gson().toJson(event.getParticipants())).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                                @Override
+                                                                public void onSuccess(Void aVoid) {
+                                                                    ListView lv_guestlist = thisActivity.findViewById(R.id.lv_gjesteliste);
+
+                                                                    if(lv_guestlist != null)
+                                                                        lv_guestlist.setAdapter(new GuestListAdapter(thisActivity, eventId, event.getParticipants()));
+
+                                                                    Toast.makeText(thisActivity, "You left the event.", Toast.LENGTH_SHORT).show();
+                                                                }
+                                                            }).addOnFailureListener(new OnFailureListener() {
+                                                                @Override
+                                                                public void onFailure(@NonNull Exception e) {
+                                                                    Toast.makeText(thisActivity, "Failed to remove you from the event.", Toast.LENGTH_SHORT).show();
+                                                                }
+                                                            });
+                                                        }
+                                                    })
+                                                    .setNegativeButton("No", null)
+                                                    .show();
+                                        }
+                                    }
 
                                     return true;
 
@@ -279,19 +373,29 @@ public class GuestListAdapter extends BaseAdapter {
                     popupMenu.inflate(R.menu.more_options_menu_vert);
 
                     if((bruker != null && bruker.getStilling() != EventStilling.VERT) || bruker == null) {
-                        popupMenu.getMenu().removeItem(R.id.remove);
+                        if(!participant.getBrukernavn().equalsIgnoreCase(Bruker.get().getBrukernavn()))
+                            popupMenu.getMenu().removeItem(R.id.remove);
+
                         popupMenu.getMenu().removeItem(R.id.make_host);
                     }
 
-                    if(participant.getBrukernavn().equals(Bruker.get().getEventFromID(eventId).getHostStr())) {
+                    if(participant.getBrukernavn().equalsIgnoreCase(Bruker.get().getBrukernavn())) {
+                        popupMenu.getMenu().removeItem(R.id.make_host);
+                        popupMenu.getMenu().removeItem(R.id.som_venn);
                         popupMenu.getMenu().removeItem(R.id.remove_host);
                     }
+
+                    if(participant.getBrukernavn().equalsIgnoreCase(Bruker.get().getEventFromID(eventId).getHostStr()))
+                        popupMenu.getMenu().removeItem(R.id.remove_host);
+
+                    if(!participant.getStilling().equals(EventStilling.VERT))
+                        popupMenu.getMenu().removeItem(R.id.remove_host);
 
                     popupMenu.show();
 
                     // Dim out all the other list items if they exist
                     int firstPos = lv_gjestliste.getFirstVisiblePosition() - lv_gjestliste.getHeaderViewsCount();
-                    final int ourPos = Participant.getParticipantPos(GuestList, participant) - firstPos;
+                    final int ourPos = Participant.getParticipantPos(GuestList, participant.getBrukernavn()) - firstPos;
                     int count = lv_gjestliste.getChildCount();
                     for (int i = 0; i < count; i++) {
                         if (i == ourPos) {
@@ -305,7 +409,7 @@ public class GuestListAdapter extends BaseAdapter {
                         }
                     }
 
-                    // Make sure to bring them back to normal after the menu is gone
+                    // bring them back to normal after the menu is gone
                     popupMenu.setOnDismissListener(new PopupMenu.OnDismissListener() {
                         @Override
                         public void onDismiss(PopupMenu popupMenu) {
@@ -328,11 +432,7 @@ public class GuestListAdapter extends BaseAdapter {
 
             brukernavn.setText(participant.getBrukernavn());
 
-            if(participant.getTown() != null) {
-                by_land.setText(participant.getTown());
-            } else {
-                by_land.setText(participant.getCountry());
-            }
+            by_land.setText(participant.getTown() != null ? participant.getTown() : participant.getCountry());
         }
 
         return convertView;

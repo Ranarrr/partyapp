@@ -8,6 +8,7 @@ import android.util.Base64;
 import android.widget.Toast;
 
 import com.partyspottr.appdir.BuildConfig;
+import com.partyspottr.appdir.R;
 import com.partyspottr.appdir.classes.Bruker;
 import com.partyspottr.appdir.ui.MainActivity;
 
@@ -19,14 +20,21 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Created by Ranarrr on 01-Jun-18.
+ *
+ * @author Ranarrr
+ */
+
 public class DeleteUser extends AsyncTask<Void, Void, Integer> {
     ProgressDialog progressDialog;
-    JSONObject info;
-    String error_msg;
+    private JSONObject info;
+    private String error_msg;
 
     public DeleteUser(Activity activity, String pass) {
-        progressDialog  = new ProgressDialog(activity);
+        progressDialog  = new ProgressDialog(activity, R.style.mydatepickerdialog);
         progressDialog.setOwnerActivity(activity);
+
         try {
             info = new JSONObject();
             info.put("socketElem", Base64.encodeToString(BuildConfig.JSONParser_Socket.getBytes(), Base64.DEFAULT));
@@ -92,12 +100,17 @@ public class DeleteUser extends AsyncTask<Void, Void, Integer> {
                 System.exit(0);
             }
         } else {
-            if(error_msg.equals("Wrong password."))
-                Toast.makeText(progressDialog.getContext(), "Wrong password. Please try again.", Toast.LENGTH_LONG).show();
-            else if(error_msg.equals("User not found."))
-                Toast.makeText(progressDialog.getContext(), "Failed to delete account, please send us an email at support@partyspottr.com.", Toast.LENGTH_LONG).show();
-            else
-                Toast.makeText(progressDialog.getContext(), "Failed to delete account, please try again later.", Toast.LENGTH_LONG).show();
+            switch (error_msg) {
+                case "Wrong password.":
+                    Toast.makeText(progressDialog.getContext(), "Wrong password. Please try again.", Toast.LENGTH_LONG).show();
+                    break;
+                case "User not found.":
+                    Toast.makeText(progressDialog.getContext(), "Failed to delete account, please send us an email at support@partyspottr.com.", Toast.LENGTH_LONG).show();
+                    break;
+                default:
+                    Toast.makeText(progressDialog.getContext(), "Failed to delete account, please try again later.", Toast.LENGTH_LONG).show();
+                    break;
+            }
         }
     }
 }

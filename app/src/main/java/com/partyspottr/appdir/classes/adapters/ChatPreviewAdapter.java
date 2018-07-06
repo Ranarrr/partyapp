@@ -71,7 +71,7 @@ public class ChatPreviewAdapter extends BaseAdapter {
                 convertView = layoutInflater.inflate(R.layout.empty_eventlist, parent, false);
                 TextView tom_liste = convertView.findViewById(R.id.empty_list);
                 tom_liste.setTypeface(MainActivity.typeface);
-                tom_liste.setText("You have no recent chats."); // TODO : Translation
+                tom_liste.setText(thisActivity.getResources().getString(R.string.no_recent_chats));
                 return convertView;
             }
         }
@@ -118,7 +118,7 @@ public class ChatPreviewAdapter extends BaseAdapter {
                         break;
 
                     case 2:
-                        time.setText("Yesterday");
+                        time.setText(thisActivity.getResources().getString(R.string.i_går));
                         break;
 
                     case 3:

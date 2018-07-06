@@ -47,14 +47,14 @@ public class alle_eventer_fragment extends Fragment {
             }
         });
 
+        if(listView != null)
+            listView.setAdapter(new EventAdapter(getActivity(), Bruker.get().getListOfEvents()));
+
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                if(listView != null)
-                    listView.setAdapter(new EventAdapter(getActivity(), Bruker.get().getListOfEvents()));
-
                 swipeRefreshLayout.setRefreshing(false);
             }
-        }, 1000);
+        }, 300);
     }
 }

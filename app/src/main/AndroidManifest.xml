@@ -87,11 +87,11 @@
          </activity>
         -->
 
-        <service
+        <!--<service
             android:name=".classes.services.NotificationService"
-            android:exported="false" />
+            android:exported="false" />-->
 
-        <receiver
+        <!--<receiver
             android:name=".classes.services.BootCompletedReciever"
             android:enabled="true"
             android:exported="false">
@@ -100,7 +100,7 @@
                 <action android:name="android.intent.action.BOOT_COMPLETED"/>
             </intent-filter>
 
-        </receiver>
+        </receiver>-->
     </application>
 
 </manifest>

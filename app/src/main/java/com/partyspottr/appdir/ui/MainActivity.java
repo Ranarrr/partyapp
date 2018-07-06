@@ -39,37 +39,10 @@ public class MainActivity extends AppCompatActivity {
 
         ctd.start();
 
-        /*ImageView mainImage = findViewById(R.id.mainImage);
-        Point size = new Point();
-        getWindowManager().getDefaultDisplay().getSize(size);
-        mainImage.setImageBitmap(Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.forsidebilde), size.x, size.y, true));*/
-
         Button loginbtn = findViewById(R.id.LoginBtn);
         EditText username = findViewById(R.id.brukernavnLoginText);
         EditText password = findViewById(R.id.passordLoginText);
         Button registrerbtn = findViewById(R.id.RegistrerBtn);
-
-        /*LoginButton loginButton = findViewById(R.id.fbLogin);
-
-        callbackManager = CallbackManager.Factory.create();
-
-        loginButton.setReadPermissions(Arrays.asList("", ""));
-        loginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
-            @Override
-            public void onSuccess(LoginResult loginResult) {
-
-            }
-
-            @Override
-            public void onCancel() {
-                Toast.makeText(MainActivity.this, "You cancelled the login-process.", Toast.LENGTH_SHORT).show();
-            }
-
-            @Override
-            public void onError(FacebookException error) {
-                Toast.makeText(MainActivity.this, "There was an unknown error, please try again.", Toast.LENGTH_LONG).show();
-            }
-        });*/
 
         registrerbtn.setTypeface(typeface);
         loginbtn.setTypeface(typeface);

@@ -13,6 +13,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.partyspottr.appdir.BuildConfig;
+import com.partyspottr.appdir.R;
 import com.partyspottr.appdir.classes.Bruker;
 import com.partyspottr.appdir.ui.MainActivity;
 import com.partyspottr.appdir.ui.ProfilActivity;
@@ -57,13 +58,13 @@ public class LogoutUser extends AsyncTask<Void, Void, Integer> {
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        progressDialog = new ProgressDialog(activity);
+        progressDialog = new ProgressDialog(activity, R.style.mydatepickerdialog);
         progressDialog.setOwnerActivity(activity);
     }
 
     @Override
     protected void onPreExecute() {
-        progressDialog.setMessage("Logging out.."); // TODO: fix translation
+        progressDialog.setMessage(progressDialog.getContext().getResources().getString(R.string.logging_out));
         progressDialog.setCanceledOnTouchOutside(false);
         progressDialog.show();
         super.onPreExecute();
@@ -99,7 +100,7 @@ public class LogoutUser extends AsyncTask<Void, Void, Integer> {
 
                     return 1;
                 } else {
-                    return -1;
+                    return 0;
                 }
             }
         } catch(JSONException e) {
@@ -123,10 +124,8 @@ public class LogoutUser extends AsyncTask<Void, Void, Integer> {
 
             if(progressDialog.getOwnerActivity() != null)
                 progressDialog.getOwnerActivity().finish();
-        } else if(integer == -1) {
-            //Toast.makeText(progressDialog.getContext(), "", Toast.LENGTH_SHORT).show(); // TODO: Fix translation
         } else {
-            Toast.makeText(progressDialog.getContext(), "Failed to logout.", Toast.LENGTH_SHORT).show(); // TODO: Fix translation
+            Toast.makeText(progressDialog.getContext(), progressDialog.getContext().getResources().getString(R.string.failed_logout), Toast.LENGTH_SHORT).show();
         }
     }
 }

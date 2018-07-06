@@ -2,6 +2,7 @@ package com.partyspottr.appdir.ui.mainfragments;
 
 import android.animation.ObjectAnimator;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -39,7 +40,7 @@ public class bilfragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull final View view, Bundle savedInstanceState) {
         AppCompatButton finn_bil_btn = view.findViewById(R.id.finn_bil_btn);
-        AppCompatButton min_bil_btn = view.findViewById(R.id.min_bil_btn);
+        final AppCompatButton min_bil_btn = view.findViewById(R.id.min_bil_btn);
 
         if(getActivity() == null)
             return;
@@ -55,14 +56,30 @@ public class bilfragment extends Fragment {
 
         if(bilFragment != null) {
             PagerAdapter pagerAdapter = new ScreenSliderPagerAdapter(bilFragment.getChildFragmentManager());
-            ViewPager viewPager = getActivity().findViewById(R.id.pagerview_bil);
+            final ViewPager viewPager = getActivity().findViewById(R.id.pagerview_bil);
+            final ImageView arrow_bilfragment = view.findViewById(R.id.arrow_bilfragment);
+
             if(viewPager != null) {
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        switch(viewPager.getCurrentItem()) {
+                            case 0:
+                                ObjectAnimator.ofFloat(arrow_bilfragment, "translationX", 0.0f).start();
+                                break;
+
+                            case 1:
+                                ObjectAnimator.ofFloat(arrow_bilfragment, "translationX", min_bil_btn.getWidth()).start();
+                                break;
+                        }
+                    }
+                }, 250);
+
                 viewPager.setAdapter(pagerAdapter);
                 viewPager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
                     @Override
                     public void onPageSelected(int position) {
                         AppCompatButton min_bil_btn = getActivity().findViewById(R.id.min_bil_btn);
-                        ImageView arrow_bilfragment = view.findViewById(R.id.arrow_bilfragment);
 
                         switch(position) {
                             case 0:

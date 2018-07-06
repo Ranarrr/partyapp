@@ -18,7 +18,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:text="Drikkeleker"
+            android:text="@string/drikkeleker"
             android:textColor="@color/white"
             android:textSize="@dimen/_18ssp"
             tools:layout_editor_absoluteX="134dp"

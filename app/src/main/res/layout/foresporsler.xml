@@ -9,7 +9,7 @@
     <android.support.v7.widget.Toolbar
         android:id="@+id/toolbar_foresporsler"
         android:layout_width="0dp"
-        android:layout_height="@dimen/_42sdp"
+        android:layout_height="@dimen/_40sdp"
         android:background="@drawable/border_bottom_fat"
         android:minHeight="?attr/actionBarSize"
         android:theme="?attr/actionBarTheme"
@@ -45,10 +45,10 @@
             tools:layout_editor_absoluteY="16dp" />
 
         <ImageButton
-            android:id="@+id/foresporsel_search2"
+            android:id="@+id/foresporsel_more_options"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:layout_gravity="center_vertical|start"
+            android:layout_gravity="center_vertical|end"
             android:background="@android:color/transparent"
             android:contentDescription="@null"
             android:scaleType="fitCenter"
@@ -57,7 +57,6 @@
             tools:layout_editor_absoluteY="16dp" />
 
     </android.support.v7.widget.Toolbar>
-
 
 
     <ListView
@@ -69,6 +68,9 @@
         android:layout_marginTop="@dimen/_8sdp"
         android:divider="@color/white"
         android:dividerHeight="1dp"
+        android:scrollbarSize="1dp"
+        android:scrollbarStyle="insideInset"
+        android:scrollbarThumbVertical="@color/white"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -85,6 +87,7 @@
         android:hint="Søk.."
         android:inputType="textPersonName"
         android:paddingStart="@dimen/_10sdp"
+        android:textColor="@color/white"
         android:textSize="@dimen/_15ssp"
         android:visibility="gone"
         app:layout_constraintEnd_toEndOf="@+id/lv_foresporsler"

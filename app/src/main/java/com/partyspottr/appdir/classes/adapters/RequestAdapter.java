@@ -1,23 +1,39 @@
 package com.partyspottr.appdir.classes.adapters;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.drawable.Drawable;
+import android.provider.Telephony;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.AppCompatButton;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.gson.Gson;
 import com.partyspottr.appdir.R;
+import com.partyspottr.appdir.classes.Bruker;
+import com.partyspottr.appdir.classes.Event;
+import com.partyspottr.appdir.classes.Participant;
 import com.partyspottr.appdir.classes.Requester;
 import com.partyspottr.appdir.classes.Utilities;
-import com.partyspottr.appdir.classes.networking.RemoveEventRequest;
 import com.partyspottr.appdir.ui.MainActivity;
+import com.partyspottr.appdir.ui.other_ui.EventDetails;
 
 import java.util.GregorianCalendar;
 import java.util.List;
@@ -85,46 +101,127 @@ public class RequestAdapter extends BaseAdapter {
 
                     countryflag.setImageDrawable(drawable);
                 }
-            } else {
+            } else
                 countryflag.setImageResource(R.drawable.dominican_republic);
-            }
 
             accept.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    new AlertDialog.Builder(thisActivity)
-                            .setTitle("Confirm").setMessage("Are you sure you want to accept " + requester.getBrukernavn() + "?")
+                    new AlertDialog.Builder(thisActivity, R.style.mydatepickerdialog)
+                            .setTitle("Confirm").setMessage("Are you sure you want to accept " + requester.getBrukernavn() + "?\n(This user will be notified)")
                             .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
-                                    RemoveEventRequest removeEventRequest = new RemoveEventRequest(thisActivity, eventId, requester.getBrukernavn(), true);
-                                    removeEventRequest.execute();
+                                    final ProgressDialog progressDialog = new ProgressDialog(thisActivity, R.style.mydatepickerdialog);
+                                    progressDialog.setCancelable(false);
+                                    progressDialog.setCanceledOnTouchOutside(false);
+                                    progressDialog.setMessage("Processing..");
+                                    progressDialog.show();
+
+                                    final Event event = Bruker.get().getEventFromID(eventId);
+                                    final DatabaseReference requestref = FirebaseDatabase.getInstance().getReference("events").child(String.valueOf(eventId)).child("requests");
+
+                                    Requester.removeRequest(event.getRequests(), requester.getBrukernavn());
+
+                                    requestref.setValue(new Gson().toJson(event.getRequests())).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                        @Override
+                                        public void onSuccess(Void aVoid) {
+                                            DatabaseReference participantref = FirebaseDatabase.getInstance().getReference("events").child(String.valueOf(eventId)).child("participants");
+
+                                            event.getParticipants().add(Participant.convertRequesterParticipant(requester));
+
+                                            participantref.setValue(new Gson().toJson(event.getParticipants())).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                @Override
+                                                public void onSuccess(Void aVoid) {
+                                                    Toast.makeText(thisActivity, "Successfully accepted " + requester.getBrukernavn(), Toast.LENGTH_SHORT).show();
+
+                                                    ListView lv_requests = thisActivity.findViewById(R.id.lv_foresporsler);
+
+                                                    if(lv_requests != null)
+                                                        lv_requests.setAdapter(new RequestAdapter(thisActivity, event.getRequests(), eventId));
+                                                }
+                                            }).addOnFailureListener(new OnFailureListener() {
+                                                @Override
+                                                public void onFailure(@NonNull Exception e) {
+                                                    Toast.makeText(thisActivity, "Failed to accept " + requester.getBrukernavn() + ".", Toast.LENGTH_SHORT).show();
+                                                }
+                                            }).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                @Override
+                                                public void onComplete(@NonNull Task<Void> task) {
+                                                    progressDialog.hide();
+                                                    requestref.onDisconnect();
+                                                }
+                                            });
+                                        }
+                                    });
                                 }
-                            }).show();
+                            }).setNegativeButton("No", null)
+                            .show();
                 }
             });
 
             reject.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    new AlertDialog.Builder(thisActivity)
-                            .setTitle("Confirm").setMessage("Are you sure you want to reject " + requester.getBrukernavn() + "?")
+                    new AlertDialog.Builder(thisActivity, R.style.mydatepickerdialog)
+                            .setTitle("Confirm").setMessage("Are you sure you want to reject " + requester.getBrukernavn() + "?\n(This user will be notified)")
                             .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
-                                    RemoveEventRequest removeEventRequest = new RemoveEventRequest(thisActivity, eventId, requester.getBrukernavn(), false);
-                                    removeEventRequest.execute();
+                                    final ProgressDialog progressDialog = new ProgressDialog(thisActivity, R.style.mydatepickerdialog);
+                                    progressDialog.setCancelable(false);
+                                    progressDialog.setCanceledOnTouchOutside(false);
+                                    progressDialog.setMessage("Processing..");
+                                    progressDialog.show();
+
+                                    final Event event = Bruker.get().getEventFromID(eventId);
+                                    final DatabaseReference ref = FirebaseDatabase.getInstance().getReference("events").child(String.valueOf(eventId)).child("requests");
+
+                                    Requester.removeRequest(event.getRequests(), requester.getBrukernavn());
+
+                                    ref.setValue(new Gson().toJson(event.getRequests())).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                        @Override
+                                        public void onSuccess(Void aVoid) {
+                                            AppCompatButton details_deltaforesprsler = thisActivity.findViewById(R.id.details_delta_btn);
+
+                                            details_deltaforesprsler.setEnabled(true);
+
+                                            if(EventDetails.onclickDetails != null)
+                                                details_deltaforesprsler.setOnClickListener(EventDetails.onclickDetails);
+
+                                            ListView lv_requests = thisActivity.findViewById(R.id.lv_foresporsler);
+
+                                            if(lv_requests != null)
+                                                lv_requests.setAdapter(new RequestAdapter(thisActivity, event.getRequests(), eventId));
+
+                                            Toast.makeText(thisActivity, "Successfully rejected " + requester.getBrukernavn(), Toast.LENGTH_SHORT).show();
+                                        }
+                                    }).addOnFailureListener(new OnFailureListener() {
+                                        @Override
+                                        public void onFailure(@NonNull Exception e) {
+                                            Toast.makeText(thisActivity, "Failed to reject " + requester.getBrukernavn() + ".", Toast.LENGTH_SHORT).show();
+                                        }
+                                    }).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<Void> task) {
+                                            progressDialog.hide();
+                                            ref.onDisconnect();
+                                        }
+                                    });
                                 }
-                            }).show();
+                            }).setNegativeButton("No", null)
+                            .show();
                 }
             });
 
-            brukernavn.setText(String.format(Locale.ENGLISH, "%s, %d", requester.getBrukernavn(), Utilities.calcAge(new GregorianCalendar(requester.getYear(), requester.getMonth(), requester.getDay_of_month()))));
+            int age = Utilities.calcAge(new GregorianCalendar(requester.getYear(), requester.getMonth(), requester.getDay_of_month()));
 
-            if(requester.getTown() != null)
-                by.setText(requester.getTown());
+            if(age > 1000)
+                brukernavn.setText(String.format(Locale.ENGLISH, "%s", requester.getBrukernavn()));
             else
-                by.setText(requester.getCountry());
+                brukernavn.setText(String.format(Locale.ENGLISH, "%s, %d", requester.getBrukernavn(), age));
+
+            by.setText(requester.getTown() != null ? requester.getTown() : requester.getCountry());
         }
 
         return convertView;

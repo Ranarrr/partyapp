@@ -106,8 +106,6 @@ public class Utilities {
     public static final int LOCATION_REQUEST_CODE = 1000;
     public static final int READ_EXTERNAL_STORAGE_CODE = 1001;
     public static final int SELECT_IMAGE_CODE = 1003;
-    public static final int SELECT_PROFILE_IMAGE_CODE = 1004;
-    public static final int CROP_PICTURE = 1005;
 
     public static final Type listFriendsType = new TypeToken<List<Friend>>(){}.getType();
     public static final Type listParticipantsType = new TypeToken<List<Participant>>(){}.getType();
@@ -128,7 +126,6 @@ public class Utilities {
         NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
 
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();
-
     }
 
     public static GregorianCalendar getDateFromString(String str, String format) {
@@ -185,7 +182,7 @@ public class Utilities {
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
                 if(databaseError.getCode() == DatabaseError.NETWORK_ERROR  && activity != null)
-                    Toast.makeText(activity, "Could not find chats.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(activity, activity.getResources().getString(R.string.could_not_find_chats), Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -193,7 +190,7 @@ public class Utilities {
     public static Location getLatLng(Activity activity) {
         if(ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED ||
                 ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            Toast.makeText(activity, "Please allow Partyspottr to find your location.", Toast.LENGTH_LONG).show(); // TODO : Translation
+            Toast.makeText(activity, activity.getResources().getString(R.string.please_allow), Toast.LENGTH_LONG).show();
             System.exit(0);
         }
 
@@ -209,12 +206,12 @@ public class Utilities {
             }
 
             if(location == null) {
-                Toast.makeText(activity, "Please try again later..", Toast.LENGTH_LONG).show(); // TODO : Translation
+                Toast.makeText(activity, activity.getResources().getString(R.string.try_again_later), Toast.LENGTH_LONG).show();
                 return null;
             } else
                 return location;
         } else {
-            Toast.makeText(activity, "Please try again later..", Toast.LENGTH_LONG).show(); // TODO : Translation
+            Toast.makeText(activity, activity.getResources().getString(R.string.try_again_later), Toast.LENGTH_LONG).show();
             return null;
         }
     }
@@ -227,7 +224,7 @@ public class Utilities {
     public static void getPosition(Activity activity) {
         if(ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED ||
                 ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            Toast.makeText(activity, "Please allow Partyspottr to find your location.", Toast.LENGTH_LONG).show(); // TODO : Translation
+            Toast.makeText(activity, activity.getResources().getString(R.string.please_allow), Toast.LENGTH_LONG).show();
             System.exit(0);
         }
 
@@ -267,51 +264,6 @@ public class Utilities {
                 }
             }
         }
-    }
-
-    public static void OnClickDetails(final Activity activity, final Event event) {
-        new AlertDialog.Builder(activity, R.style.mydatepickerdialog)
-                .setTitle("Remove")
-                .setMessage("Do you want to remove your request?")
-                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        // REMOVE REQUEST
-                        final DatabaseReference ref = FirebaseDatabase.getInstance().getReference("events").child(event.getHostStr() + "_" + event.getNameofevent());
-
-                        ref.addChildEventListener(new ChildEventListener() {
-                            @Override
-                            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-                                if(dataSnapshot.getKey() != null) {
-                                    if(dataSnapshot.getKey().equals("requests")) {
-                                        List<Requester> requesters = new Gson().fromJson(dataSnapshot.getValue(String.class), Utilities.listRequestsType);
-                                        Requester.removeRequest(requesters, Bruker.get().getBrukernavn());
-                                        ref.child("requests").setValue(new Gson().toJson(requesters)).addOnSuccessListener(new OnSuccessListener<Void>() {
-                                            @Override
-                                            public void onSuccess(Void aVoid) {
-                                                Toast.makeText(activity, "Removed request!", Toast.LENGTH_SHORT).show();
-                                            }
-                                        });
-                                    }
-                                }
-                            }
-
-                            @Override
-                            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {}
-                            @Override
-                            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {}
-                            @Override
-                            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {}
-                            @Override
-                            public void onCancelled(@NonNull DatabaseError databaseError) {}
-                        });
-                    }
-                })
-                .setNegativeButton("No", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {}
-                })
-                .show();
     }
 
     // Narch", "Vors", "Party", "Concert", "Nightclub", "Birthday", "Festival"
@@ -640,9 +592,8 @@ public class Utilities {
                             public void afterTextChanged(Editable s) {}
                         });
                     }
-                } else {
-                    Toast.makeText(activity, "You don't have any events!", Toast.LENGTH_SHORT).show(); // TODO: fix translation
-                }
+                } else
+                    Toast.makeText(activity, activity.getResources().getString(R.string.you_dont_have_events), Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -942,7 +893,7 @@ public class Utilities {
                     UpdateEvent updateEvent = new UpdateEvent(dialog.getOwnerActivity(), creating_event, EventDetails.edit_event_imagechange.getBmp());
                     updateEvent.execute();
                 } else {
-                    AddEvent addEvent = new AddEvent(dialog, creating_event, ProfilActivity.imageChange.getImage());
+                    AddEvent addEvent = new AddEvent(dialog, creating_event, ProfilActivity.imageChange.getBmp());
                     addEvent.execute();
                 }
             }
@@ -977,7 +928,7 @@ public class Utilities {
                     UpdateEvent updateEvent = new UpdateEvent(dialog.getOwnerActivity(), creating_event, EventDetails.edit_event_imagechange.getBmp());
                     updateEvent.execute();
                 } else {
-                    AddEvent addEvent = new AddEvent(dialog, creating_event, ProfilActivity.imageChange.getImage());
+                    AddEvent addEvent = new AddEvent(dialog, creating_event, ProfilActivity.imageChange.getBmp());
                     addEvent.execute();
                 }
             }
@@ -1066,28 +1017,6 @@ public class Utilities {
 
             view.setVisibility(View.VISIBLE);
         }
-    }
-
-    /**
-     * @param name The provided name to be used as a key in the NameValuePair.
-     * @param strings Args to be used in the GET request, i == key, i + 1 == value.
-     * @return Returns full pair string to be used in a GET request.
-     */
-    public static String getGETMethodArgStr(String name, String ... strings) {
-        JSONObject json = new JSONObject();
-
-        for(int i = 0; i < strings.length; i += 2) {
-            String strName = strings[i];
-            String strValue = strings[i+1];
-
-            try {
-                json.put(strName, strValue);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        }
-
-        return BuildConfig.DBMS_URL + "?" + name + "=" + json.toString();
     }
 
     public static void showEventDetailRequests(final Activity activity, final Event event) {
@@ -1308,21 +1237,4 @@ public class Utilities {
         options.inJustDecodeBounds = false;
         return BitmapFactory.decodeFile(path, options);
     }
-
-    /*public static Bitmap decodeSampledBitmapFromResource(Resources res, int resId, int reqWidth, int reqHeight) {
-
-        // First decode with inJustDecodeBounds=true to check dimensions
-        final BitmapFactory.Options options = new BitmapFactory.Options();
-        options.inJustDecodeBounds = true;
-        BitmapFactory.decodeResource(res, resId, options);
-
-        // Calculate inSampleSize
-        options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight);
-
-        // Decode bitmap with inSampleSize set
-        options.inJustDecodeBounds = false;
-        return BitmapFactory.decodeResource(res, resId, options);
-    }*/
-
-
 }

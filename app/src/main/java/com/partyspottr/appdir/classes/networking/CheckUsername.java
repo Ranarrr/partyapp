@@ -22,7 +22,6 @@ import java.util.List;
 
 /**
  * Created by Ranarrr on 27-Jan-18.
- * NETWORKING ASYNCHRONOUSLY
  *
  * @author Ranarrr
  */
@@ -40,7 +39,7 @@ public class CheckUsername extends AsyncTask<Void, Void, Integer> {
             e.printStackTrace();
         }
 
-        progressDialog = new ProgressDialog(activity);
+        progressDialog = new ProgressDialog(activity, R.style.mydatepickerdialog);
         progressDialog.setCanceledOnTouchOutside(false);
     }
 

@@ -29,7 +29,7 @@ public class GetLocationInfo extends AsyncTask<Void, Void, Integer> {
 
     public GetLocationInfo(Dialog dialog, String address, String postal_code) {
         if(dialog.getOwnerActivity() != null) {
-            progressDialog = new ProgressDialog(dialog.getContext());
+            progressDialog = new ProgressDialog(dialog.getContext(), R.style.mydatepickerdialog);
             progressDialog.setOwnerActivity(dialog.getOwnerActivity());
             dilog = dialog;
         }
@@ -71,6 +71,6 @@ public class GetLocationInfo extends AsyncTask<Void, Void, Integer> {
                 ((TextView) dilog.findViewById(R.id.by_textview)).setText(eventToUse.getTown());
         } else
             if(dilog != null)
-                ((TextView) dilog.findViewById(R.id.by_textview)).setText("By"); // TODO : translation
+                ((TextView) dilog.findViewById(R.id.by_textview)).setText(progressDialog.getContext().getResources().getString(R.string.town));
     }
 }

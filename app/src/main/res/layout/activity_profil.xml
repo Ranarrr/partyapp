@@ -16,6 +16,7 @@
         android:layout_alignParentEnd="true"
         android:layout_alignParentStart="true"
         android:layout_below="@+id/toolbar_profil"
+        android:layout_marginBottom="@dimen/_5sdp"
         android:background="@color/lightgrey"
         app:layout_constraintTop_toTopOf="parent"
         tools:layout_editor_absoluteX="8dp">
@@ -142,6 +143,8 @@
             android:layout_marginBottom="@dimen/_10sdp"
             android:layout_marginTop="@dimen/_10sdp"
             android:background="@android:color/transparent"
+            android:contentDescription="@null"
+            android:onClick="onAlarmClick"
             android:scaleType="fitCenter"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/imageButton4"

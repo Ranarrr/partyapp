@@ -6,8 +6,6 @@
     android:background="@color/colorPrimary"
     tools:context="com.partyspottr.appdir.ui.mainfragments.eventchildfragments.mine_eventer_fragment">
 
-    <!-- TODO: Update blank fragment layout -->
-
     <ListView
         android:id="@+id/lvmine_eventer"
         android:layout_width="0dp"

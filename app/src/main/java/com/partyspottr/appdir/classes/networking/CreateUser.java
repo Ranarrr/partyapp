@@ -49,7 +49,7 @@ public class CreateUser extends AsyncTask<Void, Void, Integer> {
             e.printStackTrace();
         }
 
-        progressDialog = new ProgressDialog(c);
+        progressDialog = new ProgressDialog(c, R.style.mydatepickerdialog);
         progressDialog.setMessage(c.getResources().getString(R.string.registrerer_bruker));
         progressDialog.setCanceledOnTouchOutside(false);
     }

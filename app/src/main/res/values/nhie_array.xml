@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string-array name="nhie_game_array">
+    <string-array name="nhie_game_array" translatable="false">
         <item name="1">shoplifted</item>
         <item name="2">been part of a fight</item>
         <item name="3">borrowed my parents car without their permission</item>

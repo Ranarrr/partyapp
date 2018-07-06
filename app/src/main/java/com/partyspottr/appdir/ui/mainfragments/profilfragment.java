@@ -99,20 +99,9 @@ public class profilfragment extends Fragment {
             }
         });
 
-        if(Bruker.get().getProfilepic() == null) {
-            StorageReference ref = ProfilActivity.storage.getReference().child(Bruker.get().getBrukernavn());
-            ref.getBytes(2048 * 2048).addOnSuccessListener(new OnSuccessListener<byte[]>() {
-                @Override
-                public void onSuccess(byte[] bytes) {
-                    profilbilde.setImageBitmap(BitmapFactory.decodeByteArray(bytes, 0, bytes.length));
-                }
-            }).addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception e) {
-                    profilbilde.setImageDrawable(getResources().getDrawable(R.drawable.mannmeny));
-                }
-            });
-        } else
+        if(Bruker.get().getProfilepic() == null)
+            profilbilde.setImageDrawable(getResources().getDrawable(R.drawable.mannmeny));
+        else
             profilbilde.setImageBitmap(Bruker.get().getProfilepic());
 
         profilbilde.setOnClickListener(new View.OnClickListener() {
@@ -131,7 +120,6 @@ public class profilfragment extends Fragment {
             public void propertyChange(PropertyChangeEvent evt) {
                 profilbilde.setImageBitmap(profile_imagechange.getBmp());
                 Bruker.get().setProfilepic(profile_imagechange.getBmp());
-                Bruker.get().LagreBruker();
 
                 StorageMetadata metadata = new StorageMetadata.Builder()
                         .setContentType("image/jpg")
@@ -181,7 +169,7 @@ public class profilfragment extends Fragment {
             public void onClick(View v) {
                 new AlertDialog.Builder(getActivity(), R.style.mydatepickerdialog)
                         .setTitle(getActivity().getResources().getString(R.string.logg_ut))
-                        .setMessage("Er du sikker på at du vil logge ut?") // TODO: Translation
+                        .setMessage(getString(R.string.logg_ut_melding)) // TODO: Translation
                         .setPositiveButton(getActivity().getResources().getString(R.string.nei), new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {}

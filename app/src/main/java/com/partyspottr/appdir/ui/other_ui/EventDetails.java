@@ -1,22 +1,22 @@
 package com.partyspottr.appdir.ui.other_ui;
 
 import android.Manifest;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
 import android.support.constraint.ConstraintSet;
@@ -58,6 +58,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.StorageMetadata;
 import com.google.firebase.storage.StorageReference;
+import com.google.gson.Gson;
 import com.partyspottr.appdir.R;
 import com.partyspottr.appdir.classes.Bruker;
 import com.partyspottr.appdir.classes.Event;
@@ -66,9 +67,6 @@ import com.partyspottr.appdir.classes.Participant;
 import com.partyspottr.appdir.classes.Requester;
 import com.partyspottr.appdir.classes.Utilities;
 import com.partyspottr.appdir.classes.adapters.GuestListAdapter;
-import com.partyspottr.appdir.classes.adapters.RequestAdapter;
-import com.partyspottr.appdir.classes.networking.AddEventRequest;
-import com.partyspottr.appdir.classes.networking.AddParticipant;
 import com.partyspottr.appdir.classes.networking.GetLocationInfo;
 import com.partyspottr.appdir.enums.EventStilling;
 import com.partyspottr.appdir.enums.ReturnWhere;
@@ -77,8 +75,6 @@ import com.partyspottr.appdir.ui.ProfilActivity;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -96,6 +92,7 @@ import static com.partyspottr.appdir.ui.MainActivity.typeface;
 
 public class EventDetails extends AppCompatActivity {
     public static ImageChange edit_event_imagechange = new ImageChange();
+    public static View.OnClickListener onclickDetails;
 
     @Override
     protected void onStop() {
@@ -147,11 +144,10 @@ public class EventDetails extends AppCompatActivity {
         final Toolbar toolbar = findViewById(R.id.toolbar5);
         final ImageView bilde = findViewById(R.id.imageView);
         toolbar.setNavigationIcon(getResources().getDrawable(R.drawable.left_arrow));
-        TextView kategori = findViewById(R.id.event_details_kategori);
+        final TextView kategori = findViewById(R.id.event_details_kategori);
+        final AppCompatButton details_deltaforesprsler = findViewById(R.id.details_delta_btn);
 
         kategori.setTypeface(MainActivity.typeface);
-        String firstletter = event.getCategory().toString().substring(0, 1).toUpperCase();
-        kategori.setText(String.format(Locale.ENGLISH, "%s%s", firstletter, event.getCategory().toString().toLowerCase().substring(1, event.getCategory().toString().length())));
 
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
@@ -160,170 +156,65 @@ public class EventDetails extends AppCompatActivity {
             }
         });
 
+        onclickDetails = new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                new AlertDialog.Builder(EventDetails.this, R.style.mydatepickerdialog)
+                        .setTitle("Remove")
+                        .setMessage("Do you want to remove your request?")
+                        .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                // REMOVE REQUEST
+                                final ProgressDialog progressDialog = new ProgressDialog(EventDetails.this, R.style.mydatepickerdialog);
+                                progressDialog.setCancelable(false);
+                                progressDialog.setCanceledOnTouchOutside(false);
+                                progressDialog.setMessage("Processing..");
+                                progressDialog.show();
+
+                                final DatabaseReference ref = FirebaseDatabase.getInstance().getReference("events").child(String.valueOf(event.getEventId())).child("requests");
+
+                                Requester.removeRequest(event.getRequests(), Bruker.get().getBrukernavn());
+                                ref.setValue(new Gson().toJson(event.getRequests())).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void aVoid) {
+                                        Toast.makeText(EventDetails.this, "Removed request!", Toast.LENGTH_SHORT).show();
+                                        DoRefresh(event, host, aldersgrense_details, antall_deltakere, tittel, sted, poststed, beskrivelse, datofra, datotil, bilde, details_deltaforesprsler, swipeRefreshLayout,
+                                                kategori);
+                                    }
+                                }).addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        Toast.makeText(EventDetails.this, "Failed to remove your request.", Toast.LENGTH_SHORT).show();
+                                    }
+                                }).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Void> task) {
+                                        progressDialog.hide();
+                                        ref.onDisconnect();
+                                    }
+                                });
+                            }
+                        })
+                        .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {}
+                        })
+                        .show();
+            }
+        };
+
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                Event updatedEvent = Bruker.get().getEventFromID(event.getEventId());
-                event.CopyEvent(updatedEvent);
-
-                if(updatedEvent.getHostStr().equals(Bruker.get().getBrukernavn()))
-                    host.setText(String.format(Locale.ENGLISH, "Host: %s (deg)", updatedEvent.getHostStr()));
-                else
-                    host.setText(String.format(Locale.ENGLISH, "Host: %s", updatedEvent.getHostStr()));
-
-                aldersgrense_details.setText(String.format(Locale.ENGLISH,"Aldersgrense: %d", updatedEvent.getAgerestriction()));
-
-                antall_deltakere.setText(String.format(Locale.ENGLISH, "%d av %d skal.", updatedEvent.getParticipants().size(), updatedEvent.getMaxparticipants()));
-
-                tittel.setText(updatedEvent.getNameofevent());
-                sted.setText(String.format(Locale.ENGLISH, "%s", updatedEvent.getAddress()));
-                poststed.setText(String.format(Locale.ENGLISH, "%s, %s", updatedEvent.getPostalcode(), updatedEvent.getTown()));
-
-                if(updatedEvent.getDescription() != null)
-                    beskrivelse.setText(updatedEvent.getDescription());
-
-                StringBuilder finaldatofra = new StringBuilder(), finaldatotil = new StringBuilder();
-
-                if(event.getDatefrom() == 0) {
-                    onBackPressed();
-                    return;
-                } else {
-                    GregorianCalendar datefrom = new GregorianCalendar();
-                    datefrom.setTimeInMillis(event.getDatefrom());
-                    if(event.getDateto() == 0) {
-                        if(datefrom.get(Calendar.YEAR) == Calendar.getInstance().get(Calendar.YEAR)) {
-                            finaldatofra.append(String.format(Locale.ENGLISH, "Starter %02d %s kl: %02d:%02d", datefrom.get(Calendar.DAY_OF_MONTH),
-                                    datefrom.getDisplayName(Calendar.MONTH, Calendar.SHORT, getResources().getConfiguration().locale).toLowerCase(),
-                                    datefrom.get(Calendar.HOUR_OF_DAY), datefrom.get(Calendar.MINUTE)));
-
-                            Spannable spannable = new SpannableString(finaldatofra.toString());
-
-                            spannable.setSpan(new ForegroundColorSpan(Color.GRAY), 0, "Starter".length(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
-
-                            spannable.setSpan(new ForegroundColorSpan(Color.GRAY), finaldatofra.indexOf("kl:"), (finaldatofra.indexOf("kl:") + "kl:".length()), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
-
-                            datofra.setText(spannable, TextView.BufferType.SPANNABLE);
-                        } else {
-                            finaldatofra.append(String.format(Locale.ENGLISH, "Starter %02d %s %d kl: %02d:%02d", datefrom.get(Calendar.DAY_OF_MONTH),
-                                    datefrom.getDisplayName(Calendar.MONTH, Calendar.SHORT, getResources().getConfiguration().locale).toLowerCase(), datefrom.get(Calendar.YEAR),
-                                    datefrom.get(Calendar.HOUR_OF_DAY), datefrom.get(Calendar.MINUTE)));
-                        }
-
-                        datotil.setVisibility(View.GONE);
-                    } else {
-                        GregorianCalendar dateto = new GregorianCalendar();
-                        dateto.setTimeInMillis(event.getDateto());
-                        if(dateto.get(Calendar.YEAR) == datefrom.get(Calendar.YEAR)) {
-                            if(dateto.get(Calendar.DAY_OF_MONTH) == datefrom.get(Calendar.DAY_OF_MONTH)) { // TODO: ADD CHECKING MONTH
-                                if(datefrom.get(Calendar.YEAR) == Calendar.getInstance().get(Calendar.YEAR)) {
-                                    finaldatofra.append(String.format(Locale.ENGLISH, "Fra %s %02d %s kl: %02d:%02d - %02d:%02d", datefrom.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG,
-                                            getResources().getConfiguration().locale), datefrom.get(Calendar.DAY_OF_MONTH), datefrom.getDisplayName(Calendar.MONTH, Calendar.SHORT,
-                                            getResources().getConfiguration().locale).toLowerCase(), datefrom.get(Calendar.HOUR_OF_DAY), datefrom.get(Calendar.MINUTE), dateto.get(Calendar.HOUR_OF_DAY),
-                                            dateto.get(Calendar.MINUTE)));
-
-                                    Spannable spannable = new SpannableString(finaldatofra.toString());
-
-                                    spannable.setSpan(new ForegroundColorSpan(Color.GRAY), 0, "Fra".length(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
-
-                                    spannable.setSpan(new ForegroundColorSpan(Color.GRAY), finaldatofra.indexOf("kl:"), (finaldatofra.indexOf("kl:") + "kl:".length()), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
-
-                                    datofra.setText(spannable, TextView.BufferType.SPANNABLE);
-                                } else {
-                                    finaldatofra.append(String.format(Locale.ENGLISH, "Fra %02d %s %d kl: %02d:%02d - %02d:%02d", datefrom.get(Calendar.DAY_OF_MONTH),
-                                            datefrom.getDisplayName(Calendar.MONTH, Calendar.SHORT, getResources().getConfiguration().locale).toLowerCase(), datefrom.get(Calendar.YEAR),
-                                            datefrom.get(Calendar.HOUR_OF_DAY), datefrom.get(Calendar.MINUTE), dateto.get(Calendar.HOUR_OF_DAY), dateto.get(Calendar.MINUTE)));
-                                }
-
-                                datotil.setVisibility(View.GONE);
-                            } else {
-                                finaldatofra.append(String.format(Locale.ENGLISH, "Fra %02d %s kl: %02d:%02d", datefrom.get(Calendar.DAY_OF_MONTH),
-                                        datefrom.getDisplayName(Calendar.MONTH, Calendar.SHORT, getResources().getConfiguration().locale).toLowerCase(), datefrom.get(Calendar.HOUR_OF_DAY),
-                                        datefrom.get(Calendar.MINUTE)));
-
-                                finaldatotil.append(String.format(Locale.ENGLISH, "Til %02d %s kl: %02d:%02d", dateto.get(Calendar.DAY_OF_MONTH),
-                                        dateto.getDisplayName(Calendar.MONTH, Calendar.SHORT, getResources().getConfiguration().locale).toLowerCase(), dateto.get(Calendar.HOUR_OF_DAY),
-                                        dateto.get(Calendar.MINUTE)));
-                            }
-                        } else {
-                            finaldatofra.append(String.format(Locale.ENGLISH, "Fra %02d %s %d kl: %02d:%02d", datefrom.get(Calendar.DAY_OF_MONTH),
-                                    datefrom.getDisplayName(Calendar.MONTH, Calendar.SHORT, getResources().getConfiguration().locale).toLowerCase(), datefrom.get(Calendar.YEAR),
-                                    datefrom.get(Calendar.HOUR_OF_DAY), datefrom.get(Calendar.MINUTE)));
-
-                            finaldatotil.append(String.format(Locale.ENGLISH, "Til %02d %s %d kl: %02d:%02d", dateto.get(Calendar.DAY_OF_MONTH),
-                                    dateto.getDisplayName(Calendar.MONTH, Calendar.SHORT, getResources().getConfiguration().locale).toLowerCase(), dateto.get(Calendar.YEAR),
-                                    dateto.get(Calendar.HOUR_OF_DAY), dateto.get(Calendar.MINUTE)));
-                        }
-                    }
-                }
-
-                datotil.setText(finaldatotil.toString());
-
-                if(finaldatotil.toString().isEmpty()) {
-                    datotil.setVisibility(View.GONE);
-                    ConstraintLayout layout = findViewById(R.id.datostraint);
-                    ConstraintSet set = new ConstraintSet();
-
-                    set.clone(layout);
-                    set.centerVertically(datofra.getId(), layout.getId());
-                    set.applyTo(layout);
-                } else {
-                    datotil.setVisibility(View.VISIBLE);
-                }
-
-                if(event.isHasimage()) {
-                    final StorageReference picRef = ProfilActivity.storage.getReference().child(event.getHostStr() + "_" + event.getNameofevent());
-
-                    if (Bruker.getEventImageSizeByName(event.getHostStr(), event.getNameofevent()) > 0) {
-                        picRef.getMetadata().addOnSuccessListener(new OnSuccessListener<StorageMetadata>() {
-                            @Override
-                            public void onSuccess(StorageMetadata storageMetadata) {
-                                if (storageMetadata.getSizeBytes() == Bruker.getEventImageSizeByName(event.getHostStr(), event.getNameofevent())) {
-                                    bilde.setImageBitmap(Bruker.getEventImages().get(event.getHostStr() + "_" + event.getNameofevent() + "_" + String.valueOf(storageMetadata.getSizeBytes())));
-                                } else {
-                                    picRef.getBytes(2048 * 2048).addOnSuccessListener(new OnSuccessListener<byte[]>() {
-                                        @Override
-                                        public void onSuccess(byte[] bytes) {
-                                            bilde.setImageBitmap(BitmapFactory.decodeByteArray(bytes, 0, bytes.length));
-                                            Bruker.RemoveEventImage(event.getHostStr(), event.getNameofevent());
-                                            Bruker.AddEventImage(event.getHostStr() + "_" + event.getNameofevent() + "_" + String.valueOf(bytes.length), BitmapFactory.decodeByteArray(bytes, 0, bytes.length));
-                                        }
-                                    }).addOnFailureListener(new OnFailureListener() {
-                                        @Override
-                                        public void onFailure(@NonNull Exception e) {
-                                            bilde.setImageDrawable(EventDetails.this.getResources().getDrawable(R.drawable.error_loading_image));
-                                        }
-                                    });
-                                }
-                            }
-                        }).addOnFailureListener(new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
-                                bilde.setImageBitmap(Bruker.getEventImages().get(event.getHostStr() + "_" + event.getNameofevent()));
-                            }
-                        });
-                    } else {
-                        picRef.getBytes(2048 * 2048).addOnSuccessListener(new OnSuccessListener<byte[]>() {
-                            @Override
-                            public void onSuccess(byte[] bytes) {
-                                bilde.setImageBitmap(BitmapFactory.decodeByteArray(bytes, 0, bytes.length));
-                                Bruker.AddEventImage(event.getHostStr() + "_" + event.getNameofevent() + "_" + String.valueOf(bytes.length), BitmapFactory.decodeByteArray(bytes, 0, bytes.length));
-                            }
-                        }).addOnFailureListener(new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
-                                bilde.setImageDrawable(getResources().getDrawable(R.drawable.error_loading_image));
-                            }
-                        });
-                    }
-                } else
-                    bilde.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
+                DoRefresh(event, host, aldersgrense_details, antall_deltakere, tittel, sted, poststed, beskrivelse, datofra, datotil, bilde, details_deltaforesprsler, swipeRefreshLayout, kategori);
 
                 swipeRefreshLayout.setRefreshing(false);
             }
         });
 
         //noinspection AndroidLintClickableViewAccessibility
-        /*asdoisjad.setOnTouchListener(new OnSwipeGestureListener(this) {
+        /*asdoisjad.setOnTouchListener(new OnSwipeGestureListener(this) { TODO : Gotta fix this, looks so much better than whatever shit, only the navi icon is shit
             @Override
             public void onSwipeRight() {
                 onBackPressed();
@@ -337,6 +228,7 @@ public class EventDetails extends AppCompatActivity {
         aldersgrense_details.setTypeface(typeface);
         host.setTypeface(typeface);
         datotil.setTypeface(typeface);
+        details_deltaforesprsler.setTypeface(MainActivity.typeface);
         beskrivelse.setTypeface(typeface);
         antall_deltakere.setTypeface(typeface);
 
@@ -816,6 +708,7 @@ public class EventDetails extends AppCompatActivity {
                 if((bruker != null && bruker.getStilling() != EventStilling.VERT) || bruker == null) {
                     popupMenu.getMenu().removeItem(R.id.check_requests_event);
                     popupMenu.getMenu().removeItem(R.id.edit_event);
+                    popupMenu.getMenu().removeItem(R.id.delete_event);
                 }
 
                 if(!event.isShowguestlist() && bruker == null)
@@ -825,73 +718,67 @@ public class EventDetails extends AppCompatActivity {
             }
         });
 
-        if(event.isHasimage()) {
-            final StorageReference picRef = ProfilActivity.storage.getReference().child(event.getHostStr() + "_" + event.getNameofevent());
-
-            if(Bruker.getEventImageSizeByName(event.getHostStr(), event.getNameofevent()) > 0) {
-                picRef.getMetadata().addOnSuccessListener(new OnSuccessListener<StorageMetadata>() {
-                    @Override
-                    public void onSuccess(StorageMetadata storageMetadata) {
-                        if (storageMetadata.getSizeBytes() == Bruker.getEventImageSizeByName(event.getHostStr(), event.getNameofevent())) {
-                            bilde.setImageBitmap(Bruker.getEventImages().get(event.getHostStr() + "_" + event.getNameofevent() + "_" + String.valueOf(storageMetadata.getSizeBytes())));
-                        } else {
-                            picRef.getBytes(2048 * 2048).addOnSuccessListener(new OnSuccessListener<byte[]>() {
-                                @Override
-                                public void onSuccess(byte[] bytes) {
-                                    bilde.setImageBitmap(BitmapFactory.decodeByteArray(bytes, 0, bytes.length));
-                                    Bruker.RemoveEventImage(event.getHostStr(), event.getNameofevent());
-                                    Bruker.AddEventImage(event.getHostStr() + "_" + event.getNameofevent() + "_" + String.valueOf(bytes.length), BitmapFactory.decodeByteArray(bytes, 0, bytes.length));
-                                }
-                            }).addOnFailureListener(new OnFailureListener() {
-                                @Override
-                                public void onFailure(@NonNull Exception e) {
-                                    bilde.setImageDrawable(EventDetails.this.getResources().getDrawable(R.drawable.error_loading_image));
-                                }
-                            });
-                        }
-                    }
-                }).addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        bilde.setImageBitmap(Bruker.getEventImages().get(event.getHostStr() + "_" + event.getNameofevent()));
-                    }
-                });
-            } else {
-                picRef.getBytes(2048 * 2048).addOnSuccessListener(new OnSuccessListener<byte[]>() {
-                    @Override
-                    public void onSuccess(byte[] bytes) {
-                        bilde.setImageBitmap(BitmapFactory.decodeByteArray(bytes, 0, bytes.length));
-                        Bruker.AddEventImage(event.getHostStr() + "_" + event.getNameofevent() + "_" + String.valueOf(bytes.length), BitmapFactory.decodeByteArray(bytes, 0, bytes.length));
-                    }
-                }).addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        bilde.setImageDrawable(getResources().getDrawable(R.drawable.error_loading_image));
-                    }
-                });
-            }
-        } else
-            bilde.setBackgroundColor(getResources().getColor(R.color.verylightgrey));
-
-        tittel.setText(event.getNameofevent());
-        sted.setText(String.format(Locale.ENGLISH, "%s", event.getAddress()));
-        poststed.setText(String.format(Locale.ENGLISH, "%s, %s", event.getPostalcode(), event.getTown()));
-
-        if(event.getDescription() != null)
-            beskrivelse.setText(event.getDescription());
-
         event_sted_layout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String uri = "http://maps.google.com/maps?q=loc:" + event.getLatitude() + "," + event.getLongitude() + " (" + event.getNameofevent() + ")";
-                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
-                intent.setPackage("com.google.android.apps.maps");
-                if (intent.resolveActivity(getPackageManager()) != null)
-                    EventDetails.this.startActivity(intent);
-                else
-                    Toast.makeText(EventDetails.this, "You do not have google maps installed.", Toast.LENGTH_SHORT).show();
+                new AlertDialog.Builder(EventDetails.this, R.style.mydatepickerdialog)
+                        .setTitle("Show maps")
+                        .setMessage("Do you want to exit and show location in google maps?")
+                        .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                String uri = "http://maps.google.com/maps?q=loc:" + event.getLatitude() + "," + event.getLongitude() + " (" + event.getNameofevent() + ")";
+                                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
+                                intent.setPackage("com.google.android.apps.maps");
+                                if (intent.resolveActivity(getPackageManager()) != null)
+                                    EventDetails.this.startActivity(intent);
+                                else
+                                    Toast.makeText(EventDetails.this, "You do not have google maps installed.", Toast.LENGTH_SHORT).show();
+                            }
+                        }).setNegativeButton("No", null)
+                .show();
             }
         });
+
+        DoRefresh(event, host, aldersgrense_details, antall_deltakere, tittel, sted, poststed, beskrivelse, datofra, datotil, bilde, details_deltaforesprsler, swipeRefreshLayout, kategori);
+    }
+
+    private void DoRefresh(final Event event, final TextView host, final TextView aldersgrense_details, final TextView antall_deltakere, final TextView tittel, final TextView sted, final TextView poststed,
+                           final TextView beskrivelse, final TextView datofra, final TextView datotil, final ImageView bilde, final AppCompatButton details_deltaforesprsler,
+                           final SwipeRefreshLayout swipeRefreshLayout, final TextView kategori) {
+        final Event updatedEvent = Bruker.get().getEventFromID(event.getEventId());
+        event.CopyEvent(updatedEvent);
+
+        swipeRefreshLayout.setRefreshing(true);
+
+        String firstletter = event.getCategory().toString().substring(0, 1).toUpperCase();
+        kategori.setText(String.format(Locale.ENGLISH, "%s%s", firstletter, event.getCategory().toString().toLowerCase().substring(1, event.getCategory().toString().length())));
+
+        if(updatedEvent.getHostStr().equals(Bruker.get().getBrukernavn()))
+            host.setText(String.format(Locale.ENGLISH, getString(R.string.host_deg), updatedEvent.getHostStr()));
+        else
+            host.setText(String.format(Locale.ENGLISH, getString(R.string.host), updatedEvent.getHostStr()));
+
+        aldersgrense_details.setText(String.format(Locale.getDefault(),getString(R.string.agerestriction), updatedEvent.getAgerestriction()));
+
+        antall_deltakere.setText(String.format(Locale.getDefault(), getString(R.string.zero_out_of_zero_going), updatedEvent.getParticipants().size(), updatedEvent.getMaxparticipants()));
+
+        tittel.setText(updatedEvent.getNameofevent());
+
+        if(!updatedEvent.isPrivateEvent() || updatedEvent.isBrukerInList(Bruker.get().getBrukernavn())) {
+            sted.setVisibility(View.VISIBLE);
+            poststed.setVisibility(View.VISIBLE);
+            ((ImageView) findViewById(R.id.location_img)).setVisibility(View.VISIBLE);
+            sted.setText(String.format(Locale.ENGLISH, "%s", updatedEvent.getAddress()));
+            poststed.setText(String.format(Locale.ENGLISH, "%s, %s", updatedEvent.getPostalcode(), updatedEvent.getTown()));
+        } else if(updatedEvent.isPrivateEvent() && !updatedEvent.isBrukerInList(Bruker.get().getBrukernavn())) {
+            sted.setVisibility(View.GONE);
+            poststed.setVisibility(View.GONE);
+            ((ImageView) findViewById(R.id.location_img)).setVisibility(View.GONE);
+        }
+
+        if(updatedEvent.getDescription() != null)
+            beskrivelse.setText(updatedEvent.getDescription());
 
         StringBuilder finaldatofra = new StringBuilder(), finaldatotil = new StringBuilder();
 
@@ -977,44 +864,105 @@ public class EventDetails extends AppCompatActivity {
             set.clone(layout);
             set.centerVertically(datofra.getId(), layout.getId());
             set.applyTo(layout);
-        }
+        } else
+            datotil.setVisibility(View.VISIBLE);
 
-        final AppCompatButton details_deltaforesprsler = findViewById(R.id.details_delta_btn);
+        if(event.isHasimage()) {
+            final StorageReference picRef = ProfilActivity.storage.getReference().child(event.getHostStr() + "_" + event.getNameofevent());
 
-        /*if(event.isBrukerInList(Bruker.get().getBrukernavn()) && !event.getHostStr().equals(Bruker.get().getBrukernavn())) {
-            //details_deltaforesprsler.(getResources().getDrawable(R.drawable.joint));
-        } else if(event.isBrukerRequesting(Bruker.get().getBrukernavn()) && !event.getHostStr().equals(Bruker.get().getBrukernavn())) {
-            //details_deltaforesprsler.setImageDrawable(getResources().getDrawable(R.drawable.request_waiting));
-            details_deltaforesprsler.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    new AlertDialog.Builder(EventDetails.this)
-                            .setTitle("Remove")
-                            .setMessage("Do you want to remove your request?")
-                            .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+            if (Bruker.getEventImageSizeByName(event.getHostStr(), event.getNameofevent()) > 0) {
+                picRef.getMetadata().addOnSuccessListener(new OnSuccessListener<StorageMetadata>() {
+                    @Override
+                    public void onSuccess(StorageMetadata storageMetadata) {
+                        if (storageMetadata.getSizeBytes() == Bruker.getEventImageSizeByName(event.getHostStr(), event.getNameofevent())) {
+                            bilde.setImageBitmap(Bruker.getEventImages().get(event.getHostStr() + "_" + event.getNameofevent() + "_" + String.valueOf(storageMetadata.getSizeBytes())));
+                        } else {
+                            picRef.getBytes(2048 * 2048).addOnSuccessListener(new OnSuccessListener<byte[]>() {
                                 @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    RemoveEventRequest eventRequest = new RemoveEventRequest(EventDetails.this, event.getEventId(), Bruker.get().getBrukernavn(), false);
-                                    eventRequest.execute();
+                                public void onSuccess(byte[] bytes) {
+                                    bilde.setImageBitmap(BitmapFactory.decodeByteArray(bytes, 0, bytes.length));
+                                    Bruker.RemoveEventImage(event.getHostStr(), event.getNameofevent());
+                                    Bruker.AddEventImage(event.getHostStr() + "_" + event.getNameofevent() + "_" + String.valueOf(bytes.length), BitmapFactory.decodeByteArray(bytes, 0, bytes.length));
                                 }
-                            })
-                            .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                            }).addOnFailureListener(new OnFailureListener() {
                                 @Override
-                                public void onClick(DialogInterface dialog, int which) {}
-                            })
-                            .show();
-                }
-            });
-        }*/
+                                public void onFailure(@NonNull Exception e) {
+                                    bilde.setImageDrawable(EventDetails.this.getResources().getDrawable(R.drawable.error_loading_image));
+                                }
+                            });
+                        }
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        bilde.setImageBitmap(Bruker.getEventImages().get(event.getHostStr() + "_" + event.getNameofevent()));
+                    }
+                });
+            } else {
+                picRef.getBytes(2048 * 2048).addOnSuccessListener(new OnSuccessListener<byte[]>() {
+                    @Override
+                    public void onSuccess(byte[] bytes) {
+                        bilde.setImageBitmap(BitmapFactory.decodeByteArray(bytes, 0, bytes.length));
+                        Bruker.AddEventImage(event.getHostStr() + "_" + event.getNameofevent() + "_" + String.valueOf(bytes.length), BitmapFactory.decodeByteArray(bytes, 0, bytes.length));
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        bilde.setImageDrawable(getResources().getDrawable(R.drawable.error_loading_image));
+                    }
+                });
+            }
+        } else
+            bilde.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
 
         if(event.isBrukerInList(Bruker.get().getBrukernavn()) && !event.getHostStr().equals(Bruker.get().getBrukernavn())) {
             // BRUKER HAS ALREADY JOINED
             details_deltaforesprsler.setCompoundDrawablesWithIntrinsicBounds(R.drawable.check_full, 0, 0, 0);
             details_deltaforesprsler.setText("Joined!");
+            details_deltaforesprsler.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    new android.support.v7.app.AlertDialog.Builder(EventDetails.this, R.style.mydatepickerdialog)
+                            .setTitle("Leave event")
+                            .setMessage("Are you sure you want to leave the event?")
+                            .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                    final Event leavingevent = Bruker.get().getEventFromID(event.getEventId());
+
+                                    DatabaseReference ref = FirebaseDatabase.getInstance().getReference("events").child(String.valueOf(leavingevent.getEventId())).child("participants");
+
+                                    leavingevent.getParticipants().remove(Participant.getParticipantPos(leavingevent.getParticipants(), Bruker.get().getBrukernavn()));
+
+                                    ref.setValue(new Gson().toJson(leavingevent.getParticipants())).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                        @Override
+                                        public void onSuccess(Void aVoid) {
+                                            ListView lv_guestlist = findViewById(R.id.lv_gjesteliste);
+
+                                            if(lv_guestlist != null)
+                                                lv_guestlist.setAdapter(new GuestListAdapter(EventDetails.this, leavingevent.getEventId(), leavingevent.getParticipants()));
+
+                                            Toast.makeText(EventDetails.this, "You left the event.", Toast.LENGTH_SHORT).show();
+
+                                            DoRefresh(event, host, aldersgrense_details, antall_deltakere, tittel, sted, poststed, beskrivelse, datofra, datotil, bilde, details_deltaforesprsler, swipeRefreshLayout,
+                                                    kategori);
+                                        }
+                                    }).addOnFailureListener(new OnFailureListener() {
+                                        @Override
+                                        public void onFailure(@NonNull Exception e) {
+                                            Toast.makeText(EventDetails.this, "Failed to remove you from the event.", Toast.LENGTH_SHORT).show();
+                                        }
+                                    });
+                                }
+                            })
+                            .setNegativeButton("No", null)
+                            .show();
+                }
+            });
         } else if(event.getHostStr().equals(Bruker.get().getBrukernavn())) {
             // BRUKER IS HOST
             details_deltaforesprsler.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
-            details_deltaforesprsler.setText("You are the host.");
+            details_deltaforesprsler.setText("You are the host."); // TODO : TRANSLATE
             details_deltaforesprsler.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -1023,19 +971,18 @@ public class EventDetails extends AppCompatActivity {
             });
         } else if(event.isBrukerRequesting(Bruker.get().getBrukernavn())) {
             // BRUKER IS REQUESTING
-            details_deltaforesprsler.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Utilities.OnClickDetails(EventDetails.this, event);
-                }
-            });
+            details_deltaforesprsler.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
+            details_deltaforesprsler.setText("Waiting...");
+            details_deltaforesprsler.setOnClickListener(onclickDetails);
         } else if(!event.isBrukerInList(Bruker.get().getBrukernavn()) && !event.isBrukerRequesting(Bruker.get().getBrukernavn())) {
             // BRUKER IS NOT REQUESTING AND NOT IN LIST
+            details_deltaforesprsler.setText(event.isPrivateEvent() ? getString(R.string.send_request) : getString(R.string.join_event));
+            details_deltaforesprsler.setCompoundDrawablesWithIntrinsicBounds(R.drawable.check_empty, 0, 0, 0);
             details_deltaforesprsler.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     if(event.isPrivateEvent()) {
-                        new AlertDialog.Builder(EventDetails.this)
+                        new AlertDialog.Builder(EventDetails.this, R.style.mydatepickerdialog)
                                 .setTitle("Remove")
                                 .setMessage("Do you want to request to join?")
                                 .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
@@ -1043,32 +990,92 @@ public class EventDetails extends AppCompatActivity {
                                     public void onClick(DialogInterface dialog, int which) {
                                         // REQUEST TO JOIN
                                         details_deltaforesprsler.setEnabled(false);
-                                        AddEventRequest addEventRequest = new AddEventRequest(EventDetails.this, event.getEventId());
-                                        addEventRequest.execute();
+                                        final ProgressDialog progressDialog = new ProgressDialog(EventDetails.this, R.style.mydatepickerdialog);
+                                        progressDialog.setMessage(progressDialog.getContext().getResources().getString(R.string.requesting));
+                                        progressDialog.setCanceledOnTouchOutside(false);
+                                        progressDialog.show();
+
+                                        final Event event = Bruker.get().getEventFromID(updatedEvent.getEventId());
+
+                                        final DatabaseReference ref = FirebaseDatabase.getInstance().getReference("events").child(String.valueOf(updatedEvent.getEventId())).child("requests");
+
+                                        event.getRequests().add(Requester.convertBrukerRequester(Bruker.get()));
+                                        ref.setValue(new Gson().toJson(event.getRequests())).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                            @Override
+                                            public void onSuccess(Void aVoid) {
+                                                    details_deltaforesprsler.setEnabled(true);
+                                                    details_deltaforesprsler.setOnClickListener(onclickDetails);
+
+                                                    DoRefresh(event, host, aldersgrense_details, antall_deltakere, tittel, sted, poststed, beskrivelse, datofra, datotil, bilde, details_deltaforesprsler,
+                                                            swipeRefreshLayout, kategori);
+
+                                                    Toast.makeText(EventDetails.this, getResources().getString(R.string.requested_to_join), Toast.LENGTH_SHORT).show();
+                                            }
+                                        }).addOnFailureListener(new OnFailureListener() {
+                                            @Override
+                                            public void onFailure(@NonNull Exception e) {
+                                                Toast.makeText(EventDetails.this, getResources().getString(R.string.failed_to_request_to_join), Toast.LENGTH_SHORT).show();
+                                            }
+                                        }).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<Void> task) {
+                                                progressDialog.hide();
+                                                ref.onDisconnect();
+                                            }
+                                        });
                                     }
                                 })
-                                .setNegativeButton("No", new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {}
-                                })
+                                .setNegativeButton("No", null)
                                 .show();
                     } else {
                         // JOIN
-                        AddParticipant addParticipant = new AddParticipant(EventDetails.this, event.getEventId(), null, event.getParticipants());
-                        addParticipant.execute();
+                        details_deltaforesprsler.setEnabled(false);
+
+                        final ProgressDialog join_progress = new ProgressDialog(EventDetails.this, R.style.mydatepickerdialog);
+                        join_progress.setCanceledOnTouchOutside(false);
+                        join_progress.setCancelable(false);
+                        join_progress.setMessage("Joining..");
+                        join_progress.show();
+
+                        final DatabaseReference ref = FirebaseDatabase.getInstance().getReference("events").child(String.valueOf(event.getEventId())).child("participants");
+
+                        Event seperate_event = Bruker.get().getEventFromID(event.getEventId());
+
+                        seperate_event.getParticipants().add(Participant.convertBrukerParticipant(Bruker.get(), Bruker.get().isPremium() ? EventStilling.PREMIUM : EventStilling.GJEST));
+
+                        ref.setValue(new Gson().toJson(seperate_event.getParticipants())).addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                swipeRefreshLayout.post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        DoRefresh(event, host, aldersgrense_details, antall_deltakere, tittel, sted, poststed, beskrivelse, datofra, datotil, bilde, details_deltaforesprsler, swipeRefreshLayout,
+                                                kategori);
+                                    }
+                                });
+
+                                details_deltaforesprsler.setEnabled(true);
+
+                                Toast.makeText(EventDetails.this, "Joined event.", Toast.LENGTH_SHORT).show();
+                            }
+                        }).addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Toast.makeText(EventDetails.this, "Failed to join event.", Toast.LENGTH_SHORT).show();
+                            }
+                        }).addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                join_progress.hide();
+                                ref.onDisconnect();
+                            }
+                        });
                     }
                 }
             });
         }
 
-        if(event.getHostStr().equals(Bruker.get().getBrukernavn()))
-            host.setText(String.format(Locale.ENGLISH, "Host: %s (deg)", event.getHostStr()));
-        else
-            host.setText(String.format(Locale.ENGLISH, "Host: %s", event.getHostStr()));
-
-        aldersgrense_details.setText(String.format(Locale.ENGLISH,"Aldersgrense: %d", event.getAgerestriction()));
-
-        antall_deltakere.setText(String.format(Locale.ENGLISH, "%d av %d skal.", event.getParticipants().size(), event.getMaxparticipants()));
+        swipeRefreshLayout.setRefreshing(false);
     }
 
     @Override
@@ -1077,37 +1084,14 @@ public class EventDetails extends AppCompatActivity {
             for(int i = 0; i < permissions.length; i++) {
                 if(permissions[i].equals(Manifest.permission.READ_EXTERNAL_STORAGE)) {
                     if(grantResults[i] == PackageManager.PERMISSION_GRANTED) {
-                        Intent intent = new Intent();
-                        intent.setType("image/*");
-                        intent.setAction(Intent.ACTION_GET_CONTENT);
-                        startActivityForResult(Intent.createChooser(intent, "Select Picture"), Utilities.SELECT_IMAGE_CODE);
+                        Intent intent = new Intent(EventDetails.this, CropImage.class);
+                        intent.putExtra("returnwhere", ReturnWhere.EDIT_EVENT.ordinal());
+                        startActivity(intent);
                     }
                 }
             }
         }
 
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if(requestCode == Utilities.SELECT_IMAGE_CODE && resultCode == RESULT_OK && data.getData() != null) {
-            Uri image = data.getData();
-
-            String str = Utilities.getPathFromUri(this, image);
-
-            if(str != null) {
-                File file = new File(str);
-                if(!(file.length() > (1024 * 1024))) {
-                    edit_event_imagechange.setUri(image);
-                    edit_event_imagechange.setImage(file);
-                } else {
-                    Toast.makeText(this, "This image is to big! Max 1 Mb.", Toast.LENGTH_SHORT).show();
-                }
-            } else
-                Toast.makeText(this, "Failed to get image path!", Toast.LENGTH_SHORT).show();
-        }
     }
 }

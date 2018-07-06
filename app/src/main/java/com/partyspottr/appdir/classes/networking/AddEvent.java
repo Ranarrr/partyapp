@@ -2,6 +2,7 @@ package com.partyspottr.appdir.classes.networking;
 
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.widget.Toast;
@@ -31,15 +32,15 @@ public class AddEvent extends AsyncTask<Void, Void, Boolean> {
     private Event eventToUse;
     private ProgressDialog progressDialog;
     private Dialog dialog;
-    private File bitmap;
+    private Bitmap bitmap;
 
-    public AddEvent(Dialog dilog, Event event, File bmp) {
+    public AddEvent(Dialog dilog, Event event, Bitmap bmp) {
         dialog = dilog;
         eventToUse = event;
         eventToUse.setHasimage(bmp != null);
         bitmap = bmp;
 
-        progressDialog = new ProgressDialog(dilog.getOwnerActivity());
+        progressDialog = new ProgressDialog(dilog.getOwnerActivity(), R.style.mydatepickerdialog);
         progressDialog.setMessage("Adding event..");
         progressDialog.setCancelable(false);
         progressDialog.setCanceledOnTouchOutside(false);
@@ -57,7 +58,6 @@ public class AddEvent extends AsyncTask<Void, Void, Boolean> {
                 eventidref.setValue(Bruker.get().getEventIdCounter() + 1).addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void task) {
-                        // TODO : CHECK IF EVENT ALREADY EXISTS..
                         DatabaseReference ref = FirebaseDatabase.getInstance().getReference("events");
                         ref = ref.child(String.valueOf(Bruker.get().getEventIdCounter()));
                         ref.child("nameofevent").setValue(eventToUse.getNameofevent());
@@ -100,7 +100,7 @@ public class AddEvent extends AsyncTask<Void, Void, Boolean> {
             progressDialog.hide();
 
             if(bitmap != null) {
-                UploadImage uploadImage = new UploadImage(progressDialog, eventToUse, bitmap, null);
+                UploadImage uploadImage = new UploadImage(progressDialog, eventToUse, bitmap);
                 uploadImage.execute();
             }
 

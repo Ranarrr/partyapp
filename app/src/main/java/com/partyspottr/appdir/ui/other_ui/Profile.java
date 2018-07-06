@@ -4,7 +4,7 @@ import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.DialogInterface;
-import android.content.Intent;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -13,7 +13,6 @@ import android.support.constraint.ConstraintLayout;
 import android.support.v4.view.PagerAdapter;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Base64;
 import android.util.DisplayMetrics;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -27,11 +26,15 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.storage.StorageMetadata;
+import com.google.firebase.storage.StorageReference;
 import com.google.gson.Gson;
 import com.partyspottr.appdir.R;
 import com.partyspottr.appdir.classes.Bruker;
@@ -43,14 +46,13 @@ import com.partyspottr.appdir.classes.Utilities;
 import com.partyspottr.appdir.classes.adapters.CountryCodes;
 import com.partyspottr.appdir.classes.customviews.CustomViewPager;
 import com.partyspottr.appdir.ui.MainActivity;
+import com.partyspottr.appdir.ui.ProfilActivity;
 
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Locale;
-
-import static com.partyspottr.appdir.ui.MainActivity.typeface;
 
 /**
  * Created by Ranarrr on 05-Apr-18.
@@ -87,9 +89,9 @@ public class Profile extends AppCompatActivity {
         final String brukernavn;
 
         Bundle extras = getIntent().getExtras();
-        if(extras == null) {
+        if(extras == null)
             return;
-        } else {
+        else {
             brukernavn = extras.getString("user");
 
             if(brukernavn == null || brukernavn.isEmpty())
@@ -104,7 +106,6 @@ public class Profile extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.profile_toolbar);
         final Button send_message = findViewById(R.id.send_message);
         final Button add_friend = findViewById(R.id.add_friend);
-        LinearLayout content = findViewById(R.id.profile_content);
         final CustomViewPager pager = findViewById(R.id.customviewpager);
         final TextView skal_paa = findViewById(R.id.profil_going_to);
 
@@ -229,7 +230,7 @@ public class Profile extends AppCompatActivity {
 
                                     send_msg.getWindow().setAttributes(layoutParams);
                                     send_msg.getWindow().setGravity(Gravity.BOTTOM);
-
+                                    send_msg.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
                                 }
 
                                 send_msg.setOnShowListener(new DialogInterface.OnShowListener() {
@@ -298,10 +299,8 @@ public class Profile extends AppCompatActivity {
 
             @Override
             public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {}
-
             @Override
             public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {}
-
             @Override
             public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {}
 
@@ -319,28 +318,82 @@ public class Profile extends AppCompatActivity {
         private LayoutInflater inflater;
         private List<Integer> eventIds;
 
-        public EventSlidePagerAdapter(Activity activity, List<Integer> eventids) {
+        EventSlidePagerAdapter(Activity activity, List<Integer> eventids) {
             inflater = activity.getLayoutInflater();
             eventIds = eventids;
         }
 
+        @NonNull
         @Override
-        public Object instantiateItem(ViewGroup container, int position) {
+        public Object instantiateItem(@NonNull ViewGroup container, int position) {
             View v = inflater.inflate(R.layout.event, container, false);
 
-            Event event = Bruker.get().getListOfEvents().get(eventIds.get(position));
+            final Event event = Bruker.get().getListOfEvents().get(eventIds.get(position));
 
             if(event != null) {
                 TextView arrangementNavn = v.findViewById(R.id.eventText);
                 TextView stedText = v.findViewById(R.id.stedText);
                 TextView hostText = v.findViewById(R.id.aldersgrenseText);
                 TextView datoText = v.findViewById(R.id.datoText);
-                //ImageView bildeIListe = v.findViewById(R.id.imageView2);
+                TextView kategori = v.findViewById(R.id.event_kategori);
+                final ImageView bildeIListe = v.findViewById(R.id.imageView2);
 
-                arrangementNavn.setTypeface(typeface);
-                stedText.setTypeface(typeface);
-                hostText.setTypeface(typeface);
-                datoText.setTypeface(typeface);
+                kategori.setTypeface(MainActivity.typeface);
+                arrangementNavn.setTypeface(MainActivity.typeface);
+                stedText.setTypeface(MainActivity.typeface);
+                hostText.setTypeface(MainActivity.typeface);
+                datoText.setTypeface(MainActivity.typeface);
+
+                String firstletter = event.getCategory().toString().substring(0, 1).toUpperCase();
+                kategori.setText(String.format(Locale.ENGLISH, "%s%s", firstletter, event.getCategory().toString().toLowerCase().substring(1, event.getCategory().toString().length())));
+
+                if(event.isHasimage()) {
+                    final StorageReference picRef = ProfilActivity.storage.getReference().child(event.getHostStr() + "_" + event.getNameofevent());
+
+                    if(Bruker.getEventImageSizeByName(event.getHostStr(), event.getNameofevent()) > 0) {
+                        picRef.getMetadata().addOnSuccessListener(new OnSuccessListener<StorageMetadata>() {
+                            @Override
+                            public void onSuccess(StorageMetadata storageMetadata) {
+                                if (storageMetadata.getSizeBytes() == Bruker.getEventImageSizeByName(event.getHostStr(), event.getNameofevent())) {
+                                    bildeIListe.setImageBitmap(Bruker.getEventImages().get(event.getHostStr() + "_" + event.getNameofevent() + "_" + String.valueOf(storageMetadata.getSizeBytes())));
+                                } else {
+                                    picRef.getBytes(2048 * 2048).addOnSuccessListener(new OnSuccessListener<byte[]>() {
+                                        @Override
+                                        public void onSuccess(byte[] bytes) {
+                                            bildeIListe.setImageBitmap(BitmapFactory.decodeByteArray(bytes, 0, bytes.length));
+                                            Bruker.RemoveEventImage(event.getHostStr(), event.getNameofevent());
+                                            Bruker.AddEventImage(event.getHostStr() + "_" + event.getNameofevent() + "_" + String.valueOf(bytes.length), BitmapFactory.decodeByteArray(bytes, 0, bytes.length));
+                                        }
+                                    }).addOnFailureListener(new OnFailureListener() {
+                                        @Override
+                                        public void onFailure(@NonNull Exception e) {
+                                            bildeIListe.setImageDrawable(getResources().getDrawable(R.drawable.error_loading_image));
+                                        }
+                                    });
+                                }
+                            }
+                        }).addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                bildeIListe.setImageBitmap(Bruker.getEventImages().get(event.getHostStr() + "_" + event.getNameofevent()));
+                            }
+                        });
+                    } else {
+                        picRef.getBytes(2048 * 2048).addOnSuccessListener(new OnSuccessListener<byte[]>() {
+                            @Override
+                            public void onSuccess(byte[] bytes) {
+                                bildeIListe.setImageBitmap(BitmapFactory.decodeByteArray(bytes, 0, bytes.length));
+                                Bruker.AddEventImage(event.getHostStr() + "_" + event.getNameofevent() + "_" + String.valueOf(bytes.length), BitmapFactory.decodeByteArray(bytes, 0, bytes.length));
+                            }
+                        }).addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                bildeIListe.setImageDrawable(getResources().getDrawable(R.drawable.error_loading_image));
+                            }
+                        });
+                    }
+                } else
+                    bildeIListe.setBackgroundColor(getResources().getColor(R.color.verylightgrey));
 
                 arrangementNavn.setText(event.getNameofevent());
                 stedText.setText(event.getAddress());
@@ -359,7 +412,7 @@ public class Profile extends AppCompatActivity {
         }
 
         @Override
-        public void destroyItem(ViewGroup container, int position, Object object) {
+        public void destroyItem(@NonNull ViewGroup container, int position, @NonNull Object object) {
             container.removeView((View) object);
         }
 
@@ -369,7 +422,7 @@ public class Profile extends AppCompatActivity {
         }
 
         @Override
-        public boolean isViewFromObject(View view, Object object) {
+        public boolean isViewFromObject(@NonNull View view, @NonNull Object object) {
             return (view == object);
         }
     }

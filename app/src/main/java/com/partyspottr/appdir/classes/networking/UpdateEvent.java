@@ -12,6 +12,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.gson.Gson;
+import com.partyspottr.appdir.R;
 import com.partyspottr.appdir.classes.Event;
 
 import org.apache.http.NameValuePair;
@@ -23,13 +24,19 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Created by Ranarrr on 03-Jun-18.
+ *
+ * @author Ranarrr
+ */
+
 public class UpdateEvent extends AsyncTask<Void, Void, Boolean> {
     ProgressDialog progressDialog;
     private Event eventToUpdate;
     private Bitmap bitmap;
 
     public UpdateEvent(Activity activity, Event event, Bitmap bmp) {
-        progressDialog = new ProgressDialog(activity);
+        progressDialog = new ProgressDialog(activity, R.style.mydatepickerdialog);
         progressDialog.setOwnerActivity(activity);
 
         bitmap = bmp;
@@ -88,13 +95,13 @@ public class UpdateEvent extends AsyncTask<Void, Void, Boolean> {
         progressDialog.hide();
 
         if(bool) {
-            Toast.makeText(progressDialog.getContext(), "Updated event!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(progressDialog.getContext(), progressDialog.getContext().getResources().getString(R.string.updated_event), Toast.LENGTH_SHORT).show();
 
             if(bitmap != null) {
-                UploadImage uploadImage = new UploadImage(progressDialog, eventToUpdate, null, bitmap);
+                UploadImage uploadImage = new UploadImage(progressDialog, eventToUpdate, bitmap);
                 uploadImage.execute();
             }
         } else
-            Toast.makeText(progressDialog.getContext(), "Failed to update event.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(progressDialog.getContext(), progressDialog.getContext().getResources().getString(R.string.failed_to_update), Toast.LENGTH_SHORT).show();
     }
 }

@@ -6,8 +6,6 @@
     android:background="@color/colorPrimary"
     tools:context="com.partyspottr.appdir.ui.mainfragments.bilchildfragments.finn_bil_fragment">
 
-    <!-- TODO: Update blank fragment layout -->
-
     <android.support.v4.widget.SwipeRefreshLayout
         android:id="@+id/swipe_chauffeurs"
         android:layout_width="0dp"

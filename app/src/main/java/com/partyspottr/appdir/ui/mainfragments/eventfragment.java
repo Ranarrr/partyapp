@@ -2,6 +2,7 @@ package com.partyspottr.appdir.ui.mainfragments;
 
 import android.animation.ObjectAnimator;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -42,8 +43,8 @@ public class eventfragment extends Fragment {
 
     @Override
     public void onViewCreated(@NonNull final View view, Bundle savedInstanceState) {
-        AppCompatButton alle_eventer_btn = view.findViewById(R.id.alle_eventer_btn);
-        AppCompatButton mine_eventer_btn = view.findViewById(R.id.mine_eventer_btn);
+        final AppCompatButton alle_eventer_btn = view.findViewById(R.id.alle_eventer_btn);
+        final AppCompatButton mine_eventer_btn = view.findViewById(R.id.mine_eventer_btn);
         AppCompatButton mitt_arkiv_btn = view.findViewById(R.id.arkiv_btn);
 
         if(getActivity() == null)
@@ -65,9 +66,34 @@ public class eventfragment extends Fragment {
 
         if(eventFragment != null) {
             final ViewPager viewPager = getActivity().findViewById(R.id.pagerview_event);
+            final ImageView arrow_eventfragment = view.findViewById(R.id.arrow_eventfragment);
+
             if(viewPager != null) {
                 PagerAdapter pagerAdapter = new ScreenSliderPagerAdapter(eventFragment.getChildFragmentManager());
                 viewPager.setAdapter(pagerAdapter);
+
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        switch(viewPager.getCurrentItem()) {
+                            case 0:
+                                ObjectAnimator.ofFloat(arrow_eventfragment, "translationX", 0.0f).start();
+                                break;
+
+                            case 1:
+                                ObjectAnimator.ofFloat(arrow_eventfragment, "translationX",
+                                        ((mine_eventer_btn.getX() + (mine_eventer_btn.getX() + mine_eventer_btn.getWidth())) / 2) - ((alle_eventer_btn.getX() + (alle_eventer_btn.getX() + alle_eventer_btn.getWidth())) / 2))
+                                        .start();
+                                break;
+
+                            case 2:
+                                ObjectAnimator.ofFloat(arrow_eventfragment, "translationX",
+                                        (((mine_eventer_btn.getX() + (mine_eventer_btn.getX() + mine_eventer_btn.getWidth())) / 2) - ((alle_eventer_btn.getX() + (alle_eventer_btn.getX() + alle_eventer_btn.getWidth())) / 2)) * 2.f).start();
+                                break;
+                        }
+                    }
+                }, 250);
+
                 viewPager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
                     @Override
                     public void onPageSelected(int position) {
@@ -111,8 +137,6 @@ public class eventfragment extends Fragment {
 
                         search_events.setVisibility(View.VISIBLE);
 
-                        ImageView arrow_eventfragment = view.findViewById(R.id.arrow_eventfragment);
-
                         switch(position) {
                             case 0:
                                 ObjectAnimator.ofFloat(arrow_eventfragment, "translationX", 0.0f).start();
@@ -149,12 +173,16 @@ public class eventfragment extends Fragment {
             switch(position) {
                 case 0:
                     return new alle_eventer_fragment();
+
                 case 1:
                     return new mine_eventer_fragment();
+
                 case 2:
                     return new mitt_arkiv_fragment();
+
+                default:
+                    return new alle_eventer_fragment();
             }
-            return new alle_eventer_fragment();
         }
 
         @Override

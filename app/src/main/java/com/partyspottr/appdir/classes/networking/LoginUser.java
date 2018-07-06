@@ -40,7 +40,7 @@ public class LoginUser extends AsyncTask<Void, Void, Integer> {
     private String password;
 
     public LoginUser(Activity activity, String user, String pass) {
-        progressDialog = new ProgressDialog(activity);
+        progressDialog = new ProgressDialog(activity, R.style.mydatepickerdialog);
         progressDialog.setOwnerActivity(activity);
         password = pass;
 
@@ -97,13 +97,6 @@ public class LoginUser extends AsyncTask<Void, Void, Integer> {
                                         DatabaseReference ref = FirebaseDatabase.getInstance().getReference("users").child(Bruker.get().getBrukernavn().toLowerCase());
                                         ref.child("loggedon").setValue(true);
                                         Bruker.get().setLoggetpa(true);
-
-                                        Bruker.get().GetAndParseBrukerInfo();
-                                        Bruker.get().GetAndParseChauffeurs();
-                                        Bruker.get().GetAndParseEvents(progressDialog.getOwnerActivity());
-
-                                        if(Bruker.get().isHascar())
-                                            Bruker.get().GetAndParseBrukerChauffeur();
                                     } else
                                         Toast.makeText(progressDialog.getContext(), progressDialog.getContext().getResources().getString(R.string.tilkoblingsfeil), Toast.LENGTH_SHORT).show();
                                 }
