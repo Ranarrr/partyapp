@@ -4,15 +4,12 @@ import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.os.AsyncTask;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.partyspottr.appdir.R;
 import com.partyspottr.appdir.classes.Event;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.io.File;
 
 /**
  * Created by Ranarrr on 22-Feb-18.

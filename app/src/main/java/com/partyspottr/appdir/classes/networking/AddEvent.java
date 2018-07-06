@@ -4,12 +4,9 @@ import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
-import android.support.annotation.NonNull;
 import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.gson.Gson;
@@ -19,8 +16,6 @@ import com.partyspottr.appdir.classes.Event;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.io.File;
 
 /**
  * Created by Ranarrr on 13-Feb-18.

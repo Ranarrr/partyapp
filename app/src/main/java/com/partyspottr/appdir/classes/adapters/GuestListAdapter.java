@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
@@ -42,7 +41,6 @@ import com.partyspottr.appdir.classes.Participant;
 import com.partyspottr.appdir.classes.Utilities;
 import com.partyspottr.appdir.enums.EventStilling;
 import com.partyspottr.appdir.ui.ProfilActivity;
-import com.partyspottr.appdir.ui.other_ui.EventDetails;
 import com.partyspottr.appdir.ui.other_ui.Profile;
 
 import java.util.List;

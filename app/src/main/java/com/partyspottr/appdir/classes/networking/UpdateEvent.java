@@ -11,18 +11,11 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.gson.Gson;
 import com.partyspottr.appdir.R;
 import com.partyspottr.appdir.classes.Event;
 
-import org.apache.http.NameValuePair;
-import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by Ranarrr on 03-Jun-18.

@@ -9,7 +9,6 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.partyspottr.appdir.R;
-import com.partyspottr.appdir.classes.Utilities;
 import com.partyspottr.appdir.ui.MainActivity;
 
 import java.util.ArrayList;

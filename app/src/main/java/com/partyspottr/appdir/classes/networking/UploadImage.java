@@ -2,7 +2,6 @@ package com.partyspottr.appdir.classes.networking;
 
 import android.app.ProgressDialog;
 import android.graphics.Bitmap;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -12,14 +11,12 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.storage.StorageMetadata;
 import com.google.firebase.storage.UploadTask;
-import com.partyspottr.appdir.R;
 import com.partyspottr.appdir.classes.Event;
 import com.partyspottr.appdir.classes.ImageChange;
 import com.partyspottr.appdir.ui.ProfilActivity;
 import com.partyspottr.appdir.ui.other_ui.EventDetails;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 
 /**
  * Created by Ranarrr on 26-Feb-18.

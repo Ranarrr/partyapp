@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
-import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.widget.ListView;
@@ -18,9 +17,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.gson.Gson;
 import com.partyspottr.appdir.R;
 import com.partyspottr.appdir.classes.adapters.EventAdapter;
-import com.partyspottr.appdir.ui.other_ui.Profile;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -29,7 +26,6 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.BiConsumer;
 
 /**
  * Created by Ranarrr on 26-Jan-18.

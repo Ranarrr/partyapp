@@ -1,7 +1,6 @@
 package com.partyspottr.appdir.ui.other_ui;
 
 import android.Manifest;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.Dialog;

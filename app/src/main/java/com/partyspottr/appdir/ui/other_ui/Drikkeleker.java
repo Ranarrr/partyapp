@@ -15,8 +15,6 @@ import com.partyspottr.appdir.classes.Utilities;
 import com.partyspottr.appdir.ui.MainActivity;
 import com.partyspottr.appdir.ui.other_ui.drikkeleker.NeverHaveIEver;
 
-import org.w3c.dom.Text;
-
 public class Drikkeleker extends AppCompatActivity {
     @Override
     protected void onStop() {

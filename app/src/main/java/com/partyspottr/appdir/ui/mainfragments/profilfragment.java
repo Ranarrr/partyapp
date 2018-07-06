@@ -5,11 +5,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
-import android.net.Uri;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
@@ -27,19 +24,15 @@ import android.widget.Toast;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.storage.StorageMetadata;
-import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.partyspottr.appdir.R;
 import com.partyspottr.appdir.classes.Bruker;
 import com.partyspottr.appdir.classes.ImageChange;
 import com.partyspottr.appdir.classes.Utilities;
 import com.partyspottr.appdir.classes.adapters.CountryCodes;
-import com.partyspottr.appdir.classes.application.GlideApp;
 import com.partyspottr.appdir.classes.networking.LogoutUser;
-import com.partyspottr.appdir.enums.ReturnWhere;
 import com.partyspottr.appdir.ui.MainActivity;
 import com.partyspottr.appdir.ui.ProfilActivity;
-import com.partyspottr.appdir.ui.other_ui.CropImage;
 import com.partyspottr.appdir.ui.other_ui.CropProfileImg;
 import com.partyspottr.appdir.ui.other_ui.Drikkeleker;
 import com.partyspottr.appdir.ui.other_ui.SettingActivity;
@@ -47,12 +40,8 @@ import com.partyspottr.appdir.ui.other_ui.SettingActivity;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
 import java.util.GregorianCalendar;
 import java.util.Locale;
-
-import static android.app.Activity.RESULT_OK;
 
 /**
  * Created by Ranarrr on 26-Feb-18.

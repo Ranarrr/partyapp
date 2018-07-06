@@ -15,7 +15,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.partyspottr.appdir.R;
 import com.partyspottr.appdir.classes.Bruker;
@@ -24,7 +23,6 @@ import com.partyspottr.appdir.classes.Chatter;
 import com.partyspottr.appdir.classes.Chauffeur;
 import com.partyspottr.appdir.classes.Utilities;
 import com.partyspottr.appdir.ui.MainActivity;
-import com.partyspottr.appdir.ui.other_ui.Profile;
 
 import java.util.ArrayList;
 import java.util.List;
