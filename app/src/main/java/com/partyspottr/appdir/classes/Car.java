@@ -1,6 +1,7 @@
 package com.partyspottr.appdir.classes;
 
 import java.util.Date;
+import java.util.List;
 
 public class Car {
     private String merke;
@@ -21,6 +22,15 @@ public class Car {
         farge = m_farge;
         hasImg = hasimg;
         timeCreated = time;
+    }
+
+    public static Car getCarFromList(List<Car> list, String farge, String merke) {
+        for(Car car : list) {
+            if(car.getFarge().equalsIgnoreCase(farge) && car.getMerke().equalsIgnoreCase(merke))
+                return car;
+        }
+
+        return null;
     }
 
     public String getMerke() {

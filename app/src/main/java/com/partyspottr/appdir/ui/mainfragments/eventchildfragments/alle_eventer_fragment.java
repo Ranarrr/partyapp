@@ -32,8 +32,6 @@ public class alle_eventer_fragment extends Fragment {
         if(getActivity() == null)
             return;
 
-        swipeRefreshLayout.setRefreshing(true);
-
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
@@ -49,12 +47,5 @@ public class alle_eventer_fragment extends Fragment {
 
         if(listView != null)
             listView.setAdapter(new EventAdapter(getActivity(), Bruker.get().getListOfEvents()));
-
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                swipeRefreshLayout.setRefreshing(false);
-            }
-        }, 300);
     }
 }

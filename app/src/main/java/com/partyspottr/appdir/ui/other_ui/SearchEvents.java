@@ -11,7 +11,7 @@ import com.partyspottr.appdir.classes.Utilities;
 public class SearchEvents extends AppCompatActivity {
     @Override
     protected void onStop() {
-        Utilities.setupOnStop();
+        Utilities.setupOnStop(this);
 
         super.onStop();
     }

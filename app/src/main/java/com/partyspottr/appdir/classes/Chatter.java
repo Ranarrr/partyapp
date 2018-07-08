@@ -12,17 +12,20 @@ public class Chatter {
     private String brukernavn;
     private String fornavn;
     private String etternavn;
+    private String token;
 
     public Chatter() {
         brukernavn = "";
         fornavn = "";
         etternavn = "";
+        token = "";
     }
 
-    public Chatter(String bruker, String fornvn, String ettrnavn) {
+    public Chatter(String bruker, String fornvn, String ettrnavn, String tokn) {
         brukernavn = bruker;
         fornavn = fornvn;
         etternavn = ettrnavn;
+        token = tokn;
     }
 
     public static Chatter getChatterNotEqualToBruker(List<Chatter> list) {
@@ -57,5 +60,13 @@ public class Chatter {
 
     public void setBrukernavn(String brukernavn) {
         this.brukernavn = brukernavn;
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
     }
 }

@@ -24,6 +24,7 @@ import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
@@ -53,6 +54,7 @@ import java.util.Locale;
 
 public class min_bil_fragment extends Fragment {
     public static CountDownTimer countDownTimer;
+    private View.OnClickListener onClickListener;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
@@ -84,7 +86,7 @@ public class min_bil_fragment extends Fragment {
         passasjerer.setAdapter(passasjer_adapter);
 
         Spinner timer = view.findViewById(R.id.timer_spinner);
-        ArrayAdapter<Integer> timer_adapter = new ArrayAdapter<>(getActivity(), R.layout.spinner_mine, Arrays.asList(1, 2, 3, 4, 5));
+        ArrayAdapter<Integer> timer_adapter = new ArrayAdapter<>(getActivity(), R.layout.spinner_mine, Arrays.asList(0, 1, 2, 3, 4, 5));
         timer.setAdapter(timer_adapter);
 
         Spinner minutter = view.findViewById(R.id.minutter_spinner);
@@ -129,7 +131,7 @@ public class min_bil_fragment extends Fragment {
                     merke.setTypeface(MainActivity.typeface);
                     farge.setTypeface(MainActivity.typeface);
 
-                    if(!Bruker.get().isPremium()) {
+                    if(!Bruker.get().isPremium()) { // TODO : remember to not this shit
                         registrate.setVisibility(View.GONE);
 
                         registrate_car_layout.setVisibility(View.VISIBLE);
@@ -151,7 +153,8 @@ public class min_bil_fragment extends Fragment {
                                                     false))));
                                             chauffeurref.child(Chauffeur.time_fromElem).setValue(0);
                                             chauffeurref.child(Chauffeur.time_toElem).setValue(0);
-                                            chauffeurref.child(Chauffeur.rating).setValue(0);
+                                            chauffeurref.child(Chauffeur.rating).setValue("0.0");
+                                            chauffeurref.child("current_car").setValue(new Gson().toJson(new Car(merke.getText().toString(), farge.getText().toString(), false)));
                                             chauffeurref.child(Chauffeur.capacity).setValue(0);
                                             chauffeurref.child(Chauffeur.age).setValue(String.valueOf(Utilities.calcAge(new GregorianCalendar(Bruker.get().getYear(), Bruker.get().getMonth(), Bruker.get().getDay_of_month()))));
                                             chauffeurref.child(Chauffeur.fornavnElem).setValue(Bruker.get().getFornavn());
@@ -164,6 +167,7 @@ public class min_bil_fragment extends Fragment {
                                             Bruker.get().getChauffeur().setEtternavn(Bruker.get().getEtternavn());
                                             Bruker.get().getChauffeur().setChauffeur_time_to(0);
                                             Bruker.get().getChauffeur().setChauffeur_time_from(0);
+                                            Bruker.get().getChauffeur().setM_rating(0.0);
                                             Bruker.get().getChauffeur().addCar(new Car(merke.getText().toString(), farge.getText().toString(), false));
                                             Bruker.get().getChauffeur().setM_brukernavn(Bruker.get().getBrukernavn());
                                             Bruker.get().getChauffeur().setM_age(Utilities.calcAge(new GregorianCalendar(Bruker.get().getYear(), Bruker.get().getMonth(), Bruker.get().getDay_of_month())));
@@ -206,7 +210,7 @@ public class min_bil_fragment extends Fragment {
         final Chauffeur brukerChauffeur = Bruker.get().getChauffeur();
 
         TextView navn = view.findViewById(R.id.chauffeur_navn);
-        TextView bil = view.findViewById(R.id.chauffeur_bil);
+        final TextView bil = view.findViewById(R.id.chauffeur_bil);
         TextView plassering = view.findViewById(R.id.chauffeur_plassering);
 
         final TextView ny_tid_title = view.findViewById(R.id.ny_tid_title);
@@ -225,27 +229,36 @@ public class min_bil_fragment extends Fragment {
         bil.setTypeface(MainActivity.typeface);
         plassering.setTypeface(MainActivity.typeface);
 
-        View.OnClickListener onClickListener = new View.OnClickListener() {
+        onClickListener = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 AppCompatSpinner timer_tid = view.findViewById(R.id.timer_spinner);
                 AppCompatSpinner minutter_tid = view.findViewById(R.id.minutter_spinner);
                 final AppCompatSpinner passasjerer = view.findViewById(R.id.passasjer_spinner);
+                final AppCompatSpinner biler = view.findViewById(R.id.bil_spinner);
 
                 final GregorianCalendar to = new GregorianCalendar();
                 to.setTimeInMillis(System.currentTimeMillis());
 
-                to.add(Calendar.HOUR_OF_DAY, (int) timer_tid.getSelectedItem());
+                if((int) timer_tid.getSelectedItem() > 0)
+                    to.add(Calendar.HOUR_OF_DAY, (int) timer_tid.getSelectedItem());
 
                 if ((int) minutter_tid.getSelectedItem() > 0)
                     to.add(Calendar.MINUTE, (int) minutter_tid.getSelectedItem());
 
+                if(to.getTimeInMillis() == System.currentTimeMillis()) {
+                    Toast.makeText(getActivity(), "You have to select a time.", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
                 final DatabaseReference ref = FirebaseDatabase.getInstance().getReference("chauffeurs").child(Bruker.get().getBrukernavn());
-                ref.child(Chauffeur.time_fromElem).setValue(System.currentTimeMillis()).addOnCompleteListener(new OnCompleteListener<Void>() {
+                ref.child(Chauffeur.time_fromElem).setValue(System.currentTimeMillis()).addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
-                    public void onComplete(@NonNull Task<Void> task) {
+                    public void onSuccess(Void task) {
                         ref.child(Chauffeur.time_toElem).setValue(to.getTimeInMillis());
                         ref.child(Chauffeur.capacity).setValue(passasjerer.getSelectedItem());
+                        String[] car_selected = ((String) biler.getSelectedItem()).split(" ");
+                        ref.child("current_car").setValue(new Gson().toJson(Car.getCarFromList(Bruker.get().getChauffeur().getListOfCars(), car_selected[0], car_selected[1])));
 
                         Bruker.get().getChauffeur().setChauffeur_time_from(System.currentTimeMillis());
                         Bruker.get().getChauffeur().setChauffeur_time_to(to.getTimeInMillis());
@@ -257,12 +270,35 @@ public class min_bil_fragment extends Fragment {
                         final TextView ny_tid_title = view.findViewById(R.id.ny_tid_title);
                         final ConstraintLayout timer_layout = view.findViewById(R.id.chauffeur_timer_layout);
 
-                        if (legg_til_tid_layout != null && time_progress != null && ny_tid_title != null && timer_layout != null) {
+                        if(legg_til_tid_layout != null && time_progress != null && ny_tid_title != null && timer_layout != null) {
                             legg_til_tid_layout.setVisibility(View.GONE);
                             timer_layout.setVisibility(View.VISIBLE);
                             ny_tid_title.setText(getString(R.string.your_session));
 
-                            final long current = Bruker.get().getChauffeur().getChauffeur_time_to() - new Date().getTime();
+                            avslutt_tid.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View view) {
+                                    final DatabaseReference ref = FirebaseDatabase.getInstance().getReference("chauffeurs").child(Bruker.get().getBrukernavn());
+
+                                    ref.child(Chauffeur.time_toElem).setValue(0).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                        @Override
+                                        public void onSuccess(Void task) {
+                                            ref.child(Chauffeur.time_fromElem).setValue(0);
+                                            ref.child(Chauffeur.capacity).setValue(0);
+
+                                            min_bil_fragment.countDownTimer.cancel();
+
+                                            ny_tid_title.setText(getString(R.string.start_new_time));
+                                            legg_til_tid.setVisibility(View.VISIBLE);
+                                            timer_layout.setVisibility(View.GONE);
+
+                                            legg_til_tid_btn.setOnClickListener(onClickListener);
+                                        }
+                                    });
+                                }
+                            });
+
+                            final long current = Bruker.get().getChauffeur().getChauffeur_time_to() - System.currentTimeMillis();
 
                             min_bil_fragment.countDownTimer = new CountDownTimer(current, 1000) {
                                 @Override
@@ -285,6 +321,12 @@ public class min_bil_fragment extends Fragment {
                             min_bil_fragment.countDownTimer.start();
                         }
                     }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        if(getActivity() != null)
+                            Toast.makeText(getActivity(), "Failed to start new session.", Toast.LENGTH_SHORT).show();
+                    }
                 });
             }
         };
@@ -306,23 +348,6 @@ public class min_bil_fragment extends Fragment {
             timer_layout.setVisibility(View.GONE);
 
             legg_til_tid_btn.setOnClickListener(onClickListener);
-
-                    /*
-                        new AlertDialog.Builder(getActivity())
-                                .setTitle("Premium")
-                                .setMessage("To use this feature you need to have premium.\nWould you like to purchase premium? (Pressing yes will not prompt you with a purchase, but with information.)")
-                                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        // show info about premium and it's features.
-                                    }})
-                                .setNegativeButton("No", new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {}})
-                                .show();
-                     */
-                //}
-            //});
         } else if(Bruker.get().getChauffeur().getChauffeur_time_from() != 0 && Bruker.get().getChauffeur().getChauffeur_time_to() != 0) {
             legg_til_tid.setVisibility(View.GONE);
 
@@ -350,12 +375,7 @@ public class min_bil_fragment extends Fragment {
                             legg_til_tid.setVisibility(View.VISIBLE);
                             timer_layout.setVisibility(View.GONE);
 
-                            start_ny_tid.setOnClickListener(new View.OnClickListener() {
-                                @Override
-                                public void onClick(View v) {
-                                    // TODO: DO IT
-                                }
-                            });
+                            start_ny_tid.setOnClickListener(onClickListener);
                         }
                     });
                 }

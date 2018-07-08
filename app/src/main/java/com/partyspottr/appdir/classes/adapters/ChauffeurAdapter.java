@@ -15,13 +15,16 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.google.firebase.iid.FirebaseInstanceId;
 import com.partyspottr.appdir.R;
 import com.partyspottr.appdir.classes.Bruker;
 import com.partyspottr.appdir.classes.ChatPreview;
 import com.partyspottr.appdir.classes.Chatter;
 import com.partyspottr.appdir.classes.Chauffeur;
 import com.partyspottr.appdir.classes.Utilities;
+import com.partyspottr.appdir.classes.networking.getToken;
 import com.partyspottr.appdir.ui.MainActivity;
 
 import java.util.ArrayList;
@@ -40,7 +43,8 @@ public class ChauffeurAdapter extends BaseAdapter {
             chauffeurList.add(new Chauffeur(0.0, "£££", 0, 0));
         } else {
             chauffeurList = list;
-            chauffeurList.add(0, new Chauffeur(0.0, "$$$", 0, 0));
+            if(!Chauffeur.isChauffeurInList(chauffeurList, "$$$"))
+                chauffeurList.add(0, new Chauffeur(0.0, "$$$", 0, 0));
         }
     }
 
@@ -84,7 +88,11 @@ public class ChauffeurAdapter extends BaseAdapter {
                     TextView maks = convertView.findViewById(R.id.chauffeur_max);
                     TextView navn = convertView.findViewById(R.id.chauffeur_navn);
                     ImageButton send_msg = convertView.findViewById(R.id.chauffeur_msg);
+                    TextView km = convertView.findViewById(R.id.chauffeur_km);
+                    TextView farge_merke = convertView.findViewById(R.id.chauffeur_fargemerke);
 
+                    farge_merke.setTypeface(MainActivity.typeface);
+                    km.setTypeface(MainActivity.typeface);
                     sted.setTypeface(MainActivity.typeface);
                     maks.setTypeface(MainActivity.typeface);
                     navn.setTypeface(MainActivity.typeface);
@@ -92,6 +100,14 @@ public class ChauffeurAdapter extends BaseAdapter {
                     send_msg.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
+                            if(Bruker.get().doesChatExist(chauffeur.getM_brukernavn())) {
+                                Toast.makeText(thisActivity, "You have already started a conversation with this user.", Toast.LENGTH_SHORT).show();
+                                return;
+                            } else if(Bruker.get().getBrukernavn().equalsIgnoreCase(chauffeur.getM_brukernavn())) {
+                                Toast.makeText(thisActivity, "You cannot send a message to yourself.", Toast.LENGTH_SHORT).show();
+                                return;
+                            }
+                            
                             final Dialog send_msg = new Dialog(thisActivity);
                             send_msg.setCancelable(true);
                             send_msg.setCanceledOnTouchOutside(true);
@@ -132,9 +148,10 @@ public class ChauffeurAdapter extends BaseAdapter {
                                     EditText message = send_msg.findViewById(R.id.send_new_msg_text);
 
                                     List<Chatter> list = new ArrayList<>();
-                                    list.add(new Chatter(Bruker.get().getBrukernavn(), Bruker.get().getFornavn(), Bruker.get().getEtternavn()));
-                                    list.add(new Chatter(chauffeur.getM_brukernavn(), chauffeur.getFornavn(), chauffeur.getEtternavn()));
-                                    Bruker.get().startChat(thisActivity, new ChatPreview(message.getText().toString(), "", false, list), chauffeur.getM_brukernavn(), message.getText().toString());
+                                    list.add(new Chatter(Bruker.get().getBrukernavn(), Bruker.get().getFornavn(), Bruker.get().getEtternavn(), Bruker.getM_token()));
+                                    list.add(new Chatter(chauffeur.getM_brukernavn(), chauffeur.getFornavn(), chauffeur.getEtternavn(), ""));
+                                    getToken token = new getToken(thisActivity, chauffeur.getM_brukernavn(), list, message.getText().toString());
+                                    token.execute();
                                 }
                             });
 
@@ -142,18 +159,22 @@ public class ChauffeurAdapter extends BaseAdapter {
                         }
                     });
 
-                    navn.setText(String.format(Locale.ENGLISH, "%s %s (%d)", chauffeur.getFornavn(), chauffeur.getEtternavn(), chauffeur.getM_age()));
+                    navn.setText(String.format(Locale.ENGLISH, "%s (%d)", chauffeur.getFornavn(), chauffeur.getM_age()));
 
                     maks.setText(String.format(Locale.ENGLISH, "%d", chauffeur.getM_capacity()));
 
+                    farge_merke.setText(String.format(Locale.ENGLISH, "%s %s", chauffeur.getCurrent_car().getFarge(), chauffeur.getCurrent_car().getMerke()));
+
                     Location loc1 = Utilities.getLatLng(thisActivity);
 
+                    //sted.setText(String.format(Locale.ENGLISH, "%s", );
+
                     if(loc1 == null)
-                        sted.setText("");
+                        km.setText("");
                     else {
                         float result[] = {0};
                         Location.distanceBetween(chauffeur.getLatitude(), chauffeur.getLongitude(), loc1.getLatitude(), loc1.getLongitude(), result);
-                        sted.setText(String.format(Locale.ENGLISH, "%.1f km", result[0] == 0.0f ? result[0] : result[0] / 1000.f));
+                        km.setText(String.format(Locale.ENGLISH, "%.1f km", result[0] == 0.0f ? result[0] : result[0] / 1000.f));
                     }
                 }
             }

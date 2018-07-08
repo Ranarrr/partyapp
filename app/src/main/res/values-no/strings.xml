@@ -105,4 +105,9 @@
     <string name="agerestriction">Aldersgrense: %d</string>
     <string name="host_deg">Host: %s (deg)</string>
     <string name="host">Host: %s</string>
+    <string name="setup_car">Sett opp din bil</string>
+    <string name="brand">Merke</string>
+    <string name="color">Farge</string>
+    <string name="add_car">Legg til bil</string>
+    <string name="end_session">Avslutt økt</string>
 </resources>

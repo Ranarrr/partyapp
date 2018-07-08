@@ -20,7 +20,6 @@
         <activity android:name=".ui.SplashActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -28,41 +27,56 @@
             android:windowSoftInputMode="stateVisible|adjustResize"/>
         <activity
             android:name=".ui.registerui.RegisterActivity"
-            android:windowSoftInputMode="stateVisible|adjustResize"/>
+            android:windowSoftInputMode="stateVisible|adjustResize"
+            android:parentActivityName=".ui.MainActivity"/>
         <activity
             android:name=".ui.registerui.Register2Activity"
-            android:windowSoftInputMode="stateVisible|adjustResize" />
+            android:windowSoftInputMode="stateVisible|adjustResize"
+            android:parentActivityName=".ui.registerui.RegisterActivity"/>
         <activity
             android:name=".ui.registerui.Register3Activity"
-            android:windowSoftInputMode="stateVisible|adjustResize" />
+            android:windowSoftInputMode="stateVisible|adjustResize"
+            android:parentActivityName=".ui.registerui.Register2Activity"/>
         <activity
             android:name=".ui.registerui.Register4Activity"
-            android:windowSoftInputMode="adjustPan" />
+            android:windowSoftInputMode="adjustPan"
+            android:parentActivityName=".ui.registerui.Register3Activity"/>
         <activity
             android:name=".ui.registerui.Register5Activity"
-            android:windowSoftInputMode="adjustPan" />
+            android:windowSoftInputMode="adjustPan"
+            android:parentActivityName=".ui.registerui.Register4Activity"/>
         <activity
             android:name=".ui.ProfilActivity"
-            android:windowSoftInputMode="adjustNothing" />
+            android:windowSoftInputMode="adjustNothing"/>
+
         <activity
             android:name=".ui.other_ui.EventDetails"
-            android:windowSoftInputMode="adjustNothing" />
+            android:windowSoftInputMode="adjustNothing"
+            android:parentActivityName=".ui.ProfilActivity"/>
+
         <activity android:name=".ui.other_ui.SettingActivity" />
 
         <activity
             android:name=".ui.other_ui.Chat"
-            android:windowFullscreen="false" />
+            android:windowFullscreen="false"
+            android:parentActivityName=".ui.ProfilActivity"/>
 
         <meta-data
             android:name="firebase_crashlytics_collection_enabled"
             android:value="false" />
 
-        <activity android:name=".ui.other_ui.Profile" />
-        <activity android:name=".ui.other_ui.drikkeleker.NeverHaveIEver" />
-        <activity android:name=".ui.other_ui.Drikkeleker" />
-        <activity android:name=".ui.other_ui.SearchEvents" />
-        <activity android:name=".ui.other_ui.CropImage" />
-        <activity android:name=".ui.other_ui.CropProfileImg" />
+        <activity android:name=".ui.other_ui.Profile"
+            android:parentActivityName=".ui.ProfilActivity"/>
+        <activity android:name=".ui.other_ui.drikkeleker.NeverHaveIEver"
+            android:parentActivityName=".ui.ProfilActivity"/>
+        <activity android:name=".ui.other_ui.Drikkeleker"
+            android:parentActivityName=".ui.ProfilActivity"/>
+        <activity android:name=".ui.other_ui.SearchEvents"
+            android:parentActivityName=".ui.ProfilActivity"/>
+        <activity android:name=".ui.other_ui.CropImage"
+            android:parentActivityName=".ui.ProfilActivity"/>
+        <activity android:name=".ui.other_ui.CropProfileImg"
+            android:parentActivityName=".ui.ProfilActivity"/>
 
         <meta-data android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyB6Fo7mLIATG1VK4_o8W2aW-NJpse-bVd0" />
@@ -87,9 +101,35 @@
          </activity>
         -->
 
-        <!--<service
-            android:name=".classes.services.NotificationService"
-            android:exported="false" />-->
+        <service
+            android:name=".classes.services.MyFirebaseMessagingService"
+            android:stopWithTask="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT"/>
+            </intent-filter>
+        </service>
+
+        <service
+            android:name=".classes.services.MyFirebaseInstanceIDService">
+            <intent-filter>
+                <action android:name="com.google.firebase.INSTANCE_ID_EVENT"/>
+            </intent-filter>
+        </service>
+
+        <!-- Set custom default icon. This is used when no icon is set for incoming notification messages.
+     See README(https://goo.gl/l4GJaQ) for more. -->
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_icon"
+            android:resource="@drawable/partyspottrp" />
+        <!-- Set color used with incoming notification messages. This is used when no color is set for the incoming
+             notification message. See README(https://goo.gl/6BKBk7) for more. -->
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_color"
+            android:resource="@color/colorAccent" />
+
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_channel_id"
+            android:value="default_channel_id"/>
 
         <!--<receiver
             android:name=".classes.services.BootCompletedReciever"

@@ -18,7 +18,7 @@ import com.partyspottr.appdir.ui.other_ui.drikkeleker.NHIE.nhie_help_fragment;
 public class NeverHaveIEver extends AppCompatActivity {
     @Override
     protected void onStop() {
-        Utilities.setupOnStop();
+        Utilities.setupOnStop(this);
 
         super.onStop();
     }

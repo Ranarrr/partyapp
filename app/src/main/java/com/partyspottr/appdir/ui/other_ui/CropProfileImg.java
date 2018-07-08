@@ -29,7 +29,7 @@ public class CropProfileImg extends AppCompatActivity {
 
     @Override
     protected void onStop() {
-        Utilities.setupOnStop();
+        Utilities.setupOnStop(this);
 
         super.onStop();
     }

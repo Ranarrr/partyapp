@@ -2,58 +2,79 @@ package com.partyspottr.appdir.classes.services;
 
 import android.app.IntentService;
 import android.content.Intent;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.util.Log;
 
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
-/**
- * An {@link IntentService} subclass for handling asynchronous task requests in
- * a service on a separate handler thread.
- * <p>
- * TODO: Customize class - update intent actions and extra parameters.
- */
 public class NotificationService extends IntentService {
-    // TODO: Rename actions, choose action names that describe tasks that this
-    // IntentService can perform, e.g. ACTION_FETCH_NEW_ITEMS
-    public static final String ACTION_NOTIFY_MSG = "com.partyspottr.appdir.classes.services.action.FOO";
-    public static final String ACTION_BAZ = "com.partyspottr.appdir.classes.services.action.BAZ";
+    DatabaseReference notificationsref;
+    ChildEventListener eventListener;
 
-    // TODO: Rename parameters
-    public static final String EXTRA_PARAM1 = "com.partyspottr.appdir.classes.services.extra.PARAM1";
-    public static final String EXTRA_PARAM2 = "com.partyspottr.appdir.classes.services.extra.PARAM2";
+    String bruker;
 
     public NotificationService() {
         super("NotificationService");
     }
 
     @Override
-    protected void onHandleIntent(Intent intent) {
-        if (intent != null) {
-            final String action = intent.getAction();
-            if (ACTION_NOTIFY_MSG.equals(action)) {
-                final String param1 = intent.getStringExtra(EXTRA_PARAM1);
-                final String param2 = intent.getStringExtra(EXTRA_PARAM2);
-                handleActionFoo(param1, param2);
-            } else if (ACTION_BAZ.equals(action)) {
-                final String param1 = intent.getStringExtra(EXTRA_PARAM1);
-                final String param2 = intent.getStringExtra(EXTRA_PARAM2);
-                handleActionBaz(param1, param2);
+    protected void onHandleIntent(@Nullable Intent intent) {
+        if(intent != null) {
+            if(intent.getAction() != null && intent.getAction().equalsIgnoreCase("QUIT")) {
+                quitParsingNotifications();
+            }
+
+            if(intent.getAction() != null && intent.getAction().equalsIgnoreCase("START")) {
+                bruker = intent.getStringExtra("user");
+                startParsingNotifications();
             }
         }
     }
 
-    /**
-     * Handle action Foo in the provided background thread with the provided
-     * parameters.
-     */
-    private void handleActionFoo(String param1, String param2) {
-
+    private void quitParsingNotifications() {
+        if(notificationsref != null)
+            notificationsref.removeEventListener(eventListener);
     }
 
-    /**
-     * Handle action Baz in the provided background thread with the provided
-     * parameters.
-     */
-    private void handleActionBaz(String param1, String param2) {
-        // TODO: Handle action Baz
-        throw new UnsupportedOperationException("Not yet implemented");
+    private void startParsingNotifications() {
+        notificationsref = FirebaseDatabase.getInstance().getReference("users").child(bruker);
+
+        eventListener = notificationsref.addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                if(dataSnapshot.getKey() != null) {
+                    if(dataSnapshot.getKey().equalsIgnoreCase("notifications")) {
+                        // TODO : maybe use Gson to save as json and then convert it to an array of notification object
+
+
+                    }
+                }
+            }
+
+            @Override
+            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+            }
+
+            @Override
+            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
     }
 }

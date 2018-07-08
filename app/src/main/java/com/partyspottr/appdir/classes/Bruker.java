@@ -16,6 +16,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.gson.Gson;
 import com.partyspottr.appdir.R;
+import com.partyspottr.appdir.classes.adapters.ChauffeurAdapter;
 import com.partyspottr.appdir.classes.adapters.EventAdapter;
 
 import org.json.JSONException;
@@ -92,17 +93,19 @@ public class Bruker {
 
     private static Map<String, Bitmap> eventImages;
 
-    public DatabaseReference eventsref;
-    public ChildEventListener eventschildlistener;
+    private static String m_token;
 
-    public DatabaseReference brukerinforef;
-    public ChildEventListener brukerinfolistener;
+    private DatabaseReference eventsref;
+    private ChildEventListener eventschildlistener;
 
-    public DatabaseReference brukerchauffeurref;
-    public ChildEventListener brukerchauffeurlistener;
+    private DatabaseReference brukerinforef;
+    private ChildEventListener brukerinfolistener;
 
-    public DatabaseReference chauffeursref;
-    public ChildEventListener chauffeurslistener;
+    private DatabaseReference brukerchauffeurref;
+    private ChildEventListener brukerchauffeurlistener;
+
+    private DatabaseReference chauffeursref;
+    private ChildEventListener chauffeurslistener;
 
     private long eventIdCounter;
 
@@ -143,11 +146,19 @@ public class Bruker {
         return 0;
     }
 
+    public static String getM_token() {
+        return m_token;
+    }
+
+    public static void setM_token(String m_token) {
+        Bruker.m_token = m_token;
+    }
+
     public void Init(Context c) {
         sharedPreferences = c.getSharedPreferences("Bruker", Context.MODE_PRIVATE);
-        chauffeur = new Chauffeur(sharedPreferences);
         eventImages = new HashMap<>();
         HentBruker();
+        chauffeur = new Chauffeur(sharedPreferences);
     }
 
     public void LagreBruker() {
@@ -220,41 +231,51 @@ public class Bruker {
             chauffeursref.removeEventListener(chauffeurslistener);
     }
 
-    public void GetAndParseChauffeurs() {
+    public void GetAndParseChauffeurs(final Activity activity) {
+        listchauffeurs = new ArrayList<>();
+
         chauffeursref = FirebaseDatabase.getInstance().getReference("chauffeurs");
 
         chauffeurslistener = chauffeursref.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-                for(DataSnapshot chauffeurs : dataSnapshot.getChildren()) {
-                    Chauffeur chauffeur = Utilities.getChauffeurFromDataSnapshot(chauffeurs);
+                Chauffeur chauffeur = Utilities.getChauffeurFromDataSnapshot(dataSnapshot);
 
-                    if(chauffeur != null && listchauffeurs != null)
-                        listchauffeurs.add(chauffeur);
+                if(chauffeur != null && listchauffeurs != null) {
+                    listchauffeurs.add(chauffeur);
+
+                    ListView lv_chauffeurs = activity.findViewById(R.id.lv_chauffeurs);
+
+                    if(lv_chauffeurs != null)
+                        lv_chauffeurs.setAdapter(new ChauffeurAdapter(activity, listchauffeurs));
                 }
             }
 
             @Override
             public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-                for(DataSnapshot chauffeurs : dataSnapshot.getChildren()) {
-                    Chauffeur chauffeur = Utilities.getChauffeurFromDataSnapshot(chauffeurs);
+                Chauffeur chauffeur = Utilities.getChauffeurFromDataSnapshot(dataSnapshot);
 
-                    if(chauffeur == null)
-                        continue;
-
+                if(chauffeur != null) {
                     Chauffeur.setChauffeur(chauffeur, listchauffeurs);
+
+                    ListView lv_chauffeurs = activity.findViewById(R.id.lv_chauffeurs);
+
+                    if(lv_chauffeurs != null)
+                        lv_chauffeurs.setAdapter(new ChauffeurAdapter(activity, listchauffeurs));
                 }
             }
 
             @Override
             public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
-                for(DataSnapshot chauffeurs : dataSnapshot.getChildren()) {
-                    Chauffeur chauffeur = Utilities.getChauffeurFromDataSnapshot(chauffeurs);
+                Chauffeur chauffeur = Utilities.getChauffeurFromDataSnapshot(dataSnapshot);
 
-                    if(chauffeur == null)
-                        continue;
-
+                if(chauffeur != null) {
                     Chauffeur.removeChauffeur(chauffeur, listchauffeurs);
+
+                    ListView lv_chauffeurs = activity.findViewById(R.id.lv_chauffeurs);
+
+                    if(lv_chauffeurs != null)
+                        lv_chauffeurs.setAdapter(new ChauffeurAdapter(activity, listchauffeurs));
                 }
             }
 
@@ -272,7 +293,7 @@ public class Bruker {
     }
 
     public void GetAndParseBrukerChauffeur() {
-        brukerchauffeurref = FirebaseDatabase.getInstance().getReference("chauffeurs").child(lokalBruker.getBrukernavn());
+        brukerchauffeurref = FirebaseDatabase.getInstance().getReference("chauffeurs");
 
         brukerchauffeurlistener = brukerchauffeurref.addChildEventListener(new ChildEventListener() {
             @Override
@@ -283,62 +304,10 @@ public class Bruker {
                     return;
                 }
 
-                for(DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                    if(snapshot.getKey() != null) {
-                        switch(snapshot.getKey()) {
-                            case "rating":
-                                if(snapshot.getValue() != null)
-                                    getChauffeur().setM_rating(snapshot.getValue(Double.class));
-                                break;
-
-                            case "brukernavn":
-                                getChauffeur().setM_brukernavn(snapshot.getValue(String.class));
-                                break;
-
-                            case "fornavn":
-                                getChauffeur().setFornavn(snapshot.getValue(String.class));
-                                break;
-
-                            case "etternavn":
-                                getChauffeur().setEtternavn(snapshot.getValue(String.class));
-                                break;
-
-                            case "age":
-                                if(snapshot.getValue(Integer.class) != null)
-                                    getChauffeur().setM_age(snapshot.getValue(Integer.class));
-                                break;
-
-                            case "capacity":
-                                if(snapshot.getValue(Integer.class) != null)
-                                    getChauffeur().setM_capacity(snapshot.getValue(Integer.class));
-                                break;
-
-                            case "timefrom":
-                                if(snapshot.getValue(Long.class) != null)
-                                    getChauffeur().setChauffeur_time_from(snapshot.getValue(Long.class));
-                                break;
-
-                            case "timeto":
-                                if(snapshot.getValue(Long.class) != null)
-                                    getChauffeur().setChauffeur_time_to(snapshot.getValue(Long.class));
-                                break;
-
-                            case "listcars":
-                                List<Car> list = new Gson().fromJson(snapshot.getValue(String.class), Utilities.listCarsType);
-                                getChauffeur().setListOfCars(list);
-                                break;
-
-                            case "longitude":
-                                if(snapshot.getValue(Double.class) != null)
-                                    getChauffeur().setLongitude(snapshot.getValue(Double.class));
-                                break;
-
-                            case "latitude":
-                                if(snapshot.getValue(Double.class) != null)
-                                    getChauffeur().setLatitude(snapshot.getValue(Double.class));
-                                break;
-                        }
-                    }
+                if(dataSnapshot.getKey() != null && dataSnapshot.getKey().equalsIgnoreCase(getBrukernavn())) {
+                    Utilities.getBrukerChauffeur(dataSnapshot);
+                    setHascar(true);
+                    LagreBruker();
                 }
             }
 
@@ -350,62 +319,8 @@ public class Bruker {
                     return;
                 }
 
-                for(DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                    if(snapshot.getKey() != null) {
-                        switch(snapshot.getKey()) {
-                            case "rating":
-                                if(snapshot.getValue() != null)
-                                    Bruker.get().getChauffeur().setM_rating(snapshot.getValue(Double.class));
-                                break;
-
-                            case "brukernavn":
-                                Bruker.get().getChauffeur().setM_brukernavn(snapshot.getValue(String.class));
-                                break;
-
-                            case "fornavn":
-                                Bruker.get().getChauffeur().setFornavn(snapshot.getValue(String.class));
-                                break;
-
-                            case "etternavn":
-                                Bruker.get().getChauffeur().setEtternavn(snapshot.getValue(String.class));
-                                break;
-
-                            case "age":
-                                if(snapshot.getValue(Integer.class) != null)
-                                    Bruker.get().getChauffeur().setM_age(snapshot.getValue(Integer.class));
-                                break;
-
-                            case "capacity":
-                                if(snapshot.getValue(Integer.class) != null)
-                                    Bruker.get().getChauffeur().setM_capacity(snapshot.getValue(Integer.class));
-                                break;
-
-                            case "timefrom":
-                                if(snapshot.getValue(Long.class) != null)
-                                    Bruker.get().getChauffeur().setChauffeur_time_from(snapshot.getValue(Long.class));
-                                break;
-
-                            case "timeto":
-                                if(snapshot.getValue(Long.class) != null)
-                                    Bruker.get().getChauffeur().setChauffeur_time_to(snapshot.getValue(Long.class));
-                                break;
-
-                            case "listcars":
-                                List<Car> list = new Gson().fromJson(snapshot.getValue(String.class), Utilities.listCarsType);
-                                Bruker.get().getChauffeur().setListOfCars(list);
-                                break;
-
-                            case "longitude":
-                                if(snapshot.getValue(Double.class) != null)
-                                    Bruker.get().getChauffeur().setLongitude(snapshot.getValue(Double.class));
-                                break;
-
-                            case "latitude":
-                                if(snapshot.getValue(Double.class) != null)
-                                    Bruker.get().getChauffeur().setLatitude(snapshot.getValue(Double.class));
-                                break;
-                        }
-                    }
+                if(dataSnapshot.getKey() != null && dataSnapshot.getKey().equalsIgnoreCase(getBrukernavn())) {
+                    Utilities.getBrukerChauffeur(dataSnapshot);
                 }
             }
 
@@ -416,7 +331,12 @@ public class Bruker {
             public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {}
 
             @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {}
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                if(databaseError.getCode() == DatabaseError.PERMISSION_DENIED) {
+                    Bruker.get().setHascar(false);
+                    Bruker.get().LagreBruker();
+                }
+            }
         });
     }
 
@@ -626,7 +546,7 @@ public class Bruker {
         LagreBruker();
     }
 
-    private boolean doesChatExist(String brukernavn) {
+    public boolean doesChatExist(String brukernavn) {
         if(chatMessageList == null)
             return false;
 
@@ -640,12 +560,7 @@ public class Bruker {
         return false;
     }
 
-    public void startChat(Activity activity, ChatPreview chatPreview, String otherUser, String message) {
-        if(doesChatExist(otherUser)) {
-            Toast.makeText(activity, "You have already started a conversation with this user!", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
+    public void startChat(Activity activity, ChatPreview chatPreview, String otherUser) {
         if(isConnected()) {
             if(chatMessageList == null)
                 chatMessageList = new ArrayList<>();
@@ -653,13 +568,15 @@ public class Bruker {
             chatMessageList.add(chatPreview);
 
             List<ChatMessage> list = new ArrayList<>();
-            list.add(new ChatMessage(message, getBrukernavn()));
+            list.add(new ChatMessage(chatPreview.getMessage(), getBrukernavn()));
 
             FirebaseDatabase.getInstance().getReference("messagepreviews").child(getBrukernavn() + "_" + otherUser.toLowerCase()).setValue(chatPreview);
             FirebaseDatabase.getInstance().getReference("messages").child(getBrukernavn() + "_" + otherUser.toLowerCase()).setValue(list);
             LagreBruker();
 
             Toast.makeText(activity, "Started a chat with " + chatPreview.getChatters().get(1).getBrukernavn(), Toast.LENGTH_SHORT).show();
+
+            activity.onBackPressed();
         }
     }
 

@@ -331,7 +331,6 @@
                     android:id="@+id/by_textview"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="By"
                     android:textColor="@color/white"
                     android:textSize="@dimen/_15ssp"
                     app:layout_constraintBaseline_toBaselineOf="@+id/create_postnr"

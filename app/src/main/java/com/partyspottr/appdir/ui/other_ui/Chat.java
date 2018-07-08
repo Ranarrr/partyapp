@@ -29,6 +29,8 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.firebase.messaging.RemoteMessage;
 import com.partyspottr.appdir.R;
 import com.partyspottr.appdir.classes.Bruker;
 import com.partyspottr.appdir.classes.ChatMessage;
@@ -60,6 +62,8 @@ public class Chat extends AppCompatActivity {
     private ChatPreview preview;
     private String lastfooter;
     private boolean previousChatIsYours;
+
+    private String tokenOtherUser;
 
     private int doesChatMessageExist(ChatMessage chatMessage) {
         for(int i = 0; i < m_list.size(); i++) {
@@ -128,7 +132,7 @@ public class Chat extends AppCompatActivity {
 
     @Override
     protected void onStop() {
-        Utilities.setupOnStop();
+        Utilities.setupOnStop(this);
 
         super.onStop();
     }
@@ -173,6 +177,8 @@ public class Chat extends AppCompatActivity {
             if(preview == null)
                 return;
         }
+
+
 
         final EditText write_msg = findViewById(R.id.write_msg);
         ImageButton send_msg_btn = findViewById(R.id.chat_send);
@@ -278,11 +284,20 @@ public class Chat extends AppCompatActivity {
                     return;
 
                 m_list.add(new ChatMessage(write_msg.getText().toString(), Bruker.get().getBrukernavn()));
+
                 SortListByTime();
+
                 FirebaseDatabase.getInstance().getReference("messagepreviews").child(preview.isGroupchat() ? "group_" + preview.getGroupname() : preview.getChatters().get(0).getBrukernavn() +
                         "_" + preview.getChatters().get(1).getBrukernavn()).setValue(new ChatPreview(write_msg.getText().toString(), preview.isGroupchat() ? preview.getGroupname() : "",
                         preview.isGroupchat(), preview.getChatters()));
+
                 FirebaseDatabase.getInstance().getReference("messages").child(preview.getChatters().get(0).getBrukernavn() + "_" + preview.getChatters().get(1).getBrukernavn()).setValue(m_list);
+
+                Chatter chatter = Chatter.getChatterNotEqualToBruker(preview.getChatters());
+
+                if(chatter != null && chatter.getToken() != null && !chatter.getToken().isEmpty())
+                    FirebaseMessaging.getInstance().send(new RemoteMessage.Builder(chatter.getToken()).addData("msg", write_msg.getText().toString()).build());
+
                 write_msg.getText().clear();
             }
         });

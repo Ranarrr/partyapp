@@ -101,6 +101,8 @@ public class EventAdapter extends BaseAdapter {
             final Event event = eventList.get(position);
 
             if(event.isHasimage()) {
+                bildeIListe.setBackgroundColor(thisActivity.getResources().getColor(R.color.verylightgrey));
+
                 final StorageReference picRef = ProfilActivity.storage.getReference().child(event.getHostStr() + "_" + event.getNameofevent());
 
                 if(Bruker.getEventImageSizeByName(event.getHostStr(), event.getNameofevent()) > 0) {
@@ -164,12 +166,10 @@ public class EventAdapter extends BaseAdapter {
                     Intent intent = new Intent(thisActivity, EventDetails.class);
                     intent.putExtra("eventid", event.getEventId());
                     thisActivity.startActivity(intent);
-
                 }
             });
         }
 
         return convertView;
     }
-
 }

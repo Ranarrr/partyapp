@@ -45,6 +45,7 @@ import com.partyspottr.appdir.classes.Friend;
 import com.partyspottr.appdir.classes.Utilities;
 import com.partyspottr.appdir.classes.adapters.CountryCodes;
 import com.partyspottr.appdir.classes.customviews.CustomViewPager;
+import com.partyspottr.appdir.classes.networking.getToken;
 import com.partyspottr.appdir.ui.MainActivity;
 import com.partyspottr.appdir.ui.ProfilActivity;
 
@@ -63,7 +64,7 @@ import java.util.Locale;
 public class Profile extends AppCompatActivity {
     @Override
     protected void onStop() {
-        Utilities.setupOnStop();
+        Utilities.setupOnStop(this);
 
         super.onStop();
     }
@@ -202,7 +203,7 @@ public class Profile extends AppCompatActivity {
 
                         if(eventids.size() == 0) {
                             pager.setVisibility(View.GONE);
-                            skal_paa.setText("Denne brukeren skal ikke på en event.");
+                            skal_paa.setText("This user is not attending any events.");
                         } else {
                             EventSlidePagerAdapter adapter = new EventSlidePagerAdapter(Profile.this, eventids);
                             pager.setAdapter(adapter);
@@ -211,6 +212,14 @@ public class Profile extends AppCompatActivity {
                         send_message.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
+                                if(Bruker.get().doesChatExist(bruker.getBrukernavn())) {
+                                    Toast.makeText(Profile.this, "You have already started a conversation with this user.", Toast.LENGTH_SHORT).show();
+                                    return;
+                                } else if(Bruker.get().getBrukernavn().equalsIgnoreCase(bruker.getBrukernavn())) {
+                                    Toast.makeText(Profile.this, "You cannot send a message to yourself.", Toast.LENGTH_SHORT).show();
+                                    return;
+                                }
+
                                 final Dialog send_msg = new Dialog(Profile.this);
                                 send_msg.setCancelable(true);
                                 send_msg.setCanceledOnTouchOutside(true);
@@ -252,9 +261,10 @@ public class Profile extends AppCompatActivity {
                                         EditText message = send_msg.findViewById(R.id.send_new_msg_text);
 
                                         List<Chatter> list = new ArrayList<>();
-                                        list.add(new Chatter(Bruker.get().getBrukernavn(), Bruker.get().getFornavn(), Bruker.get().getEtternavn()));
-                                        list.add(new Chatter(bruker.getBrukernavn(), bruker.getFornavn(), bruker.getEtternavn()));
-                                        Bruker.get().startChat(Profile.this, new ChatPreview(message.getText().toString(), "", false, list), bruker.getBrukernavn(), message.getText().toString());
+                                        list.add(new Chatter(Bruker.get().getBrukernavn(), Bruker.get().getFornavn(), Bruker.get().getEtternavn(), Bruker.getM_token()));
+                                        list.add(new Chatter(bruker.getBrukernavn(), bruker.getFornavn(), bruker.getEtternavn(), ""));
+                                        getToken Gettoken = new getToken(Profile.this, bruker.getBrukernavn(), list, message.getText().toString());
+                                        Gettoken.execute();
                                     }
                                 });
 

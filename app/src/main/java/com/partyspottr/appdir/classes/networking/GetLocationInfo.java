@@ -66,8 +66,6 @@ public class GetLocationInfo extends AsyncTask<Void, Void, Integer> {
         if(integer == 1) {
             if (dilog != null)
                 ((TextView) dilog.findViewById(R.id.by_textview)).setText(eventToUse.getTown());
-        } else
-            if(dilog != null)
-                ((TextView) dilog.findViewById(R.id.by_textview)).setText(progressDialog.getContext().getResources().getString(R.string.town));
+        }
     }
 }

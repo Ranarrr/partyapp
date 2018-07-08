@@ -25,6 +25,7 @@ public class Chauffeur {
     private String m_brukernavn;
     private String m_fornavn;
     private String m_etternavn;
+    private Car current_car;
     private int m_age;
     private int m_capacity;
     private long chauffeur_time_from;
@@ -81,27 +82,6 @@ public class Chauffeur {
         LagreChauffeur();
     }
 
-    public String ChauffeurJSONString() {
-        String ret = "";
-
-        try {
-            JSONObject json = new JSONObject();
-            json.put("brukernavnElem", m_brukernavn);
-            json.put(carlistElem, new Gson().toJson(listOfCars));
-            json.put(time_fromElem, chauffeur_time_from);
-            json.put(time_toElem, chauffeur_time_to);
-            json.put(rating, m_rating);
-            json.put(capacity, m_capacity);
-            json.put(age, m_age);
-            json.put("socketElem", Base64.encodeToString(BuildConfig.JSONParser_Socket.getBytes(), Base64.DEFAULT));
-            ret = json.toString();
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        return ret;
-    }
-
     public void HentChauffeur() {
         chauffeur_time_from = m_sharedPreferences.getLong(time_fromElem, 0);
         chauffeur_time_to = m_sharedPreferences.getLong(time_toElem, 0);
@@ -110,6 +90,12 @@ public class Chauffeur {
         m_etternavn = m_sharedPreferences.getString(etternavnElem, "");
         m_capacity = m_sharedPreferences.getInt(capacity, 0);
         m_age = m_sharedPreferences.getInt(age, 0);
+
+        if(m_sharedPreferences.getString("current_car", "").equals(""))
+            current_car = null;
+        else
+            current_car = new Gson().fromJson(m_sharedPreferences.getString("current_car", ""), Utilities.carType);
+
         m_brukernavn = Bruker.get().getBrukernavn();
 
         if(m_sharedPreferences.getString(Chauffeur.carlistElem, "").equals(""))
@@ -118,6 +104,7 @@ public class Chauffeur {
             listOfCars = new Gson().fromJson(m_sharedPreferences.getString(Chauffeur.carlistElem, ""), Chauffeur.listOfCarsType);
 
         Bruker.get().setHascar(listOfCars.size() > 0);
+        Bruker.get().LagreBruker();
     }
 
     public void LagreChauffeur() {
@@ -155,6 +142,19 @@ public class Chauffeur {
                 break;
             }
         }
+    }
+
+    public static boolean isChauffeurInList(List<Chauffeur> list, String brukernavn) {
+        if(list == null)
+            return false;
+
+        for(Chauffeur chauffeur : list) {
+            if(chauffeur.getM_brukernavn().equalsIgnoreCase(brukernavn)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public double getM_rating() {
@@ -243,5 +243,13 @@ public class Chauffeur {
 
     public void setLatitude(double latitude) {
         this.m_latitude = latitude;
+    }
+
+    public Car getCurrent_car() {
+        return current_car;
+    }
+
+    public void setCurrent_car(Car current_car) {
+        this.current_car = current_car;
     }
 }

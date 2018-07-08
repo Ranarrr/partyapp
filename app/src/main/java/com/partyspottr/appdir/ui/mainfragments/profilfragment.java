@@ -100,7 +100,7 @@ public class profilfragment extends Fragment {
                     Intent intent = new Intent(getActivity(), CropProfileImg.class);
                     startActivity(intent);
                 } else
-                    ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, Utilities.READ_EXTERNAL_STORAGE_CODE);
+                    ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, Utilities.READ_EXTERNAL_STORAGE_PROFILE_CODE);
             }
         });
 

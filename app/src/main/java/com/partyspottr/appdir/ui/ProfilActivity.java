@@ -19,6 +19,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatButton;
@@ -42,10 +43,15 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.iid.InstanceIdResult;
 import com.google.firebase.storage.FirebaseStorage;
 import com.partyspottr.appdir.R;
 import com.partyspottr.appdir.classes.Bruker;
@@ -53,6 +59,9 @@ import com.partyspottr.appdir.classes.ImageChange;
 import com.partyspottr.appdir.classes.OnSwipeGestureListener;
 import com.partyspottr.appdir.classes.Utilities;
 import com.partyspottr.appdir.classes.networking.GetLocationInfo;
+import com.partyspottr.appdir.classes.networking.SendToken;
+import com.partyspottr.appdir.classes.services.MyFirebaseInstanceIDService;
+import com.partyspottr.appdir.classes.services.MyFirebaseMessagingService;
 import com.partyspottr.appdir.enums.ReturnWhere;
 import com.partyspottr.appdir.ui.mainfragments.bilfragment;
 import com.partyspottr.appdir.ui.mainfragments.chatchildfragments.mine_chats_fragment;
@@ -63,6 +72,7 @@ import com.partyspottr.appdir.ui.mainfragments.eventchildfragments.mine_eventer_
 import com.partyspottr.appdir.ui.mainfragments.eventfragment;
 import com.partyspottr.appdir.ui.mainfragments.profilfragment;
 import com.partyspottr.appdir.ui.other_ui.CropImage;
+import com.partyspottr.appdir.ui.other_ui.CropProfileImg;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -147,8 +157,14 @@ public class ProfilActivity extends AppCompatActivity {
                     .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
-                            finish();
-                            System.exit(0);
+                            DatabaseReference ref = FirebaseDatabase.getInstance().getReference("users").child(Bruker.get().getBrukernavn());
+                            ref.child("loggedon").setValue(false).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    finish();
+                                    System.exit(0);
+                                }
+                            });
                         }
                     }).setNegativeButton("No", null)
                     .show();
@@ -184,6 +200,25 @@ public class ProfilActivity extends AppCompatActivity {
 
         storage = FirebaseStorage.getInstance();
 
+        FirebaseInstanceId.getInstance().getInstanceId().addOnSuccessListener(new OnSuccessListener<InstanceIdResult>() {
+            @Override
+            public void onSuccess(InstanceIdResult instanceIdResult) {
+                new SendToken(instanceIdResult.getToken(), Bruker.get().getBrukernavn()).execute();
+                Bruker.setM_token(instanceIdResult.getToken());
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Toast.makeText(ProfilActivity.this, "Failed to generate token!", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        Intent intent1 = new Intent(ProfilActivity.this, MyFirebaseInstanceIDService.class);
+        startService(intent1);
+
+        Intent intent2 = new Intent(ProfilActivity.this, MyFirebaseMessagingService.class);
+        startService(intent2);
+
         if(!Utilities.hasNetwork(getApplicationContext())) {
             Bruker.get().setConnected(false);
             Toast.makeText(this, "You are not connected.", Toast.LENGTH_SHORT).show();
@@ -195,30 +230,7 @@ public class ProfilActivity extends AppCompatActivity {
             Bruker.get().setConnected(true);
         }
 
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                Bruker.get().GetAndParseBrukerInfo();
-                Bruker.get().GetAndParseChauffeurs();
-                Bruker.get().GetAndParseEvents(ProfilActivity.this);
-                Utilities.startChatListener(ProfilActivity.this);
-
-                storage.getReference().child(Bruker.get().getBrukernavn()).getBytes(2048 * 2048).addOnSuccessListener(new OnSuccessListener<byte[]>() {
-                    @Override
-                    public void onSuccess(byte[] bytes) {
-                        Bruker.get().setProfilepic(BitmapFactory.decodeByteArray(bytes, 0, bytes.length));
-                    }
-                }).addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Bruker.get().setProfilepic(null);
-                    }
-                });
-
-                if(Bruker.get().isHascar())
-                    Bruker.get().GetAndParseBrukerChauffeur();
-            }
-        }, 500);
+        getStuff();
 
         TextView tittel = findViewById(R.id.title_toolbar);
         tittel.setTypeface(typeface);
@@ -228,11 +240,48 @@ public class ProfilActivity extends AppCompatActivity {
         setTitle("");
     }
 
+    private void getStuff() {
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                final SwipeRefreshLayout swipeRefreshLayout = findViewById(R.id.swipe_layout_events);
+
+                if(swipeRefreshLayout != null && !swipeRefreshLayout.isRefreshing())
+                    swipeRefreshLayout.setRefreshing(true);
+
+                if(!Bruker.get().isLoggetpa()) {
+                    getStuff();
+                    return;
+                }
+
+                Bruker.get().GetAndParseBrukerInfo();
+                Bruker.get().GetAndParseChauffeurs(ProfilActivity.this);
+                Bruker.get().GetAndParseEvents(ProfilActivity.this);
+                Bruker.get().GetAndParseBrukerChauffeur();
+                Utilities.startChatListener(ProfilActivity.this);
+
+                storage.getReference().child(Bruker.get().getBrukernavn()).getBytes(2048 * 2048).addOnSuccessListener(new OnSuccessListener<byte[]>() {
+                    @Override
+                    public void onSuccess(byte[] bytes) {
+                        Bruker.get().setProfilepic(BitmapFactory.decodeByteArray(bytes, 0, bytes.length));
+                        if(swipeRefreshLayout != null)
+                            swipeRefreshLayout.setRefreshing(false);
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Bruker.get().setProfilepic(null);
+                    }
+                });
+            }
+        }, 100);
+    }
+
     @Override
     protected void onStop() {
         ctd.cancel();
 
-        Utilities.setupOnStop();
+        Utilities.setupOnStop(this);
 
         super.onStop();
     }
@@ -305,8 +354,7 @@ public class ProfilActivity extends AppCompatActivity {
     }
 
     public void onBilMenyClick(View v) {
-        Toast.makeText(this, "Not ready.. JUUUST YET", Toast.LENGTH_SHORT).show();
-        //replaceFragment(1);
+        replaceFragment(1);
     }
 
     public void onKalenderMenyClick(View v) {
@@ -464,7 +512,7 @@ public class ProfilActivity extends AppCompatActivity {
         Toolbar create_event_toolbar = dialog.findViewById(R.id.toolbar2);
         final EditText postnr = dialog.findViewById(R.id.create_postnr);
         final EditText gate = dialog.findViewById(R.id.create_gate);
-        RelativeLayout content = dialog.findViewById(R.id.legg_til_event_content);
+        //RelativeLayout content = dialog.findViewById(R.id.legg_til_event_content);
         TextView title = dialog.findViewById(R.id.create_event_title);
 
         title.setTypeface(MainActivity.typeface);
@@ -486,12 +534,12 @@ public class ProfilActivity extends AppCompatActivity {
         gate.setTypeface(MainActivity.typeface);
 
         //noinspection AndroidLintClickableViewAccessibility
-        content.setOnTouchListener(new OnSwipeGestureListener(this) {
+        /*content.setOnTouchListener(new OnSwipeGestureListener(this) {
             @Override
             public void onSwipeBottom() {
                 ProfilActivity.this.onBackPressed();
             }
-        });
+        });*/
 
         kategorier.setAdapter(new ArrayAdapter<>(this, R.layout.spinner_mine, Arrays.asList("Narch", "Vors", "Party", "Concert", "Nightclub", "Birthday", "Festival"))); // TODO : OVERSETTE
 
@@ -512,7 +560,7 @@ public class ProfilActivity extends AppCompatActivity {
                             getLocationInfo.execute();
                         }
                     }
-                }, 200);
+                }, 1000);
             }
 
             @Override
@@ -534,7 +582,7 @@ public class ProfilActivity extends AppCompatActivity {
                             getLocationInfo.execute();
                         }
                     }
-                }, 200);
+                }, 1000);
             }
 
             @Override
@@ -706,6 +754,9 @@ public class ProfilActivity extends AppCompatActivity {
                 if(titletext.length() <= 3) {
                     Toast.makeText(ProfilActivity.this, "Please choose a title longer than 3 characters.", Toast.LENGTH_SHORT).show();
                     return;
+                } else if(titletext.length() > 30) {
+                    Toast.makeText(ProfilActivity.this, "Please limit the title to 30 or less characters.", Toast.LENGTH_SHORT).show();
+                    return;
                 }
 
                 if(dato.getText().toString().isEmpty() || time.getText().toString().isEmpty()) {
@@ -717,7 +768,7 @@ public class ProfilActivity extends AppCompatActivity {
                     Toast.makeText(ProfilActivity.this, "Max participants can not be lower than 2.", Toast.LENGTH_SHORT).show();
                     return;
                 } else if(!maks_deltakere.getText().toString().isEmpty() && (Integer.valueOf(maks_deltakere.getText().toString()) > 40 && !Bruker.get().isPremium())) {
-                    new AlertDialog.Builder(ProfilActivity.this)
+                    new AlertDialog.Builder(ProfilActivity.this, R.style.mydatepickerdialog)
                             .setTitle("Premium")
                             .setMessage("To use this feature you need to have premium.\nWould you like to purchase premium? (This will not prompt you with a purchase, rather with information.)")
                             .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
@@ -734,11 +785,6 @@ public class ProfilActivity extends AppCompatActivity {
 
                 if(aldersgrense.getText().toString().isEmpty() || Integer.valueOf(aldersgrense.getText().toString()) <= 13) {
                     Toast.makeText(ProfilActivity.this, "The agerestriction can not be lower than 14.", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                if(by.getText().toString().equals("By")) {
-                    Toast.makeText(ProfilActivity.this, "Please make sure the address is filled in correctly.", Toast.LENGTH_SHORT).show();
                     return;
                 }
 
@@ -776,10 +822,18 @@ public class ProfilActivity extends AppCompatActivity {
             for(int i = 0; i < permissions.length; i++) {
                 if(permissions[i].equals(Manifest.permission.READ_EXTERNAL_STORAGE)) {
                     if(grantResults[i] == PackageManager.PERMISSION_GRANTED) {
-                        Intent intent = new Intent();
-                        intent.setType("image/*");
-                        intent.setAction(Intent.ACTION_GET_CONTENT);
-                        startActivityForResult(Intent.createChooser(intent, "Select Picture"), Utilities.SELECT_IMAGE_CODE);
+                        Intent intent = new Intent(ProfilActivity.this, CropImage.class);
+                        intent.putExtra("returnwhere", ReturnWhere.LEGG_TIL_EVENT.ordinal());
+                        startActivity(intent);
+                    }
+                }
+            }
+        } else if(requestCode == Utilities.READ_EXTERNAL_STORAGE_PROFILE_CODE) {
+            for(int i = 0; i < permissions.length; i++) {
+                if(permissions[i].equals(Manifest.permission.READ_EXTERNAL_STORAGE)) {
+                    if(grantResults[i] == PackageManager.PERMISSION_GRANTED) {
+                        Intent intent = new Intent(this, CropProfileImg.class);
+                        startActivity(intent);
                     }
                 }
             }

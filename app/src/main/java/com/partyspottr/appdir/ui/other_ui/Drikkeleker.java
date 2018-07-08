@@ -18,7 +18,7 @@ import com.partyspottr.appdir.ui.other_ui.drikkeleker.NeverHaveIEver;
 public class Drikkeleker extends AppCompatActivity {
     @Override
     protected void onStop() {
-        Utilities.setupOnStop();
+        Utilities.setupOnStop(this);
 
         super.onStop();
     }

@@ -143,9 +143,8 @@ public class LoginUser extends AsyncTask<Void, Void, Integer> {
         } else if(integer == -1) { // wrong password
             Toast.makeText(progressDialog.getContext(), progressDialog.getContext().getResources().getString(R.string.feil_passord), Toast.LENGTH_SHORT).show();
             Bruker.get().setPassord("");
-        } else {
+        } else
             Toast.makeText(progressDialog.getContext(), progressDialog.getContext().getResources().getString(R.string.tilkoblingsfeil), Toast.LENGTH_SHORT).show();
-        }
 
         progressDialog.hide();
     }

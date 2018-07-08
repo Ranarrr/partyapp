@@ -111,5 +111,10 @@
     <string name="agerestriction">Age limit: %d</string>
     <string name="host_deg">Host: %s (you)</string>
     <string name="host">Host: %s</string>
+    <string name="setup_car">Setup your car</string>
+    <string name="brand">Brand</string>
+    <string name="color">Color</string>
+    <string name="add_car">Add car</string>
+    <string name="end_session">End session</string>
 
 </resources>

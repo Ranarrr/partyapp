@@ -105,9 +105,12 @@ public class Event {
             this.longitude = jsonObject.getJSONArray("results").getJSONObject(0).getJSONObject("geometry").getJSONObject("location").getDouble("lng");
             this.latitude = jsonObject.getJSONArray("results").getJSONObject(0).getJSONObject("geometry").getJSONObject("location").getDouble("lat");
 
-            String str = jsonObject.getJSONArray("results").getJSONObject(0).getString("formatted_address");
-            this.address = str.split(",")[0];
-            this.country = str.split(", ")[2];
+            String[] str = jsonObject.getJSONArray("results").getJSONObject(0).getString("formatted_address").split(",");
+            this.address = str[0];
+            if(str.length > 2)
+                this.country = str[2];
+            else
+                this.country = str[1];
 
             for(int i = 0; i < jsonObject.getJSONArray("results").getJSONObject(0).getJSONArray("address_components").length(); i++) {
                 JSONObject temp = jsonObject.getJSONArray("results").getJSONObject(0).getJSONArray("address_components").getJSONObject(i);

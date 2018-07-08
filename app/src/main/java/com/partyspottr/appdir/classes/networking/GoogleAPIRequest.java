@@ -43,7 +43,7 @@ public class GoogleAPIRequest {
         }
 
         try {
-            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(is, "iso-8859-1"), 8);
+            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(is, "UTF-8"), 8);
             StringBuilder stringBuilder = new StringBuilder();
             while (true) {
                 String readLine = bufferedReader.readLine();

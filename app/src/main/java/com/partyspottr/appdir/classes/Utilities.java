@@ -60,11 +60,13 @@ import com.partyspottr.appdir.classes.application.ApplicationLifecycleMgr;
 import com.partyspottr.appdir.classes.networking.AddEvent;
 import com.partyspottr.appdir.classes.networking.UpdateEvent;
 import com.partyspottr.appdir.classes.networking.UpdateUser;
+import com.partyspottr.appdir.classes.services.NotificationService;
 import com.partyspottr.appdir.enums.Categories;
 import com.partyspottr.appdir.enums.EventStilling;
 import com.partyspottr.appdir.ui.MainActivity;
 import com.partyspottr.appdir.ui.ProfilActivity;
 import com.partyspottr.appdir.ui.SplashActivity;
+import com.partyspottr.appdir.ui.mainfragments.eventchildfragments.alle_eventer_fragment;
 import com.partyspottr.appdir.ui.other_ui.EventDetails;
 
 import java.io.IOException;
@@ -91,7 +93,7 @@ public class Utilities {
     public static final int SEND_SMS_REQUEST_CODE = 1002;
     public static final int LOCATION_REQUEST_CODE = 1000;
     public static final int READ_EXTERNAL_STORAGE_CODE = 1001;
-    public static final int SELECT_IMAGE_CODE = 1003;
+    public static final int READ_EXTERNAL_STORAGE_PROFILE_CODE = 1003;
 
     public static final Type listFriendsType = new TypeToken<List<Friend>>(){}.getType();
     public static final Type listParticipantsType = new TypeToken<List<Participant>>(){}.getType();
@@ -114,13 +116,13 @@ public class Utilities {
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 
-    public static GregorianCalendar getDateFromString(String str, String format) {
+    private static GregorianCalendar getDateFromString(String str, String format) {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat(format, Locale.getDefault());
 
         GregorianCalendar gregorianCalendar = new GregorianCalendar();
 
         try {
-            gregorianCalendar.setTime(simpleDateFormat.parse(str));
+            gregorianCalendar.setTime(simpleDateFormat.parse(str.toUpperCase()));
             return gregorianCalendar;
         } catch (ParseException e) {
             e.printStackTrace();
@@ -149,8 +151,11 @@ public class Utilities {
                     if(child.getKey() == null)
                         continue;
 
-                    if(child.getKey().contains(Bruker.get().getBrukernavn())) {
-                        list.add(child.getValue(ChatPreview.class));
+                    for(String splitted : child.getKey().split("_")) {
+                        if(splitted.equalsIgnoreCase(Bruker.get().getBrukernavn())) {
+                            list.add(child.getValue(ChatPreview.class));
+                            break;
+                        }
                     }
                 }
 
@@ -344,62 +349,125 @@ public class Utilities {
         });
     }
 
-    public static Chauffeur getChauffeurFromDataSnapshot(DataSnapshot snapshot) {
+    public static void getBrukerChauffeur(DataSnapshot dataSnapshot) {
+        for(DataSnapshot snapshot : dataSnapshot.getChildren()) {
+            if(snapshot.getKey() != null) {
+                switch(snapshot.getKey()) {
+                    case "rating":
+                        if(snapshot.getValue() != null)
+                            Bruker.get().getChauffeur().setM_rating(Double.valueOf(snapshot.getValue(String.class)));
+                        break;
+
+                    case "brukernavn":
+                        Bruker.get().getChauffeur().setM_brukernavn(snapshot.getValue(String.class));
+                        break;
+
+                    case "fornavn":
+                        Bruker.get().getChauffeur().setFornavn(snapshot.getValue(String.class));
+                        break;
+
+                    case "etternavn":
+                        Bruker.get().getChauffeur().setEtternavn(snapshot.getValue(String.class));
+                        break;
+
+                    case "age":
+                        Bruker.get().getChauffeur().setM_age(Integer.valueOf(snapshot.getValue(String.class)));
+                        break;
+
+                    case "capacity":
+                        if(snapshot.getValue(Integer.class) != null)
+                            Bruker.get().getChauffeur().setM_capacity(snapshot.getValue(Integer.class));
+                        break;
+
+                    case "current_car":
+                        Bruker.get().getChauffeur().setCurrent_car((Car) new Gson().fromJson(snapshot.getValue(String.class), carType));
+                        break;
+
+                    case "timefrom":
+                        if(snapshot.getValue(Long.class) != null)
+                            Bruker.get().getChauffeur().setChauffeur_time_from(snapshot.getValue(Long.class));
+                        break;
+
+                    case "timeto":
+                        if(snapshot.getValue(Long.class) != null)
+                            Bruker.get().getChauffeur().setChauffeur_time_to(snapshot.getValue(Long.class));
+                        break;
+
+                    case "carlist":
+                        List<Car> list = new Gson().fromJson(snapshot.getValue(String.class), Utilities.listCarsType);
+                        Bruker.get().getChauffeur().setListOfCars(list);
+                        break;
+
+                    case "longitude":
+                        Bruker.get().getChauffeur().setLongitude(Double.valueOf(snapshot.getValue(String.class)));
+                        break;
+
+                    case "latitude":
+                        Bruker.get().getChauffeur().setLatitude(Double.valueOf(snapshot.getValue(String.class)));
+                        break;
+                }
+            }
+        }
+    }
+
+    public static Chauffeur getChauffeurFromDataSnapshot(DataSnapshot dataSnapshot) {
         Chauffeur ret = new Chauffeur();
 
-        if(snapshot.getKey() != null) {
-            switch (snapshot.getKey()) {
-                case "rating":
-                    if (snapshot.getValue() != null)
-                        ret.setM_rating(snapshot.getValue(Double.class));
-                    break;
+        for(DataSnapshot snapshot : dataSnapshot.getChildren()) {
+            if(snapshot.getKey() != null) {
+                switch (snapshot.getKey()) {
+                    case "rating":
+                        ret.setM_rating(Double.valueOf(snapshot.getValue(String.class)));
+                        break;
 
-                case "brukernavn":
-                    ret.setM_brukernavn(snapshot.getValue(String.class));
-                    break;
+                    case "brukernavn":
+                        ret.setM_brukernavn(snapshot.getValue(String.class));
+                        break;
 
-                case "fornavn":
-                    ret.setFornavn(snapshot.getValue(String.class));
-                    break;
+                    case "fornavn":
+                        ret.setFornavn(snapshot.getValue(String.class));
+                        break;
 
-                case "etternavn":
-                    ret.setEtternavn(snapshot.getValue(String.class));
-                    break;
+                    case "etternavn":
+                        ret.setEtternavn(snapshot.getValue(String.class));
+                        break;
 
-                case "age":
-                    if (snapshot.getValue(Integer.class) != null)
-                        ret.setM_age(snapshot.getValue(Integer.class));
-                    break;
+                    case "age":
+                        ret.setM_age(Integer.valueOf(snapshot.getValue(String.class)));
+                        break;
 
-                case "capacity":
-                    if (snapshot.getValue(Integer.class) != null)
-                        ret.setM_capacity(snapshot.getValue(Integer.class));
-                    break;
+                    case "current_car":
+                        ret.setCurrent_car((Car) new Gson().fromJson(snapshot.getValue(String.class), carType));
+                        break;
 
-                case "timefrom":
-                    if (snapshot.getValue(Long.class) != null)
-                        ret.setChauffeur_time_from(snapshot.getValue(Long.class));
-                    break;
+                    case "capacity":
+                        if (snapshot.getValue(Integer.class) != null)
+                            ret.setM_capacity(snapshot.getValue(Integer.class));
+                        break;
 
-                case "timeto":
-                    if (snapshot.getValue(Long.class) != null)
-                        ret.setChauffeur_time_to(snapshot.getValue(Long.class));
-                    break;
+                    case "timefrom":
+                        if (snapshot.getValue(Long.class) != null)
+                            ret.setChauffeur_time_from(snapshot.getValue(Long.class));
+                        break;
 
-                case "listcars":
-                    List<Car> list = new Gson().fromJson(snapshot.getValue(String.class), Utilities.listCarsType);
-                    ret.setListOfCars(list);
-                    break;
+                    case "timeto":
+                        if (snapshot.getValue(Long.class) != null)
+                            ret.setChauffeur_time_to(snapshot.getValue(Long.class));
+                        break;
 
-                case "longitude":
-                    if (snapshot.getValue(Double.class) != null)
-                        ret.setLongitude(snapshot.getValue(Double.class));
-                    break;
+                    case "carlist":
+                        List<Car> list = new Gson().fromJson(snapshot.getValue(String.class), Utilities.listCarsType);
+                        ret.setListOfCars(list);
+                        break;
 
-                case "latitude":
-                    if (snapshot.getValue(Double.class) != null)
-                        ret.setLatitude(snapshot.getValue(Double.class));
-                    break;
+                    case "longitude":
+                        ret.setLongitude(Double.valueOf(snapshot.getValue(String.class)));
+                        break;
+
+                    case "latitude":
+                        ret.setLatitude(Double.valueOf(snapshot.getValue(String.class)));
+                        break;
+                }
             }
         }
 
@@ -642,7 +710,7 @@ public class Utilities {
 
     public static void setupOnRestart(final Activity activity) {
         if(SplashActivity.mAuth.getCurrentUser() == null && Bruker.get().getEmail() != null && !Bruker.get().getEmail().isEmpty()
-                && Bruker.get().getPassord() != null && !Bruker.get().getPassord().isEmpty())
+                && Bruker.get().getPassord() != null && !Bruker.get().getPassord().isEmpty()) {
             SplashActivity.mAuth.signInWithEmailAndPassword(Bruker.get().getEmail(), Bruker.get().getPassord())
                     .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                         @Override
@@ -650,9 +718,8 @@ public class Utilities {
                             if(task.isSuccessful()) {
                                 Bruker.get().GetAndParseEvents(activity);
                                 Bruker.get().GetAndParseBrukerInfo();
-                                Bruker.get().GetAndParseChauffeurs();
-                                if(Bruker.get().isHascar())
-                                    Bruker.get().GetAndParseBrukerChauffeur();
+                                Bruker.get().GetAndParseChauffeurs(activity);
+                                Bruker.get().GetAndParseBrukerChauffeur();
 
                                 Utilities.startChatListener(activity);
 
@@ -670,28 +737,31 @@ public class Utilities {
                     activity.startActivity(intent);
                 }
             });
+        }
     }
 
-    public static void setupOnStop() {
+    public static void setupOnStop(Activity activity) {
         if(ApplicationLifecycleMgr.isAppVisible())
             return;
+
+        DatabaseReference ref = FirebaseDatabase.getInstance().getReference("users").child(Bruker.get().getBrukernavn());
+        ref.child("loggedon").setValue(false);
+        Bruker.get().setLoggetpa(false);
+
+        Intent intent = new Intent(activity, NotificationService.class);
+        intent.putExtra("user", Bruker.get().getBrukernavn());
+        activity.startService(intent);
 
         Bruker.get().StopParsingBrukerInfo();
         Bruker.get().StopParsingEvents();
         Bruker.get().StopParsingChauffeurs();
-
-        if(Bruker.get().isHascar())
-            Bruker.get().StopParsingBrukerChauffeur();
+        Bruker.get().StopParsingBrukerChauffeur();
 
         if(ProfilActivity.valueEventListener != null && ProfilActivity.ref != null)
             ProfilActivity.ref.removeEventListener(ProfilActivity.valueEventListener);
 
         if(SplashActivity.mAuth.getCurrentUser() != null)
             SplashActivity.mAuth.signOut();
-
-        DatabaseReference ref = FirebaseDatabase.getInstance().getReference("users").child(Bruker.get().getBrukernavn());
-        ref.child("loggedon").setValue(false);
-        Bruker.get().setLoggetpa(false);
     }
 
     public static void onSearchMineChats(final Activity activity) {
@@ -843,80 +913,98 @@ public class Utilities {
         if(!datotil.getText().toString().isEmpty() && !timetil.getText().toString().isEmpty()) {
             GregorianCalendar datefrom, dateto;
 
-            if(dato.getText().toString().contains(".")) {
-                datefrom = Utilities.getDateFromString(String.format(Locale.ENGLISH, "%s %s", dato.getText().toString(), time.getText().toString()), "dd MMM. yyyy HH:mm");
+            if(dato.getText().toString().contains("."))
+                datefrom = getDateFromString(String.format(Locale.ENGLISH, "%s %s", dato.getText().toString(), time.getText().toString()), "dd MMMM yyyy HH:mm");
+            else
+                datefrom = getDateFromString(String.format(Locale.ENGLISH, "%s %s", dato.getText().toString(), time.getText().toString()), "dd MMM yyyy HH:mm");
+
+            if(datotil.getText().toString().contains("."))
+                dateto = getDateFromString(String.format(Locale.ENGLISH, "%s %s", datotil.getText().toString(), timetil.getText().toString()), "dd MMMM yyyy HH:mm");
+            else
+                dateto = getDateFromString(String.format(Locale.ENGLISH, "%s %s", datotil.getText().toString(), timetil.getText().toString()), "dd MMM yyyy HH:mm");
+
+            if(dateto != null && datefrom != null) {
+                if(dateto.before(datefrom)) {
+                    Toast.makeText(dato.getContext(), "Please choose a starting date and time that is after the ending date and time.", Toast.LENGTH_LONG).show();
+                    return;
+                }
+
+                if(datefrom.before(new GregorianCalendar().getTime())) {
+                    Toast.makeText(dato.getContext(), "You have to choose a time in the future.", Toast.LENGTH_SHORT).show();
+                    return;
+                }
             } else {
-                datefrom = Utilities.getDateFromString(String.format(Locale.ENGLISH, "%s %s", dato.getText().toString(), time.getText().toString()), "dd MMM yyyy HH:mm");
+                Toast.makeText(dato.getContext(), "Failed to get date and time.", Toast.LENGTH_SHORT).show();
+                return;
             }
 
-            if(datotil.getText().toString().contains(".")) {
-                dateto = Utilities.getDateFromString(String.format(Locale.ENGLISH, "%s %s", datotil.getText().toString(), timetil.getText().toString()), "dd MMM. yyyy HH:mm");
-            } else {
-                dateto = Utilities.getDateFromString(String.format(Locale.ENGLISH, "%s %s", datotil.getText().toString(), timetil.getText().toString()), "dd MMM yyyy HH:mm");
-            }
+            Event creating_event = new Event(shouldupdate ? eventid : 0, titletext.getText().toString(), gate.getText().toString(), "", Bruker.get().getBrukernavn(),
+                    alle_deltakere.isChecked(),0.0, 0.0, datefrom.getTimeInMillis(), dateto.getTimeInMillis(), Integer.valueOf(aldersgrense.getText().toString()),
+                    new ArrayList<>(Collections.singletonList(Participant.convertBrukerParticipant(Bruker.get(), EventStilling.VERT))), Integer.valueOf(maks_deltakere.getText().toString()),
+                    postnr.getText().toString(), by.getText().toString(), beskrivelse.getText().toString(), vis_gjesteliste.isChecked(), vis_adresse.isChecked(), new ArrayList<Requester>(),
+                    ProfilActivity.imageChange.getImage() != null, getCategoryFromString((String) kategorier.getSelectedItem()));
 
-            if(dateto != null && datefrom != null && !dateto.before(datefrom)) {
-
-                Event creating_event = new Event(shouldupdate ? eventid : 0, titletext.getText().toString(), gate.getText().toString(), "", Bruker.get().getBrukernavn(),
-                        alle_deltakere.isChecked(),0.0, 0.0, datefrom.getTimeInMillis(), dateto.getTimeInMillis(), Integer.valueOf(aldersgrense.getText().toString()),
-                        new ArrayList<>(Collections.singletonList(Participant.convertBrukerParticipant(Bruker.get(), EventStilling.VERT))), Integer.valueOf(maks_deltakere.getText().toString()),
-                        postnr.getText().toString(), by.getText().toString(), beskrivelse.getText().toString(), vis_gjesteliste.isChecked(), vis_adresse.isChecked(), new ArrayList<Requester>(),
-                        ProfilActivity.imageChange.getImage() != null, getCategoryFromString((String) kategorier.getSelectedItem()));
-
-                if(shouldupdate) {
-                    if(EventDetails.edit_event_imagechange.getImage() != null)
-                        creating_event.setHasimage(true);
-                    else {
-                        Event event = Bruker.get().getEventFromID(eventid);
-                        if(event.isHasimage()) {
-                            StorageReference ref = ProfilActivity.storage.getReference().child(event.getHostStr() + "_" + event.getNameofevent());
-                            ref.delete();
-                        }
-
-                        creating_event.setHasimage(false);
+            if(shouldupdate) {
+                if(EventDetails.edit_event_imagechange.getImage() != null)
+                    creating_event.setHasimage(true);
+                else {
+                    Event event = Bruker.get().getEventFromID(eventid);
+                    if(event.isHasimage()) {
+                        StorageReference ref = ProfilActivity.storage.getReference().child(event.getHostStr() + "_" + event.getNameofevent());
+                        ref.delete();
                     }
 
-                    UpdateEvent updateEvent = new UpdateEvent(dialog.getOwnerActivity(), creating_event, EventDetails.edit_event_imagechange.getBmp());
-                    updateEvent.execute();
-                } else {
-                    AddEvent addEvent = new AddEvent(dialog, creating_event, ProfilActivity.imageChange.getBmp());
-                    addEvent.execute();
+                    creating_event.setHasimage(false);
                 }
+
+                UpdateEvent updateEvent = new UpdateEvent(dialog.getOwnerActivity(), creating_event, EventDetails.edit_event_imagechange.getBmp());
+                updateEvent.execute();
+            } else {
+                AddEvent addEvent = new AddEvent(dialog, creating_event, ProfilActivity.imageChange.getBmp());
+                addEvent.execute();
             }
         } else if(datotil.getText().toString().isEmpty() && timetil.getText().toString().isEmpty()) {
             GregorianCalendar datefrom;
 
             if(dato.getText().toString().contains("."))
-                datefrom = Utilities.getDateFromString(String.format(Locale.ENGLISH, "%s %s", dato.getText().toString(), time.getText().toString()), "dd MMM. yyyy HH:mm");
+                datefrom = getDateFromString(String.format(Locale.ENGLISH, "%s %s", dato.getText().toString(), time.getText().toString()), "dd MMMM yyyy HH:mm");
             else
-                datefrom = Utilities.getDateFromString(String.format(Locale.ENGLISH, "%s %s", dato.getText().toString(), time.getText().toString()), "dd MMM yyyy HH:mm");
+                datefrom = getDateFromString(String.format(Locale.ENGLISH, "%s %s", dato.getText().toString(), time.getText().toString()), "dd MMM yyyy HH:mm");
 
             if(datefrom != null) {
-                Event creating_event = new Event(shouldupdate ? eventid : 0, titletext.getText().toString(), gate.getText().toString(), "", Bruker.get().getBrukernavn(),
-                        alle_deltakere.isChecked(),0.0, 0.0, datefrom.getTimeInMillis(), 0, Integer.valueOf(aldersgrense.getText().toString()),
-                        new ArrayList<>(Collections.singletonList(Participant.convertBrukerParticipant(Bruker.get(), EventStilling.VERT))), Integer.valueOf(maks_deltakere.getText().toString()),
-                        postnr.getText().toString(), by.getText().toString(), beskrivelse.getText().toString(), vis_gjesteliste.isChecked(), vis_adresse.isChecked(), new ArrayList<Requester>(),
-                        ProfilActivity.imageChange.getImage() != null, getCategoryFromString((String) kategorier.getSelectedItem()));
+                if(datefrom.before(new GregorianCalendar().getTime())) {
+                    Toast.makeText(dato.getContext(), "You have to choose a time in the future.", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+            } else {
+                Toast.makeText(dato.getContext(), "Failed to get date and time.", Toast.LENGTH_SHORT).show();
+                return;
+            }
 
-                if(shouldupdate) {
-                    if(EventDetails.edit_event_imagechange.getImage() != null)
-                        creating_event.setHasimage(true);
-                    else {
-                        Event event = Bruker.get().getEventFromID(eventid);
-                        if(event.isHasimage()) {
-                            StorageReference ref = ProfilActivity.storage.getReference().child(event.getHostStr() + "_" + event.getNameofevent());
-                            ref.delete();
-                        }
+            Event creating_event = new Event(shouldupdate ? eventid : 0, titletext.getText().toString(), gate.getText().toString(), "", Bruker.get().getBrukernavn(),
+                    alle_deltakere.isChecked(),0.0, 0.0, datefrom.getTimeInMillis(), 0, Integer.valueOf(aldersgrense.getText().toString()),
+                    new ArrayList<>(Collections.singletonList(Participant.convertBrukerParticipant(Bruker.get(), EventStilling.VERT))), Integer.valueOf(maks_deltakere.getText().toString()),
+                    postnr.getText().toString(), by.getText().toString(), beskrivelse.getText().toString(), vis_gjesteliste.isChecked(), vis_adresse.isChecked(), new ArrayList<Requester>(),
+                    ProfilActivity.imageChange.getImage() != null, getCategoryFromString((String) kategorier.getSelectedItem()));
 
-                        creating_event.setHasimage(false);
+            if(shouldupdate) {
+                if(EventDetails.edit_event_imagechange.getImage() != null)
+                    creating_event.setHasimage(true);
+                else {
+                    Event event = Bruker.get().getEventFromID(eventid);
+                    if(event.isHasimage()) {
+                        StorageReference ref = ProfilActivity.storage.getReference().child(event.getHostStr() + "_" + event.getNameofevent());
+                        ref.delete();
                     }
 
-                    UpdateEvent updateEvent = new UpdateEvent(dialog.getOwnerActivity(), creating_event, EventDetails.edit_event_imagechange.getBmp());
-                    updateEvent.execute();
-                } else {
-                    AddEvent addEvent = new AddEvent(dialog, creating_event, ProfilActivity.imageChange.getBmp());
-                    addEvent.execute();
+                    creating_event.setHasimage(false);
                 }
+
+                UpdateEvent updateEvent = new UpdateEvent(dialog.getOwnerActivity(), creating_event, EventDetails.edit_event_imagechange.getBmp());
+                updateEvent.execute();
+            } else {
+                AddEvent addEvent = new AddEvent(dialog, creating_event, ProfilActivity.imageChange.getBmp());
+                addEvent.execute();
             }
         }
     }

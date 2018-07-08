@@ -95,7 +95,7 @@ public class EventDetails extends AppCompatActivity {
 
     @Override
     protected void onStop() {
-        Utilities.setupOnStop();
+        Utilities.setupOnStop(this);
 
         super.onStop();
     }
@@ -393,7 +393,6 @@ public class EventDetails extends AppCompatActivity {
 
                                 if(kategorier != null) {
                                     kategorier.setAdapter(new ArrayAdapter<>(EventDetails.this, R.layout.spinner_mine, Arrays.asList("Narch", "Vors", "Party", "Concert", "Nightclub", "Birthday", "Festival"))); // TODO : OVERSETTE
-
                                     kategorier.setSelection(Utilities.getCategoryFromString(event.getCategory().toString()).ordinal());
                                 }
 
@@ -484,7 +483,7 @@ public class EventDetails extends AppCompatActivity {
                                     public boolean onTouch(View v, MotionEvent event) {
                                         if(event.getAction() == MotionEvent.ACTION_UP) {
                                             Calendar nowtime = Calendar.getInstance();
-                                            TimePickerDialog timePickerDialog = new TimePickerDialog(EventDetails.this, new TimePickerDialog.OnTimeSetListener() {
+                                            TimePickerDialog timePickerDialog = new TimePickerDialog(EventDetails.this, R.style.mydatepickerdialog, new TimePickerDialog.OnTimeSetListener() {
                                                 @Override
                                                 public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
                                                     time.setText(String.format(Locale.ENGLISH, "%02d:%02d", hourOfDay, minute));
@@ -505,7 +504,7 @@ public class EventDetails extends AppCompatActivity {
                                     public boolean onTouch(View v, MotionEvent event) {
                                         if(event.getAction() == MotionEvent.ACTION_UP) {
                                             Calendar c = Calendar.getInstance();
-                                            DatePickerDialog dialog = new DatePickerDialog(EventDetails.this, new DatePickerDialog.OnDateSetListener() {
+                                            DatePickerDialog dialog = new DatePickerDialog(EventDetails.this, R.style.mydatepickerdialog, new DatePickerDialog.OnDateSetListener() {
                                                 @Override
                                                 public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
                                                     Calendar calendar;
@@ -531,7 +530,7 @@ public class EventDetails extends AppCompatActivity {
                                     public boolean onTouch(View v, MotionEvent event) {
                                         if(event.getAction() == MotionEvent.ACTION_UP) {
                                             Calendar nowtime = Calendar.getInstance();
-                                            TimePickerDialog timePickerDialog = new TimePickerDialog(EventDetails.this, new TimePickerDialog.OnTimeSetListener() {
+                                            TimePickerDialog timePickerDialog = new TimePickerDialog(EventDetails.this, R.style.mydatepickerdialog, new TimePickerDialog.OnTimeSetListener() {
                                                 @Override
                                                 public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
                                                     timetil.setText(String.format(Locale.ENGLISH, "%02d:%02d", hourOfDay, minute));
@@ -554,7 +553,7 @@ public class EventDetails extends AppCompatActivity {
                                             v.requestFocusFromTouch();
 
                                             Calendar c = Calendar.getInstance();
-                                            DatePickerDialog dialog = new DatePickerDialog(EventDetails.this, new DatePickerDialog.OnDateSetListener() {
+                                            DatePickerDialog dialog = new DatePickerDialog(EventDetails.this, R.style.mydatepickerdialog, new DatePickerDialog.OnDateSetListener() {
                                                 @Override
                                                 public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
                                                     Calendar calendar;
@@ -710,6 +709,9 @@ public class EventDetails extends AppCompatActivity {
                     popupMenu.getMenu().removeItem(R.id.delete_event);
                 }
 
+                if(Bruker.get().getBrukernavn().equalsIgnoreCase(event.getHostStr()) && !event.isPrivateEvent())
+                    popupMenu.getMenu().removeItem(R.id.check_requests_event);
+
                 if(!event.isShowguestlist() && bruker == null)
                     popupMenu.getMenu().removeItem(R.id.check_guestlist_event);
 
@@ -746,6 +748,12 @@ public class EventDetails extends AppCompatActivity {
                            final TextView beskrivelse, final TextView datofra, final TextView datotil, final ImageView bilde, final AppCompatButton details_deltaforesprsler,
                            final SwipeRefreshLayout swipeRefreshLayout, final TextView kategori) {
         final Event updatedEvent = Bruker.get().getEventFromID(event.getEventId());
+
+        if(updatedEvent == null) {
+            onBackPressed();
+            return;
+        }
+
         event.CopyEvent(updatedEvent);
 
         swipeRefreshLayout.setRefreshing(true);
@@ -767,13 +775,13 @@ public class EventDetails extends AppCompatActivity {
         if(!updatedEvent.isPrivateEvent() || updatedEvent.isBrukerInList(Bruker.get().getBrukernavn())) {
             sted.setVisibility(View.VISIBLE);
             poststed.setVisibility(View.VISIBLE);
-            ((ImageView) findViewById(R.id.location_img)).setVisibility(View.VISIBLE);
+            findViewById(R.id.location_img).setVisibility(View.VISIBLE);
             sted.setText(String.format(Locale.ENGLISH, "%s", updatedEvent.getAddress()));
             poststed.setText(String.format(Locale.ENGLISH, "%s, %s", updatedEvent.getPostalcode(), updatedEvent.getTown()));
         } else if(updatedEvent.isPrivateEvent() && !updatedEvent.isBrukerInList(Bruker.get().getBrukernavn())) {
             sted.setVisibility(View.GONE);
             poststed.setVisibility(View.GONE);
-            ((ImageView) findViewById(R.id.location_img)).setVisibility(View.GONE);
+            findViewById(R.id.location_img).setVisibility(View.GONE);
         }
 
         if(updatedEvent.getDescription() != null)
