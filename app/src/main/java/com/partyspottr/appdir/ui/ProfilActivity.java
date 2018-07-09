@@ -43,6 +43,10 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
+import com.google.android.gms.common.GooglePlayServicesRepairableException;
+import com.google.android.gms.location.places.Place;
+import com.google.android.gms.location.places.ui.PlacePicker;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -98,7 +102,9 @@ public class ProfilActivity extends AppCompatActivity {
     public static DatabaseReference ref;
     public static FirebaseStorage storage;
 
+    private TextView by_text;
     public static ImageChange imageChange = new ImageChange();
+    private Place attainedPlace;
 
     @Override
     public void onBackPressed() {
@@ -491,6 +497,8 @@ public class ProfilActivity extends AppCompatActivity {
             lp.softInputMode = WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN;
         }
 
+        attainedPlace = null;
+
         final Button button = dialog.findViewById(R.id.create_event_btn1);
         final TextView til_label = dialog.findViewById(R.id.textView12);
         final EditText dato = dialog.findViewById(R.id.datofratext);
@@ -501,7 +509,7 @@ public class ProfilActivity extends AppCompatActivity {
         final TextView fjern_sluttidspunkt = dialog.findViewById(R.id.fjern_sluttidspunkt);
         fjern_sluttidspunkt.setPaintFlags(fjern_sluttidspunkt.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
         final CheckBox vis_adresse = dialog.findViewById(R.id.vis_adresse);
-        final ImageButton legg_til_bilde = dialog.findViewById(R.id.imageButton6);
+        final ImageButton legg_til_bilde = dialog.findViewById(R.id.legg_til_event_image);
         final EditText maks_deltakere = dialog.findViewById(R.id.maks_deltakere);
         final AppCompatSpinner kategorier = dialog.findViewById(R.id.kategori_spinner);
         final EditText titletext = dialog.findViewById(R.id.create_eventText);
@@ -510,11 +518,11 @@ public class ProfilActivity extends AppCompatActivity {
         final TextView sluttidspunkt = dialog.findViewById(R.id.legg_til_sluttidspunkt);
         sluttidspunkt.setPaintFlags(sluttidspunkt.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
         Toolbar create_event_toolbar = dialog.findViewById(R.id.toolbar2);
-        final EditText postnr = dialog.findViewById(R.id.create_postnr);
-        final EditText gate = dialog.findViewById(R.id.create_gate);
         //RelativeLayout content = dialog.findViewById(R.id.legg_til_event_content);
         TextView title = dialog.findViewById(R.id.create_event_title);
+        TextView choose_from_map = dialog.findViewById(R.id.choose_from_map);
 
+        choose_from_map.setTypeface(MainActivity.typeface);
         title.setTypeface(MainActivity.typeface);
         til_label.setTypeface(MainActivity.typeface);
         button.setTypeface(MainActivity.typeface);
@@ -530,8 +538,8 @@ public class ProfilActivity extends AppCompatActivity {
         beskrivelse.setTypeface(MainActivity.typeface);
         aldersgrense.setTypeface(MainActivity.typeface);
         sluttidspunkt.setTypeface(MainActivity.typeface);
-        postnr.setTypeface(MainActivity.typeface);
-        gate.setTypeface(MainActivity.typeface);
+
+        choose_from_map.setPaintFlags(Paint.UNDERLINE_TEXT_FLAG);
 
         //noinspection AndroidLintClickableViewAccessibility
         /*content.setOnTouchListener(new OnSwipeGestureListener(this) {
@@ -543,50 +551,19 @@ public class ProfilActivity extends AppCompatActivity {
 
         kategorier.setAdapter(new ArrayAdapter<>(this, R.layout.spinner_mine, Arrays.asList("Narch", "Vors", "Party", "Concert", "Nightclub", "Birthday", "Festival"))); // TODO : OVERSETTE
 
-        final Handler textchangedHandler = new Handler();
-
-        postnr.addTextChangedListener(new TextWatcher() {
+        choose_from_map.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            public void onClick(View v) {
+                by_text = dialog.findViewById(R.id.by_textview);
 
-            @Override
-            public void onTextChanged(final CharSequence s, int start, int before, int count) {
-                textchangedHandler.removeCallbacksAndMessages(null);
-                textchangedHandler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        if(postnr.getText().toString().length() > 3 && gate.getText().toString().length() > 4) {
-                            GetLocationInfo getLocationInfo = new GetLocationInfo(dialog, gate.getText().toString(), s.toString());
-                            getLocationInfo.execute();
-                        }
-                    }
-                }, 1000);
+                PlacePicker.IntentBuilder builder = new PlacePicker.IntentBuilder();
+
+                try {
+                    startActivityForResult(builder.build(ProfilActivity.this), Utilities.PLACE_PICKER_CODE);
+                } catch (GooglePlayServicesRepairableException | GooglePlayServicesNotAvailableException e) {
+                    e.printStackTrace();
+                }
             }
-
-            @Override
-            public void afterTextChanged(Editable s) {}
-        });
-
-        gate.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-
-            @Override
-            public void onTextChanged(final CharSequence s, int start, int before, int count) {
-                textchangedHandler.removeCallbacksAndMessages(null);
-                textchangedHandler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        if(postnr.getText().toString().length() > 3 && gate.getText().toString().length() > 4) {
-                            GetLocationInfo getLocationInfo = new GetLocationInfo(dialog, s.toString(), postnr.getText().toString());
-                            getLocationInfo.execute();
-                        }
-                    }
-                }, 1000);
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {}
         });
 
         create_event_toolbar.setNavigationOnClickListener(new View.OnClickListener() {
@@ -749,7 +726,6 @@ public class ProfilActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 final CheckBox vis_gjesteliste = dialog.findViewById(R.id.vis_gjesteliste);
-                final TextView by = dialog.findViewById(R.id.by_textview);
 
                 if(titletext.length() <= 3) {
                     Toast.makeText(ProfilActivity.this, "Please choose a title longer than 3 characters.", Toast.LENGTH_SHORT).show();
@@ -759,8 +735,17 @@ public class ProfilActivity extends AppCompatActivity {
                     return;
                 }
 
+                if(titletext.getText().toString().contains("_")) {
+                    Toast.makeText(ProfilActivity.this, "Title must not contain \"_\"", Toast.LENGTH_SHORT).show();
+                }
+
                 if(dato.getText().toString().isEmpty() || time.getText().toString().isEmpty()) {
                     Toast.makeText(ProfilActivity.this, "Please choose a starting date.", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                if(attainedPlace == null) {
+                    Toast.makeText(ProfilActivity.this, "Please select a location.", Toast.LENGTH_SHORT).show();
                     return;
                 }
 
@@ -788,14 +773,14 @@ public class ProfilActivity extends AppCompatActivity {
                     return;
                 }
 
-                if(imageChange.getImage() == null) {
+                if(imageChange.getBmp() == null) {
                     new AlertDialog.Builder(ProfilActivity.this, R.style.mydatepickerdialog)
                             .setTitle("Image")
                             .setMessage("Are you sure you do not want to add an image?")
                             .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface somedialog, int which) {
-                                    Utilities.CheckAddEvent(dato, time, datotil, timetil, titletext, gate, aldersgrense, maks_deltakere, postnr, by, beskrivelse, dialog, vis_gjesteliste, alle_deltakere, vis_adresse,
+                                    Utilities.CheckAddEvent(dato, time, datotil, timetil, titletext, attainedPlace, aldersgrense, maks_deltakere, beskrivelse, dialog, vis_gjesteliste, alle_deltakere, vis_adresse,
                                             kategorier,false, null);
                                 }
                             })
@@ -804,7 +789,7 @@ public class ProfilActivity extends AppCompatActivity {
                                 public void onClick(DialogInterface dialog, int which) {}})
                             .show();
                 } else
-                    Utilities.CheckAddEvent(dato, time, datotil, timetil, titletext, gate, aldersgrense, maks_deltakere, postnr, by, beskrivelse, dialog, vis_gjesteliste, alle_deltakere, vis_adresse,
+                    Utilities.CheckAddEvent(dato, time, datotil, timetil, titletext, attainedPlace, aldersgrense, maks_deltakere, beskrivelse, dialog, vis_gjesteliste, alle_deltakere, vis_adresse,
                             kategorier,false, null);
             }
         });
@@ -814,6 +799,40 @@ public class ProfilActivity extends AppCompatActivity {
         if(dialog.getWindow() != null) {
             dialog.getWindow().setAttributes(lp);
         }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if(requestCode == Utilities.PLACE_PICKER_CODE) {
+            if(resultCode == RESULT_OK) {
+                Place place = PlacePicker.getPlace(this, data);
+
+                if(place.getAddress() == null || place.getAddress().toString().split(",").length < 3) {
+                    Toast.makeText(this, "Failed to get location, please try again..", Toast.LENGTH_SHORT).show();
+
+                    attainedPlace = null;
+
+                    PlacePicker.IntentBuilder builder = new PlacePicker.IntentBuilder();
+
+                    try {
+                        startActivityForResult(builder.build(ProfilActivity.this), Utilities.PLACE_PICKER_CODE);
+                    } catch (GooglePlayServicesRepairableException | GooglePlayServicesNotAvailableException e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    attainedPlace = place;
+
+                    if(by_text != null) {
+                        String[] splitted = attainedPlace.getAddress().toString().split(",");
+                        by_text.setText(String.format(Locale.ENGLISH, "%s,%s", splitted[0], splitted[1]));
+                    }
+
+                    Toast.makeText(this, "Location set!", Toast.LENGTH_SHORT).show();
+                }
+            }
+        }
+
+        super.onActivityResult(requestCode, resultCode, data);
     }
 
     @Override

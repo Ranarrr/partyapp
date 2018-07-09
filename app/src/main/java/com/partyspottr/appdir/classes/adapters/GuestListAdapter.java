@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -43,6 +45,7 @@ import com.partyspottr.appdir.enums.EventStilling;
 import com.partyspottr.appdir.ui.ProfilActivity;
 import com.partyspottr.appdir.ui.other_ui.Profile;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.partyspottr.appdir.ui.MainActivity.typeface;
@@ -54,6 +57,7 @@ import static com.partyspottr.appdir.ui.MainActivity.typeface;
  */
 
 public class GuestListAdapter extends BaseAdapter {
+    private static List<Bitmap> profilepics;
 
     private List<Participant> GuestList;
     private Activity thisActivity;
@@ -63,6 +67,7 @@ public class GuestListAdapter extends BaseAdapter {
         GuestList = Participant.SortParticipants(guestlist);
         thisActivity = activity;
         eventId = eventid;
+        profilepics = new ArrayList<>();
     }
 
     @Override
@@ -97,9 +102,30 @@ public class GuestListAdapter extends BaseAdapter {
             final TextView brukernavn = convertView.findViewById(R.id.gjest_brukernavn);
             TextView by_land = convertView.findViewById(R.id.gjest_by_land);
             final ImageButton more_options = convertView.findViewById(R.id.gjest_more_options);
+            final ImageView profile_pic = convertView.findViewById(R.id.gjest_profilbilde);
 
             brukernavn.setTypeface(typeface);
             by_land.setTypeface(typeface);
+
+            if(profilepics.size() > position && profilepics.get(position) != null)
+                profile_pic.setImageBitmap(profilepics.get(position));
+            else if(profilepics.size() <= position) {
+                StorageReference ref = ProfilActivity.storage.getReference().child(participant.getBrukernavn());
+
+                ref.getBytes(2048 * 2048).addOnSuccessListener(new OnSuccessListener<byte[]>() {
+                    @Override
+                    public void onSuccess(byte[] bytes) {
+                        Bitmap bmp = Utilities.decodeSampledBitmapFromByteArray(bytes, 96, 96);
+                        profilepics.add(bmp);
+                        profile_pic.setImageBitmap(bmp);
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        profilepics.add(null);
+                    }
+                });
+            }
 
             if(!participant.getCountry().equals("Dominican Republic")) { // because android studio reserves the resource name "do"
                 String identifier = CountryCodes.getCountrySign(participant.getCountry()).toLowerCase();
@@ -113,6 +139,15 @@ public class GuestListAdapter extends BaseAdapter {
                 }
             } else
                 countryflag.setImageResource(R.drawable.dominican_republic);
+
+            convertView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(thisActivity, Profile.class);
+                    intent.putExtra("user", participant.getBrukernavn());
+                    thisActivity.startActivity(intent);
+                }
+            });
 
             more_options.setOnClickListener(new View.OnClickListener() {
                 @Override

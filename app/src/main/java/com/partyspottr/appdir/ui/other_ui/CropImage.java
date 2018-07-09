@@ -54,9 +54,9 @@ public class CropImage extends AppCompatActivity {
         setContentView(R.layout.crop_image);
 
         Bundle extras = getIntent().getExtras();
-        if(extras == null) {
+        if(extras == null)
             return;
-        } else {
+        else {
             returnwhere = extras.getInt("returnwhere");
 
             if(returnwhere == -1)
@@ -94,11 +94,9 @@ public class CropImage extends AppCompatActivity {
                                 if(returnwhere == ReturnWhere.LEGG_TIL_EVENT.ordinal()) {
                                     ProfilActivity.imageChange.setBmp(bitmap);
                                     ProfilActivity.imageChange.setUri(Uri.parse(selectedUri));
-                                    ProfilActivity.imageChange.setImage(new File(selectedUri));
                                 } else {
                                     EventDetails.edit_event_imagechange.setBmp(bitmap);
                                     EventDetails.edit_event_imagechange.setUri(Uri.parse(selectedUri));
-                                    EventDetails.edit_event_imagechange.setImage(new File(selectedUri));
                                 }
 
                                 onBackPressed();
@@ -111,14 +109,11 @@ public class CropImage extends AppCompatActivity {
                         }
                     });
                 } else {
-                    // TODO : CHECK IF CORRECT
                     if(returnwhere == ReturnWhere.LEGG_TIL_EVENT.ordinal()) {
                         ProfilActivity.imageChange.setBmp(null);
-                        ProfilActivity.imageChange.setImage(null);
                         ProfilActivity.imageChange.setUri(null);
                     } else {
                         EventDetails.edit_event_imagechange.setBmp(null);
-                        EventDetails.edit_event_imagechange.setImage(null);
                         EventDetails.edit_event_imagechange.setUri(null);
                     }
 
@@ -127,7 +122,7 @@ public class CropImage extends AppCompatActivity {
             }
         });
 
-        final Cursor cursor = getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, null, null, null, null);;
+        final Cursor cursor = getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, null, null, null, null);
 
         if(cursor != null) {
             final Uri[] urls = new Uri[cursor.getCount()];
@@ -151,6 +146,7 @@ public class CropImage extends AppCompatActivity {
                     @Override
                     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                         Bitmap scaledbmp = Utilities.decodeSampledBitmapFromResource(urls[position].toString(), 640, 256);
+                        scaledbmp = Utilities.correctOrientation(urls[position].toString(), scaledbmp);
                         cropView.setBitmap(scaledbmp);
                         selectedUri = urls[position].toString();
                     }

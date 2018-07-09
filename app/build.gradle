@@ -9,8 +9,8 @@ android {
         applicationId 'com.partyspottr.partyspottr'
         minSdkVersion 19
         targetSdkVersion 27
-        versionCode 6
-        versionName "1.6"
+        versionCode 7
+        versionName "1.7"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
         multiDexEnabled true
@@ -65,6 +65,7 @@ dependencies {
     implementation 'com.intuit.ssp:ssp-android:1.0.4'
     implementation 'com.google.code.gson:gson:2.8.0'
     implementation 'com.google.android.gms:play-services-maps:15.0.1'
+    implementation 'com.google.android.gms:play-services-places:15.0.1'
     implementation 'com.android.support:support-dynamic-animation:27.1.1'
     implementation 'com.github.takusemba:cropme:1.0.6'
 }

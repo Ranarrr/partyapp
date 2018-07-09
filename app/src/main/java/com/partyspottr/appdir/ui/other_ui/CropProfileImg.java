@@ -81,7 +81,6 @@ public class CropProfileImg extends AppCompatActivity {
                             else {
                                 profilfragment.profile_imagechange.setUri(Uri.parse(selectedUri));
                                 profilfragment.profile_imagechange.setBmp(bitmap);
-                                profilfragment.profile_imagechange.setImage(new File(selectedUri));
                                 onBackPressed();
                             }
                         }
@@ -92,9 +91,7 @@ public class CropProfileImg extends AppCompatActivity {
                         }
                     });
                 } else {
-                    // TODO : CHECK IF CORRECT
                     profilfragment.profile_imagechange.setBmp(null);
-                    profilfragment.profile_imagechange.setImage(null);
                     profilfragment.profile_imagechange.setUri(null);
                     onBackPressed();
                 }
@@ -125,6 +122,7 @@ public class CropProfileImg extends AppCompatActivity {
                     @Override
                     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                         Bitmap scaledbmp = Utilities.decodeSampledBitmapFromResource(urls[position].toString(), 640, 256);
+                        scaledbmp = Utilities.correctOrientation(urls[position].toString(), scaledbmp);
                         cropView.setBitmap(scaledbmp);
                         selectedUri = urls[position].toString();
                     }

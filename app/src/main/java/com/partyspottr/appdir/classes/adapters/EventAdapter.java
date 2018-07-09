@@ -3,6 +3,7 @@ package com.partyspottr.appdir.classes.adapters;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
@@ -12,6 +13,7 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.storage.StorageMetadata;
@@ -19,6 +21,7 @@ import com.google.firebase.storage.StorageReference;
 import com.partyspottr.appdir.R;
 import com.partyspottr.appdir.classes.Bruker;
 import com.partyspottr.appdir.classes.Event;
+import com.partyspottr.appdir.classes.application.GlideApp;
 import com.partyspottr.appdir.ui.MainActivity;
 import com.partyspottr.appdir.ui.ProfilActivity;
 import com.partyspottr.appdir.ui.other_ui.EventDetails;
@@ -43,7 +46,7 @@ public class EventAdapter extends BaseAdapter {
 
     public EventAdapter(Activity activity, List<Event> listOfEvents) {
         thisActivity = activity;
-        if(listOfEvents == null || listOfEvents.size() == 0) {
+        if (listOfEvents == null || listOfEvents.size() == 0) {
             eventList = new ArrayList<>();
             eventList.add(new Event("", "", "", "€€££$$"));
         } else
@@ -77,20 +80,20 @@ public class EventAdapter extends BaseAdapter {
             }
         }
 
-        if(convertView == null) {
-            LayoutInflater layoutInflater = (LayoutInflater) thisActivity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        final Event event = eventList.get(position);
 
-            if(layoutInflater != null)
-                convertView = layoutInflater.inflate(R.layout.event, parent, false);
-        }
+        LayoutInflater layoutInflater = (LayoutInflater) thisActivity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+
+        if(layoutInflater != null)
+            convertView = layoutInflater.inflate(R.layout.event, parent, false);
 
         if(convertView != null) {
             TextView arrangementNavn = convertView.findViewById(R.id.eventText);
             TextView stedText = convertView.findViewById(R.id.stedText);
             TextView aldersgrenseText = convertView.findViewById(R.id.aldersgrenseText);
             TextView datoText = convertView.findViewById(R.id.datoText);
-            final ImageView bildeIListe = convertView.findViewById(R.id.imageView2);
             TextView kategori = convertView.findViewById(R.id.event_kategori);
+            final ImageView bildeIListe = convertView.findViewById(R.id.imageView2);
 
             arrangementNavn.setTypeface(typeface);
             stedText.setTypeface(typeface);
@@ -98,10 +101,9 @@ public class EventAdapter extends BaseAdapter {
             datoText.setTypeface(typeface);
             kategori.setTypeface(MainActivity.typeface);
 
-            final Event event = eventList.get(position);
-
             if(event.isHasimage()) {
-                bildeIListe.setBackgroundColor(thisActivity.getResources().getColor(R.color.verylightgrey));
+                GlideApp.with(thisActivity).load(Bruker.getEventImages().get(event.getHostStr() + "_" + event.getNameofevent() + "_" + String.valueOf(Bruker.getEventImageSizeByName(event.getHostStr(),
+                        event.getNameofevent())))).into(bildeIListe);
 
                 final StorageReference picRef = ProfilActivity.storage.getReference().child(event.getHostStr() + "_" + event.getNameofevent());
 
@@ -110,12 +112,12 @@ public class EventAdapter extends BaseAdapter {
                         @Override
                         public void onSuccess(StorageMetadata storageMetadata) {
                             if (storageMetadata.getSizeBytes() == Bruker.getEventImageSizeByName(event.getHostStr(), event.getNameofevent())) {
-                                bildeIListe.setImageBitmap(Bruker.getEventImages().get(event.getHostStr() + "_" + event.getNameofevent() + "_" + String.valueOf(storageMetadata.getSizeBytes())));
+                                GlideApp.with(thisActivity).load(Bruker.getEventImages().get(event.getHostStr() + "_" + event.getNameofevent() + "_" + String.valueOf(storageMetadata.getSizeBytes()))).into(bildeIListe);
                             } else {
                                 picRef.getBytes(2048 * 2048).addOnSuccessListener(new OnSuccessListener<byte[]>() {
                                     @Override
                                     public void onSuccess(byte[] bytes) {
-                                        bildeIListe.setImageBitmap(BitmapFactory.decodeByteArray(bytes, 0, bytes.length));
+                                        GlideApp.with(thisActivity).load(BitmapFactory.decodeByteArray(bytes, 0, bytes.length)).into(bildeIListe);
                                         Bruker.RemoveEventImage(event.getHostStr(), event.getNameofevent());
                                         Bruker.AddEventImage(event.getHostStr() + "_" + event.getNameofevent() + "_" + String.valueOf(bytes.length), BitmapFactory.decodeByteArray(bytes, 0, bytes.length));
                                     }
@@ -137,7 +139,7 @@ public class EventAdapter extends BaseAdapter {
                     picRef.getBytes(2048 * 2048).addOnSuccessListener(new OnSuccessListener<byte[]>() {
                         @Override
                         public void onSuccess(byte[] bytes) {
-                            bildeIListe.setImageBitmap(BitmapFactory.decodeByteArray(bytes, 0, bytes.length));
+                            GlideApp.with(thisActivity).load(BitmapFactory.decodeByteArray(bytes, 0, bytes.length)).into(bildeIListe);
                             Bruker.AddEventImage(event.getHostStr() + "_" + event.getNameofevent() + "_" + String.valueOf(bytes.length), BitmapFactory.decodeByteArray(bytes, 0, bytes.length));
                         }
                     }).addOnFailureListener(new OnFailureListener() {

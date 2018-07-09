@@ -8,6 +8,8 @@ import android.support.annotation.NonNull;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
@@ -23,7 +25,7 @@ import org.json.JSONObject;
  * @author Ranarrr
  */
 
-public class UpdateEvent extends AsyncTask<Void, Void, Boolean> {
+public class UpdateEvent extends AsyncTask<Void, Void, Void> {
     ProgressDialog progressDialog;
     private Event eventToUpdate;
     private Bitmap bitmap;
@@ -38,63 +40,54 @@ public class UpdateEvent extends AsyncTask<Void, Void, Boolean> {
 
     @Override
     protected void onPreExecute() {
+        progressDialog.setCancelable(false);
+        progressDialog.setCanceledOnTouchOutside(false);
+        progressDialog.setMessage("Updating event..");
+        progressDialog.show();
         super.onPreExecute();
     }
 
     @Override
-    protected Boolean doInBackground(Void... voids) {
-        JSONObject json = GoogleAPIRequest.makeHTTPReq(progressDialog.getContext(), eventToUpdate.getAddress(), eventToUpdate.getPostalcode());
-        try {
-            if(json.getString("status").equals("OK")) {
-                eventToUpdate.ParseFromGoogleReq(json);
+    protected Void doInBackground(Void... voids) {
+        final DatabaseReference ref = FirebaseDatabase.getInstance().getReference("events").child(String.valueOf(eventToUpdate.getEventId()));
+        ref.child("nameofevent").setValue(eventToUpdate.getNameofevent()).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                ref.child("address").setValue(eventToUpdate.getAddress());
+                ref.child("town").setValue(eventToUpdate.getTown());
+                ref.child("country").setValue(eventToUpdate.getCountry());
+                ref.child("isprivate").setValue(eventToUpdate.isPrivateEvent());
+                ref.child("longitude").setValue(eventToUpdate.getLongitude());
+                ref.child("latitude").setValue(eventToUpdate.getLatitude());
+                ref.child("datefrom").setValue(eventToUpdate.getDatefrom());
+                ref.child("dateto").setValue(eventToUpdate.getDateto());
+                ref.child("agerestriction").setValue(eventToUpdate.getAgerestriction());
+                ref.child("maxparticipants").setValue(eventToUpdate.getMaxparticipants());
+                ref.child("desc").setValue(eventToUpdate.getDescription());
+                ref.child("showguestlist").setValue(eventToUpdate.isShowguestlist());
+                ref.child("showaddress").setValue(eventToUpdate.isShowaddress());
+                ref.child("hasimage").setValue(eventToUpdate.isHasimage());
+                ref.child("category").setValue(eventToUpdate.getCategory());
 
-                final DatabaseReference ref = FirebaseDatabase.getInstance().getReference("events").child(String.valueOf(eventToUpdate.getEventId()));
-                ref.child("nameofevent").setValue(eventToUpdate.getNameofevent()).addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        if(!task.isSuccessful())
-                            return;
+                Toast.makeText(progressDialog.getContext(), progressDialog.getContext().getResources().getString(R.string.updated_event), Toast.LENGTH_SHORT).show();
 
-                        ref.child("address").setValue(eventToUpdate.getAddress());
-                        ref.child("town").setValue(eventToUpdate.getTown());
-                        ref.child("country").setValue(eventToUpdate.getCountry());
-                        ref.child("isprivate").setValue(eventToUpdate.isPrivateEvent());
-                        ref.child("longitude").setValue(eventToUpdate.getLongitude());
-                        ref.child("latitude").setValue(eventToUpdate.getLatitude());
-                        ref.child("datefrom").setValue(eventToUpdate.getDatefrom());
-                        ref.child("dateto").setValue(eventToUpdate.getDateto());
-                        ref.child("agerestriction").setValue(eventToUpdate.getAgerestriction());
-                        ref.child("maxparticipants").setValue(eventToUpdate.getMaxparticipants());
-                        ref.child("postalcode").setValue(eventToUpdate.getPostalcode());
-                        ref.child("desc").setValue(eventToUpdate.getDescription());
-                        ref.child("showguestlist").setValue(eventToUpdate.isShowguestlist());
-                        ref.child("showaddress").setValue(eventToUpdate.isShowaddress());
-                        ref.child("hasimage").setValue(eventToUpdate.isHasimage());
-                        ref.child("category").setValue(eventToUpdate.getCategory());
-                    }
-                });
-
-                return true;
+                if(bitmap != null) {
+                    UploadImage uploadImage = new UploadImage(progressDialog, eventToUpdate, bitmap);
+                    uploadImage.execute();
+                }
             }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        return false;
-    }
-
-    @Override
-    protected void onPostExecute(Boolean bool) {
-        progressDialog.hide();
-
-        if(bool) {
-            Toast.makeText(progressDialog.getContext(), progressDialog.getContext().getResources().getString(R.string.updated_event), Toast.LENGTH_SHORT).show();
-
-            if(bitmap != null) {
-                UploadImage uploadImage = new UploadImage(progressDialog, eventToUpdate, bitmap);
-                uploadImage.execute();
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Toast.makeText(progressDialog.getContext(), progressDialog.getContext().getResources().getString(R.string.failed_to_update), Toast.LENGTH_SHORT).show();
             }
-        } else
-            Toast.makeText(progressDialog.getContext(), progressDialog.getContext().getResources().getString(R.string.failed_to_update), Toast.LENGTH_SHORT).show();
+        }).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                progressDialog.hide();
+            }
+        });
+
+        return null;
     }
 }

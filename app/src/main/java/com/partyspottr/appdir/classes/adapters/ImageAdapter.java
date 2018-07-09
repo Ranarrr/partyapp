@@ -2,6 +2,7 @@ package com.partyspottr.appdir.classes.adapters;
 
 import android.app.Activity;
 import android.graphics.Bitmap;
+import android.media.ExifInterface;
 import android.net.Uri;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,6 +12,8 @@ import android.widget.ImageView;
 import com.partyspottr.appdir.R;
 import com.partyspottr.appdir.classes.Utilities;
 import com.partyspottr.appdir.classes.application.GlideApp;
+
+import java.io.IOException;
 
 public class ImageAdapter extends BaseAdapter {
     private Activity thisActivity;
@@ -54,6 +57,7 @@ public class ImageAdapter extends BaseAdapter {
                 @Override
                 public void run() {
                     Bitmap bmp = Utilities.decodeSampledBitmapFromResource(urls[position].toString(), 256, 64);
+                    bmp = Utilities.correctOrientation(urls[position].toString(), bmp);
                     bmps[position] = bmp;
                 }
             }.start();
@@ -71,6 +75,7 @@ public class ImageAdapter extends BaseAdapter {
                     @Override
                     public void run() {
                         Bitmap bmp = Utilities.decodeSampledBitmapFromResource(urls[position].toString(), 256, 64);
+                        bmp = Utilities.correctOrientation(urls[position].toString(), bmp);
                         bmps[position] = bmp;
                     }
                 }.start();

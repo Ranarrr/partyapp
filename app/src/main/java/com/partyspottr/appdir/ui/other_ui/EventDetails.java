@@ -10,6 +10,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -49,6 +50,10 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
+import com.google.android.gms.common.GooglePlayServicesRepairableException;
+import com.google.android.gms.location.places.Place;
+import com.google.android.gms.location.places.ui.PlacePicker;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -66,6 +71,7 @@ import com.partyspottr.appdir.classes.Participant;
 import com.partyspottr.appdir.classes.Requester;
 import com.partyspottr.appdir.classes.Utilities;
 import com.partyspottr.appdir.classes.adapters.GuestListAdapter;
+import com.partyspottr.appdir.classes.application.GlideApp;
 import com.partyspottr.appdir.classes.networking.GetLocationInfo;
 import com.partyspottr.appdir.enums.EventStilling;
 import com.partyspottr.appdir.enums.ReturnWhere;
@@ -92,6 +98,8 @@ import static com.partyspottr.appdir.ui.MainActivity.typeface;
 public class EventDetails extends AppCompatActivity {
     public static ImageChange edit_event_imagechange = new ImageChange();
     public static View.OnClickListener onclickDetails;
+
+    private Place attainedPlace;
 
     @Override
     protected void onStop() {
@@ -124,6 +132,7 @@ public class EventDetails extends AppCompatActivity {
             return;
         } else {
             event = Bruker.get().getEventFromID(extras.getLong("eventid"));
+
             if(event == null)
                 return;
         }
@@ -373,7 +382,7 @@ public class EventDetails extends AppCompatActivity {
                                 final TextView fjern_sluttidspunkt = edit_event.findViewById(R.id.fjern_sluttidspunkt);
                                 fjern_sluttidspunkt.setPaintFlags(fjern_sluttidspunkt.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
                                 final CheckBox vis_adresse = edit_event.findViewById(R.id.vis_adresse);
-                                final ImageButton legg_til_bilde = edit_event.findViewById(R.id.imageButton6);
+                                final ImageButton legg_til_bilde = edit_event.findViewById(R.id.legg_til_event_image);
                                 final EditText maks_deltakere = edit_event.findViewById(R.id.maks_deltakere);
                                 final EditText titletext = edit_event.findViewById(R.id.create_eventText);
                                 final EditText beskrivelse = edit_event.findViewById(R.id.beskrivelse_create);
@@ -382,64 +391,36 @@ public class EventDetails extends AppCompatActivity {
                                 sluttidspunkt.setPaintFlags(sluttidspunkt.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
                                 Toolbar create_event_toolbar = edit_event.findViewById(R.id.toolbar2);
                                 final AppCompatSpinner kategorier = edit_event.findViewById(R.id.kategori_spinner);
-                                final EditText postnr = edit_event.findViewById(R.id.create_postnr);
-                                final EditText gate = edit_event.findViewById(R.id.create_gate);
                                 final CheckBox vis_gjesteliste = edit_event.findViewById(R.id.vis_gjesteliste);
                                 final TextView by = edit_event.findViewById(R.id.by_textview);
                                 TextView title = edit_event.findViewById(R.id.create_event_title);
+                                TextView choose_from_map = edit_event.findViewById(R.id.choose_from_map);
+
+                                choose_from_map.setTypeface(MainActivity.typeface);
+
+                                choose_from_map.setPaintFlags(Paint.UNDERLINE_TEXT_FLAG);
 
                                 title.setTypeface(MainActivity.typeface);
                                 title.setText("Edit event");
+
+                                attainedPlace = null;
 
                                 if(kategorier != null) {
                                     kategorier.setAdapter(new ArrayAdapter<>(EventDetails.this, R.layout.spinner_mine, Arrays.asList("Narch", "Vors", "Party", "Concert", "Nightclub", "Birthday", "Festival"))); // TODO : OVERSETTE
                                     kategorier.setSelection(Utilities.getCategoryFromString(event.getCategory().toString()).ordinal());
                                 }
 
-                                final Handler textchangedHandler = new Handler();
-
-                                postnr.addTextChangedListener(new TextWatcher() {
+                                choose_from_map.setOnClickListener(new View.OnClickListener() {
                                     @Override
-                                    public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+                                    public void onClick(View v) {
+                                        PlacePicker.IntentBuilder builder = new PlacePicker.IntentBuilder();
 
-                                    @Override
-                                    public void onTextChanged(final CharSequence s, int start, int before, int count) {
-                                        textchangedHandler.removeCallbacksAndMessages(null);
-                                        textchangedHandler.postDelayed(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                if(postnr.getText().toString().length() > 3 && gate.getText().toString().length() > 4) {
-                                                    GetLocationInfo getLocationInfo = new GetLocationInfo(edit_event, gate.getText().toString(), s.toString());
-                                                    getLocationInfo.execute();
-                                                }
-                                            }
-                                        }, 200);
+                                        try {
+                                            startActivityForResult(builder.build(EventDetails.this), Utilities.PLACE_PICKER_CODE);
+                                        } catch (GooglePlayServicesRepairableException | GooglePlayServicesNotAvailableException e) {
+                                            e.printStackTrace();
+                                        }
                                     }
-
-                                    @Override
-                                    public void afterTextChanged(Editable s) {}
-                                });
-
-                                gate.addTextChangedListener(new TextWatcher() {
-                                    @Override
-                                    public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-
-                                    @Override
-                                    public void onTextChanged(final CharSequence s, int start, int before, int count) {
-                                        textchangedHandler.removeCallbacksAndMessages(null);
-                                        textchangedHandler.postDelayed(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                if(postnr.getText().toString().length() > 3 && gate.getText().toString().length() > 4) {
-                                                    GetLocationInfo getLocationInfo = new GetLocationInfo(edit_event, s.toString(), postnr.getText().toString());
-                                                    getLocationInfo.execute();
-                                                }
-                                            }
-                                        }, 200);
-                                    }
-
-                                    @Override
-                                    public void afterTextChanged(Editable s) {}
                                 });
 
                                 create_event_toolbar.setNavigationOnClickListener(new View.OnClickListener() {
@@ -639,14 +620,14 @@ public class EventDetails extends AppCompatActivity {
                                             return;
                                         }
 
-                                        if(edit_event_imagechange.getImage() == null) {
+                                        if(edit_event_imagechange.getBmp() == null && edit_event_imagechange.getBmp() == null) {
                                             new android.support.v7.app.AlertDialog.Builder(EventDetails.this, R.style.mydatepickerdialog)
                                                     .setTitle("Image")
                                                     .setMessage("Are you sure you do not want to add an image?")
                                                     .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                                                         @Override
                                                         public void onClick(DialogInterface somedialog, int which) {
-                                                            Utilities.CheckAddEvent(dato, time, datotil, timetil, titletext, gate, aldersgrense, maks_deltakere, postnr, by, beskrivelse, edit_event, vis_gjesteliste,
+                                                            Utilities.CheckAddEvent(dato, time, datotil, timetil, titletext, attainedPlace, aldersgrense, maks_deltakere, beskrivelse, edit_event, vis_gjesteliste,
                                                                     alle_deltakere, vis_adresse, kategorier, true, event.getEventId());
                                                         }
                                                     })
@@ -655,7 +636,7 @@ public class EventDetails extends AppCompatActivity {
                                                         public void onClick(DialogInterface dialog, int which) {}})
                                                     .show();
                                         } else
-                                            Utilities.CheckAddEvent(dato, time, datotil, timetil, titletext, gate, aldersgrense, maks_deltakere, postnr, by, beskrivelse, edit_event, vis_gjesteliste, alle_deltakere,
+                                            Utilities.CheckAddEvent(dato, time, datotil, timetil, titletext, attainedPlace, aldersgrense, maks_deltakere, beskrivelse, edit_event, vis_gjesteliste, alle_deltakere,
                                                     vis_adresse, kategorier, true, event.getEventId());
                                     }
                                 });
@@ -676,12 +657,22 @@ public class EventDetails extends AppCompatActivity {
                                             timetil.setText(Utilities.getDateStringFromMillis(event.getDateto(), false));
                                         }
 
+                                        final Bitmap bmp = Bruker.getEventImages().get(event.getHostStr() + "_" + event.getNameofevent() + "_" +
+                                                String.valueOf(Bruker.getEventImageSizeByName(event.getHostStr(), event.getNameofevent())));
+
+                                        new Thread(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                legg_til_bilde.setImageBitmap(bmp);
+                                            }
+                                        });
+
+                                        edit_event_imagechange.setBmp(bmp);
+
                                         titletext.setText(event.getNameofevent());
-                                        gate.setText(event.getAddress());
+                                        by.setText(String.format(Locale.ENGLISH, "%s, %s", event.getAddress(), event.getTown()));
                                         aldersgrense.setText(String.valueOf(event.getAgerestriction()));
                                         maks_deltakere.setText(String.valueOf(event.getMaxparticipants()));
-                                        postnr.setText(event.getPostalcode());
-                                        by.setText(event.getTown());
                                         beskrivelse.setText(event.getDescription());
                                         vis_gjesteliste.setChecked(event.isShowguestlist());
                                         alle_deltakere.setChecked(event.isPrivateEvent());
@@ -777,7 +768,7 @@ public class EventDetails extends AppCompatActivity {
             poststed.setVisibility(View.VISIBLE);
             findViewById(R.id.location_img).setVisibility(View.VISIBLE);
             sted.setText(String.format(Locale.ENGLISH, "%s", updatedEvent.getAddress()));
-            poststed.setText(String.format(Locale.ENGLISH, "%s, %s", updatedEvent.getPostalcode(), updatedEvent.getTown()));
+            poststed.setText(String.format(Locale.ENGLISH, "%s", updatedEvent.getTown()));
         } else if(updatedEvent.isPrivateEvent() && !updatedEvent.isBrukerInList(Bruker.get().getBrukernavn())) {
             sted.setVisibility(View.GONE);
             poststed.setVisibility(View.GONE);
@@ -1083,6 +1074,30 @@ public class EventDetails extends AppCompatActivity {
         }
 
         swipeRefreshLayout.setRefreshing(false);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if(requestCode == Utilities.PLACE_PICKER_CODE) {
+            if(resultCode == RESULT_OK) {
+                if(attainedPlace.getAddress() == null) {
+                    Toast.makeText(this, "Failed to get location, please try again..", Toast.LENGTH_SHORT).show();
+
+                    PlacePicker.IntentBuilder builder = new PlacePicker.IntentBuilder();
+
+                    try {
+                        startActivityForResult(builder.build(EventDetails.this), Utilities.PLACE_PICKER_CODE);
+                    } catch (GooglePlayServicesRepairableException | GooglePlayServicesNotAvailableException e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    attainedPlace = PlacePicker.getPlace(this, data);
+                    Toast.makeText(this, "Location set!", Toast.LENGTH_SHORT).show();
+                }
+            }
+        }
+
+        super.onActivityResult(requestCode, resultCode, data);
     }
 
     @Override

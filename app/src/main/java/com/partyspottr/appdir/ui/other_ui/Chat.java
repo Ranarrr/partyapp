@@ -1,5 +1,7 @@
 package com.partyspottr.appdir.ui.other_ui;
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -62,8 +64,6 @@ public class Chat extends AppCompatActivity {
     private ChatPreview preview;
     private String lastfooter;
     private boolean previousChatIsYours;
-
-    private String tokenOtherUser;
 
     private int doesChatMessageExist(ChatMessage chatMessage) {
         for(int i = 0; i < m_list.size(); i++) {
@@ -177,8 +177,6 @@ public class Chat extends AppCompatActivity {
             if(preview == null)
                 return;
         }
-
-
 
         final EditText write_msg = findViewById(R.id.write_msg);
         ImageButton send_msg_btn = findViewById(R.id.chat_send);
@@ -354,9 +352,6 @@ public class Chat extends AppCompatActivity {
             v.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
-                    if(!chatMessage.getBruker().equals(Bruker.get().getBrukernavn()))
-                        return true;
-
                     Context context = new ContextThemeWrapper(Chat.this, R.style.popup);
                     PopupMenu popupMenu = new PopupMenu(context, v);
 
@@ -387,6 +382,14 @@ public class Chat extends AppCompatActivity {
 
                                     return true;
 
+                                case R.id.copy_chat:
+                                    ClipboardManager clipboardManager = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+
+                                    if(clipboardManager != null)
+                                        clipboardManager.setPrimaryClip(ClipData.newPlainText("Partyspottr message", chatMessage.getMessage()));
+
+                                    return true;
+
                                 default:
                                     return true;
                             }
@@ -394,6 +397,10 @@ public class Chat extends AppCompatActivity {
                     });
 
                     popupMenu.inflate(R.menu.more_options_chatmessage);
+
+                    if(!chatMessage.getBruker().equals(Bruker.get().getBrukernavn()))
+                        popupMenu.getMenu().removeItem(R.id.delete_chat);
+
                     popupMenu.show();
 
                     return true;
@@ -405,18 +412,17 @@ public class Chat extends AppCompatActivity {
             if(m_list.size() >= 1) {
                 boolean isyourchat = chatMessage.getBruker().equals(Bruker.get().getBrukernavn());
 
-                if(isyourchat && previousChatIsYours) {
+                if(isyourchat && previousChatIsYours)
                     params.setMargins(0, (int) getResources().getDimension(R.dimen._3sdp), 0, 0);
-                } else if(isyourchat && !previousChatIsYours) {
+                else if(isyourchat)
                     params.setMargins(0, (int) getResources().getDimension(R.dimen._15sdp), 0, 0);
-                } else if(!isyourchat && !previousChatIsYours) {
+                else if(!previousChatIsYours)
                     params.setMargins(0, (int) getResources().getDimension(R.dimen._3sdp), 0, 0);
-                } else if(!isyourchat && previousChatIsYours) {
+                else
                     params.setMargins(0, (int) getResources().getDimension(R.dimen._15sdp), 0, 0);
-                }
-            } else {
+
+            } else
                 params.setMargins(0, 0, 0, (int) getResources().getDimension(R.dimen._10sdp));
-            }
 
             previousChatIsYours = chatMessage.getBruker().equals(Bruker.get().getBrukernavn());
 

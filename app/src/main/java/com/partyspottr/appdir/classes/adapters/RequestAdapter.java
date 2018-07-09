@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
@@ -24,6 +25,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.storage.StorageReference;
 import com.google.gson.Gson;
 import com.partyspottr.appdir.R;
 import com.partyspottr.appdir.classes.Bruker;
@@ -32,8 +34,10 @@ import com.partyspottr.appdir.classes.Participant;
 import com.partyspottr.appdir.classes.Requester;
 import com.partyspottr.appdir.classes.Utilities;
 import com.partyspottr.appdir.ui.MainActivity;
+import com.partyspottr.appdir.ui.ProfilActivity;
 import com.partyspottr.appdir.ui.other_ui.EventDetails;
 
+import java.util.ArrayList;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Locale;
@@ -43,6 +47,7 @@ import java.util.Locale;
  */
 
 public class RequestAdapter extends BaseAdapter {
+    List<Bitmap> profilepics;
 
     private List<Requester> brukerList;
     private Activity thisActivity;
@@ -52,6 +57,7 @@ public class RequestAdapter extends BaseAdapter {
         eventId = eventid;
         thisActivity = activity;
         brukerList = list;
+        profilepics = new ArrayList<>();
     }
 
     @Override
@@ -86,9 +92,30 @@ public class RequestAdapter extends BaseAdapter {
             ImageButton accept = convertView.findViewById(R.id.request_accept);
             ImageButton reject = convertView.findViewById(R.id.request_reject);
             ImageView countryflag = convertView.findViewById(R.id.request_flag);
+            final ImageView profile_pic = convertView.findViewById(R.id.request_profile_pic);
 
             brukernavn.setTypeface(MainActivity.typeface);
             by.setTypeface(MainActivity.typeface);
+
+            if(profilepics.size() > position && profilepics.get(position) != null)
+                profile_pic.setImageBitmap(profilepics.get(position));
+            else if(profilepics.size() <= position) {
+                StorageReference ref = ProfilActivity.storage.getReference().child(requester.getBrukernavn());
+
+                ref.getBytes(2048 * 2048).addOnSuccessListener(new OnSuccessListener<byte[]>() {
+                    @Override
+                    public void onSuccess(byte[] bytes) {
+                        Bitmap bmp = Utilities.decodeSampledBitmapFromByteArray(bytes, 96, 96);
+                        profilepics.add(bmp);
+                        profile_pic.setImageBitmap(bmp);
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        profilepics.add(null);
+                    }
+                });
+            }
 
             if(!requester.getCountry().equals("Dominican Republic")) { // because android studio reserves the resource name "do"
                 String identifier = CountryCodes.getCountrySign(requester.getCountry()).toLowerCase();

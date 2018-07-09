@@ -45,6 +45,8 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Locale;
+import java.util.SimpleTimeZone;
+import java.util.TimeZone;
 
 /**
  * Created by Ranarrr on 30-Jan-18.
@@ -219,6 +221,7 @@ public class min_bil_fragment extends Fragment {
         final TextView minutter = view.findViewById(R.id.ny_tid_minutter);
         final TextView time_progress = view.findViewById(R.id.time_progress);
         final Button avslutt_tid = view.findViewById(R.id.chauffeur_avslutt);
+        final Spinner biler = view.findViewById(R.id.bil_spinner);
 
         avslutt_tid.setTypeface(MainActivity.typeface);
         ny_tid_title.setTypeface(MainActivity.typeface);
@@ -229,16 +232,29 @@ public class min_bil_fragment extends Fragment {
         bil.setTypeface(MainActivity.typeface);
         plassering.setTypeface(MainActivity.typeface);
 
+        if(getActivity() == null)
+            return;
+
+        List<String> listcars = new ArrayList<>();
+
+        for(Car car : Bruker.get().getChauffeur().getListOfCars()) {
+            listcars.add(String.format(Locale.ENGLISH, "%s %s", car.getFarge(), car.getMerke()));
+        }
+
+        ArrayAdapter<String> biler_adapter = new ArrayAdapter<>(getActivity(), R.layout.spinner_mine, listcars);
+        biler.setAdapter(biler_adapter);
+
         onClickListener = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 AppCompatSpinner timer_tid = view.findViewById(R.id.timer_spinner);
                 AppCompatSpinner minutter_tid = view.findViewById(R.id.minutter_spinner);
                 final AppCompatSpinner passasjerer = view.findViewById(R.id.passasjer_spinner);
-                final AppCompatSpinner biler = view.findViewById(R.id.bil_spinner);
 
                 final GregorianCalendar to = new GregorianCalendar();
+
                 to.setTimeInMillis(System.currentTimeMillis());
+                to.setTimeZone(TimeZone.getDefault());
 
                 if((int) timer_tid.getSelectedItem() > 0)
                     to.add(Calendar.HOUR_OF_DAY, (int) timer_tid.getSelectedItem());
@@ -402,9 +418,11 @@ public class min_bil_fragment extends Fragment {
                     Bruker.get().getChauffeur().setM_capacity(0);
                     Bruker.get().getChauffeur().LagreChauffeur();
 
-                    ny_tid_title.setText(getString(R.string.start_new_time));
-                    legg_til_tid.setVisibility(View.VISIBLE);
-                    timer_layout.setVisibility(View.GONE);
+                    if(getContext() != null) {
+                        ny_tid_title.setText(getString(R.string.start_new_time));
+                        legg_til_tid.setVisibility(View.VISIBLE);
+                        timer_layout.setVisibility(View.GONE);
+                    }
                 }
             };
 

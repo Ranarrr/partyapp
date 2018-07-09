@@ -4,6 +4,7 @@ import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.DialogInterface;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -109,6 +110,16 @@ public class Profile extends AppCompatActivity {
         final Button add_friend = findViewById(R.id.add_friend);
         final CustomViewPager pager = findViewById(R.id.customviewpager);
         final TextView skal_paa = findViewById(R.id.profil_going_to);
+        final ImageView profile_pic = findViewById(R.id.profile_picture);
+
+        StorageReference ref = ProfilActivity.storage.getReference().child(brukernavn);
+
+        ref.getBytes(2048 * 2048).addOnSuccessListener(new OnSuccessListener<byte[]>() {
+            @Override
+            public void onSuccess(byte[] bytes) {
+                profile_pic.setImageBitmap(Utilities.decodeSampledBitmapFromByteArray(bytes, 256, 256));
+            }
+        });
 
         toolbar.setNavigationIcon(getResources().getDrawable(R.drawable.left_arrow));
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
@@ -208,6 +219,8 @@ public class Profile extends AppCompatActivity {
                             EventSlidePagerAdapter adapter = new EventSlidePagerAdapter(Profile.this, eventids);
                             pager.setAdapter(adapter);
                         }
+
+
 
                         send_message.setOnClickListener(new View.OnClickListener() {
                             @Override

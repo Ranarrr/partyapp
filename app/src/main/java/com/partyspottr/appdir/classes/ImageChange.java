@@ -16,30 +16,20 @@ import java.util.List;
  */
 
 public class ImageChange {
-
-    private File image;
     private Uri uri;
     private Bitmap bmp;
     private List<PropertyChangeListener> listeners = new ArrayList<>();
 
     public ImageChange() {}
 
-    private void notifyListeners(Object object, File oldvalue, File newvalue) {
+    private void notifyListeners(Object object, Bitmap oldvalue, Bitmap newvalue) {
         for(PropertyChangeListener image : listeners) {
-            image.propertyChange(new PropertyChangeEvent(object, "image", oldvalue, newvalue));
+            image.propertyChange(new PropertyChangeEvent(object, "bmp", oldvalue, newvalue));
         }
     }
 
     public void addChangeListener(PropertyChangeListener newListener) {
         listeners.add(newListener);
-    }
-
-    public File getImage() {
-        return image;
-    }
-
-    public void setImage(File image) {
-        notifyListeners(this, this.image, this.image = image);
     }
 
     public Uri getUri() {
@@ -55,6 +45,6 @@ public class ImageChange {
     }
 
     public void setBmp(Bitmap bmp) {
-        this.bmp = bmp;
+        notifyListeners(this, this.bmp, this.bmp = bmp);
     }
 }

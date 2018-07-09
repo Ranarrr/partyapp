@@ -19,8 +19,8 @@
         android:textColor="@color/white"
         android:textSize="@dimen/_14ssp"
         app:layout_constraintBottom_toTopOf="@+id/request_flag"
-        app:layout_constraintStart_toEndOf="@+id/imageButton8"
-        app:layout_constraintTop_toTopOf="@+id/imageButton8" />
+        app:layout_constraintStart_toEndOf="@+id/request_profile_pic"
+        app:layout_constraintTop_toTopOf="@+id/request_profile_pic" />
 
     <ImageView
         android:id="@+id/request_flag"
@@ -28,7 +28,7 @@
         android:layout_height="14dp"
         android:layout_marginBottom="@dimen/_5sdp"
         android:scaleType="fitXY"
-        app:layout_constraintBottom_toBottomOf="@+id/imageButton8"
+        app:layout_constraintBottom_toBottomOf="@+id/request_profile_pic"
         app:layout_constraintStart_toStartOf="@+id/brukernavn_foresporsel"
         app:srcCompat="@color/colorAccent" />
 
@@ -76,7 +76,7 @@
         app:srcCompat="@drawable/reject" />
 
     <ImageButton
-        android:id="@+id/imageButton8"
+        android:id="@+id/request_profile_pic"
         android:layout_width="@dimen/_50sdp"
         android:layout_height="@dimen/_50sdp"
         android:background="@color/transparent"

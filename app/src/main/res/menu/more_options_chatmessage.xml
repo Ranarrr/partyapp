@@ -5,4 +5,8 @@
     <item
         android:id="@+id/delete_chat"
         android:title="Delete" />
+
+    <item
+        android:id="@+id/copy_chat"
+        android:title="Copy" />
 </menu>

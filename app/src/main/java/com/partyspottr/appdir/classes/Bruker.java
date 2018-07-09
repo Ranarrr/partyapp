@@ -581,8 +581,12 @@ public class Bruker {
     }
 
     public String getBrukernavn() {
-        if(brukernavn == null)
+        if(brukernavn == null) {
+            if(sharedPreferences == null)
+                System.exit(0);
+
             brukernavn = sharedPreferences.getString(brukernavnElem, "");
+        }
 
         return brukernavn.toLowerCase();
     }

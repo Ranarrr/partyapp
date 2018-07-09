@@ -10,11 +10,13 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.location.Address;
 import android.location.Criteria;
 import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
+import android.media.ExifInterface;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -39,6 +41,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.location.places.Place;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
@@ -90,7 +93,7 @@ import static com.partyspottr.appdir.ui.MainActivity.typeface;
  */
 
 public class Utilities {
-    public static final int SEND_SMS_REQUEST_CODE = 1002;
+    public static final int PLACE_PICKER_CODE = 1002;
     public static final int LOCATION_REQUEST_CODE = 1000;
     public static final int READ_EXTERNAL_STORAGE_CODE = 1001;
     public static final int READ_EXTERNAL_STORAGE_PROFILE_CODE = 1003;
@@ -552,10 +555,6 @@ public class Utilities {
                         event.setParticipants(participants);
                         break;
 
-                    case "postalcode":
-                        event.setPostalcode(eventinfo.getValue(String.class));
-                        break;
-
                     case "requests":
                         List<Requester> requests = new Gson().fromJson(eventinfo.getValue(String.class), listRequestsType);
                         event.setRequests(requests);
@@ -908,8 +907,11 @@ public class Utilities {
         });
     }
 
-    public static void CheckAddEvent(EditText dato, EditText time, EditText datotil, EditText timetil, EditText titletext, EditText gate, EditText aldersgrense, EditText maks_deltakere, EditText postnr, TextView by,
-                                     EditText beskrivelse, Dialog dialog, CheckBox vis_gjesteliste, CheckBox alle_deltakere, CheckBox vis_adresse, AppCompatSpinner kategorier, boolean shouldupdate, @Nullable Long eventid) {
+    public static void CheckAddEvent(EditText dato, EditText time, EditText datotil, EditText timetil, EditText titletext, Place attainedPlace, EditText aldersgrense, EditText maks_deltakere,
+                                     EditText beskrivelse, Dialog dialog, CheckBox vis_gjesteliste, CheckBox alle_deltakere, CheckBox vis_adresse, AppCompatSpinner kategorier, boolean shouldupdate,
+                                     @Nullable Long eventid) {
+        String[] location = attainedPlace.getAddress().toString().split(",");
+
         if(!datotil.getText().toString().isEmpty() && !timetil.getText().toString().isEmpty()) {
             GregorianCalendar datefrom, dateto;
 
@@ -925,7 +927,7 @@ public class Utilities {
 
             if(dateto != null && datefrom != null) {
                 if(dateto.before(datefrom)) {
-                    Toast.makeText(dato.getContext(), "Please choose a starting date and time that is after the ending date and time.", Toast.LENGTH_LONG).show();
+                    Toast.makeText(dato.getContext(), "Please choose a ending date and time that is after the starting date and time.", Toast.LENGTH_LONG).show();
                     return;
                 }
 
@@ -938,14 +940,14 @@ public class Utilities {
                 return;
             }
 
-            Event creating_event = new Event(shouldupdate ? eventid : 0, titletext.getText().toString(), gate.getText().toString(), "", Bruker.get().getBrukernavn(),
-                    alle_deltakere.isChecked(),0.0, 0.0, datefrom.getTimeInMillis(), dateto.getTimeInMillis(), Integer.valueOf(aldersgrense.getText().toString()),
+            Event creating_event = new Event(shouldupdate ? eventid : 0, titletext.getText().toString(), location[0], location[2].trim(), Bruker.get().getBrukernavn(),
+                    alle_deltakere.isChecked(), attainedPlace.getLatLng().longitude, attainedPlace.getLatLng().latitude, datefrom.getTimeInMillis(), dateto.getTimeInMillis(), Integer.valueOf(aldersgrense.getText().toString()),
                     new ArrayList<>(Collections.singletonList(Participant.convertBrukerParticipant(Bruker.get(), EventStilling.VERT))), Integer.valueOf(maks_deltakere.getText().toString()),
-                    postnr.getText().toString(), by.getText().toString(), beskrivelse.getText().toString(), vis_gjesteliste.isChecked(), vis_adresse.isChecked(), new ArrayList<Requester>(),
-                    ProfilActivity.imageChange.getImage() != null, getCategoryFromString((String) kategorier.getSelectedItem()));
+                    location[1].trim(), beskrivelse.getText().toString(), vis_gjesteliste.isChecked(), vis_adresse.isChecked(), new ArrayList<Requester>(),
+                    ProfilActivity.imageChange.getBmp() != null, getCategoryFromString((String) kategorier.getSelectedItem()));
 
             if(shouldupdate) {
-                if(EventDetails.edit_event_imagechange.getImage() != null)
+                if(EventDetails.edit_event_imagechange.getBmp() != null)
                     creating_event.setHasimage(true);
                 else {
                     Event event = Bruker.get().getEventFromID(eventid);
@@ -981,14 +983,14 @@ public class Utilities {
                 return;
             }
 
-            Event creating_event = new Event(shouldupdate ? eventid : 0, titletext.getText().toString(), gate.getText().toString(), "", Bruker.get().getBrukernavn(),
-                    alle_deltakere.isChecked(),0.0, 0.0, datefrom.getTimeInMillis(), 0, Integer.valueOf(aldersgrense.getText().toString()),
+            Event creating_event = new Event(shouldupdate ? eventid : 0, titletext.getText().toString(), location[0], location[2].trim(), Bruker.get().getBrukernavn(),
+                    alle_deltakere.isChecked(),attainedPlace.getLatLng().longitude, attainedPlace.getLatLng().latitude, datefrom.getTimeInMillis(), 0, Integer.valueOf(aldersgrense.getText().toString()),
                     new ArrayList<>(Collections.singletonList(Participant.convertBrukerParticipant(Bruker.get(), EventStilling.VERT))), Integer.valueOf(maks_deltakere.getText().toString()),
-                    postnr.getText().toString(), by.getText().toString(), beskrivelse.getText().toString(), vis_gjesteliste.isChecked(), vis_adresse.isChecked(), new ArrayList<Requester>(),
-                    ProfilActivity.imageChange.getImage() != null, getCategoryFromString((String) kategorier.getSelectedItem()));
+                    location[1].trim(), beskrivelse.getText().toString(), vis_gjesteliste.isChecked(), vis_adresse.isChecked(), new ArrayList<Requester>(),
+                    ProfilActivity.imageChange.getBmp() != null, getCategoryFromString((String) kategorier.getSelectedItem()));
 
             if(shouldupdate) {
-                if(EventDetails.edit_event_imagechange.getImage() != null)
+                if(EventDetails.edit_event_imagechange.getBmp() != null)
                     creating_event.setHasimage(true);
                 else {
                     Event event = Bruker.get().getEventFromID(eventid);
@@ -1007,6 +1009,49 @@ public class Utilities {
                 addEvent.execute();
             }
         }
+    }
+
+    public static Bitmap correctOrientation(String path, Bitmap bmp) {
+        try {
+            ExifInterface ei = new ExifInterface(path);
+            int orientation = ei.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+
+            switch (orientation) {
+                case ExifInterface.ORIENTATION_ROTATE_90:
+                    return rotate(bmp, 90);
+
+                case ExifInterface.ORIENTATION_ROTATE_180:
+                    return rotate(bmp, 180);
+
+                case ExifInterface.ORIENTATION_ROTATE_270:
+                    return rotate(bmp, 270);
+
+                case ExifInterface.ORIENTATION_FLIP_HORIZONTAL:
+                    return flip(bmp, true, false);
+
+                case ExifInterface.ORIENTATION_FLIP_VERTICAL:
+                    return flip(bmp, false, true);
+
+                default:
+                    return bmp;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    private static Bitmap rotate(Bitmap bitmap, float degrees) {
+        Matrix matrix = new Matrix();
+        matrix.postRotate(degrees);
+        return Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+    }
+
+    private static Bitmap flip(Bitmap bitmap, boolean horizontal, boolean vertical) {
+        Matrix matrix = new Matrix();
+        matrix.preScale(horizontal ? -1 : 1, vertical ? -1 : 1);
+        return Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
     }
 
     /**
@@ -1298,7 +1343,6 @@ public class Utilities {
     }
 
     public static Bitmap decodeSampledBitmapFromResource(String path, int reqWidth, int reqHeight) {
-
         // First decode with inJustDecodeBounds=true to check dimensions
         final BitmapFactory.Options options = new BitmapFactory.Options();
         options.inJustDecodeBounds = true;
@@ -1310,5 +1354,18 @@ public class Utilities {
         // Decode bitmap with inSampleSize set
         options.inJustDecodeBounds = false;
         return BitmapFactory.decodeFile(path, options);
+    }
+
+    public static Bitmap decodeSampledBitmapFromByteArray(byte[] arr, int reqWidth, int reqHeight) {
+        final BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+        BitmapFactory.decodeByteArray(arr, 0, arr.length, options);
+
+        // Calculate inSampleSize
+        options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight);
+
+        // Decode bitmap with inSampleSize set
+        options.inJustDecodeBounds = false;
+        return BitmapFactory.decodeByteArray(arr, 0, arr.length, options);
     }
 }
